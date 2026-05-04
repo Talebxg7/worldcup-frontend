@@ -661,7 +661,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 }
 
-class _UserHeaderSection extends StatelessWidget {
+class _UserHeaderSection extends StatefulWidget {
   const _UserHeaderSection({
     required this.profileImageUrl,
     required this.username,
@@ -681,9 +681,16 @@ class _UserHeaderSection extends StatelessWidget {
   final VoidCallback onAvatarTap;
 
   @override
+  State<_UserHeaderSection> createState() => _UserHeaderSectionState();
+}
+
+class _UserHeaderSectionState extends State<_UserHeaderSection> {
+  bool _obscureEmail = false;
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final hasImage = profileImageUrl.trim().isNotEmpty;
+    final hasImage = widget.profileImageUrl.trim().isNotEmpty;
 
     return Card(
       color: theme.brightness == Brightness.dark ? AppColors.darkCard : theme.cardTheme.color,
@@ -693,7 +700,7 @@ class _UserHeaderSection extends StatelessWidget {
         child: Column(
           children: [
             GestureDetector(
-              onTap: onAvatarTap,
+              onTap: widget.onAvatarTap,
               child: Stack(
                 alignment: Alignment.bottomRight,
                 children: [
@@ -702,15 +709,15 @@ class _UserHeaderSection extends StatelessWidget {
                     backgroundColor: AppColors.darkSurface,
                     child: ClipOval(
                       child: hasImage
-                          ? (profileImageUrl.startsWith('data:image')
+                          ? (widget.profileImageUrl.startsWith('data:image')
                               ? Image.memory(
-                                  base64Decode(profileImageUrl.split(',').last),
+                                  base64Decode(widget.profileImageUrl.split(',').last),
                                   width: 96,
                                   height: 96,
                                   fit: BoxFit.cover,
                                 )
                               : CachedNetworkImage(
-                                  imageUrl: profileImageUrl,
+                                  imageUrl: widget.profileImageUrl,
                                   width: 96,
                                   height: 96,
                                   fit: BoxFit.cover,
@@ -749,7 +756,7 @@ class _UserHeaderSection extends StatelessWidget {
               children: [
                 Flexible(
                   child: Text(
-                    username,
+                    widget.username,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.outfit(
                       fontSize: 24,
@@ -758,7 +765,7 @@ class _UserHeaderSection extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (isAdmin) ...[
+                if (widget.isAdmin) ...[
                   const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -780,16 +787,30 @@ class _UserHeaderSection extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 6),
-            Text(
-              email,
-              style: GoogleFonts.outfit(
-                fontSize: 14,
-                color: theme.colorScheme.onSurface.withOpacity(0.62),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  _obscureEmail ? '••••••••••••@••••.•••' : widget.email,
+                  style: GoogleFonts.outfit(
+                    fontSize: 14,
+                    color: theme.colorScheme.onSurface.withOpacity(0.62),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                GestureDetector(
+                  onTap: () => setState(() => _obscureEmail = !_obscureEmail),
+                  child: Icon(
+                    _obscureEmail ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                    size: 16,
+                    color: theme.colorScheme.onSurface.withOpacity(0.5),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             Text(
-              'Accuracy: $accuracyLabel',
+              'Accuracy: ${widget.accuracyLabel}',
               style: GoogleFonts.outfit(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -798,9 +819,10 @@ class _UserHeaderSection extends StatelessWidget {
             ),
             const SizedBox(height: 18),
             SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: onEditProfile,
+              width: 140,
+              height: 38,
+              child: FilledButton.icon(
+                onPressed: widget.onEditProfile,
                 icon: const Icon(Icons.edit_rounded, size: 20),
                 label: const Text('Edit profile'),
                 style: OutlinedButton.styleFrom(
