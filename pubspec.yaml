@@ -1,0 +1,80 @@
+name: worldcup_predictor
+description: "World Cup 2026 Prediction Game - Compete with friends!"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI & Icons
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.2.1
+  flutter_svg: ^2.0.10+1
+  lottie: ^3.1.2
+  cached_network_image: ^3.3.1
+  shimmer: ^3.0.0
+
+  # State Management
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+
+  # Navigation
+  go_router: ^14.2.7
+
+  # Networking
+  dio: ^5.4.3+1
+  pretty_dio_logger: ^1.3.1
+
+  # Storage & Auth
+  flutter_secure_storage: ^9.0.0
+  shared_preferences: ^2.2.3
+
+
+  # Push Notifications
+  firebase_core: ^3.3.0
+  firebase_auth: ^5.3.4
+  firebase_messaging: ^15.1.0
+  flutter_local_notifications: ^17.2.2
+  timezone: ^0.9.4
+  url_launcher: ^6.3.1
+  webview_flutter: ^4.10.0
+
+  # Utils
+  intl: ^0.20.2
+  timeago: ^3.6.1
+  equatable: ^2.0.5
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+
+  # Charts & Animations
+  fl_chart: ^0.68.0
+  animated_text_kit: ^4.2.2
+  flutter_animate: ^4.5.0
+  confetti: ^0.7.0
+  http: ^1.6.0
+  cloud_firestore: ^5.6.12
+  image_picker: ^1.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.4.11
+  freezed: ^2.5.2
+  json_serializable: ^6.8.0
+  riverpod_generator: ^2.4.0
+  custom_lint: ^0.6.4
+  riverpod_lint: ^2.3.10
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/animations/
+    - assets/flags/

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1083510169013",
+    "project_id": "fantacy-game-4e7ba",
+    "storage_bucket": "fantacy-game-4e7ba.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1083510169013:android:9fbbf59ab9b580d6828dfc",
+        "android_client_info": {
+          "package_name": "com.worldcup.worldcup_predictor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvzcjyW5bSJA4PiqGyqNFCNN3xqv4A2xQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

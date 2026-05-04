@@ -1,0 +1,34 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter (debug)",
+      "request": "launch",
+      "type": "dart",
+      "program": "${workspaceFolder}/lib/main.dart",
+      "args": [
+        "--dart-define-from-file=${workspaceFolder}/api_keys.json"
+      ]
+    },
+    {
+      "name": "Flutter (profile)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile",
+      "program": "${workspaceFolder}/lib/main.dart",
+      "args": [
+        "--dart-define-from-file=${workspaceFolder}/api_keys.json"
+      ]
+    },
+    {
+      "name": "Flutter (release)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release",
+      "program": "${workspaceFolder}/lib/main.dart",
+      "args": [
+        "--dart-define-from-file=${workspaceFolder}/api_keys.json"
+      ]
+    }
+  ]
+}
