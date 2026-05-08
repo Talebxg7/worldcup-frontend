@@ -23,7 +23,7 @@ class PredictionFixturesScreen extends StatefulWidget {
 
 class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
   late Future<List<FixtureModel>> _future;
-  _FixturesFilter _filter = _FixturesFilter.all;
+  _FixturesFilter _filter = _FixturesFilter.allUpcoming;
   final Set<int> _activeAlerts = {};
 
   @override
