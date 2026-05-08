@@ -99,6 +99,8 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
     {'id': 307, 'name': 'Saudi Pro League'},
     {'id': 269, 'name': 'Qatar Stars League'},
     {'id': 387, 'name': 'Jordanian Pro League'},
+    {'id': 200, 'name': 'Botola Pro'},
+    {'id': 542, 'name': 'Iraqi League'},
   ];
 
   Future<void> _refresh() async {

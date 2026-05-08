@@ -104,6 +104,8 @@ const _trackedLeagues = [
   _TrackedLeague(leagueId: 307, season: 2024, title: 'Saudi Pro League', countryCode: 'sa'),
   _TrackedLeague(leagueId: 269, season: 2024, title: 'Qatar Stars League', countryCode: 'qa'),
   _TrackedLeague(leagueId: 387, season: 2025, title: 'Jordanian Pro League', countryCode: 'jo'),
+  _TrackedLeague(leagueId: 200, season: 2024, title: 'Botola Pro', countryCode: 'ma'),
+  _TrackedLeague(leagueId: 542, season: 2024, title: 'Iraqi League', countryCode: 'iq'),
 ];
 
 Map<String, Map<String, dynamic>> _decodePredictions(String? raw) {

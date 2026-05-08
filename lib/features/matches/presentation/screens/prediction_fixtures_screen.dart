@@ -32,7 +32,6 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
     _future = FootballApiService.getFixtures(
       league: widget.leagueId,
       season: FootballConfig.currentSeason(),
-      status: 'NS',
     );
   }
 
@@ -41,7 +40,6 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
       _future = FootballApiService.getFixtures(
         league: widget.leagueId,
         season: FootballConfig.currentSeason(),
-        status: 'NS',
       );
     });
     await _future;
@@ -83,27 +81,48 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
               itemCount: filtered.length + 1,
               itemBuilder: (context, i) {
                 if (i == 0) {
+                  final isDark = Theme.of(context).brightness == Brightness.dark;
+                  final chipTextStyle = TextStyle(color: isDark ? Colors.white : Colors.black);
+                  
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
-                    child: Wrap(
-                      spacing: 8,
-                      children: [
-                        ChoiceChip(
-                          label: const Text('All upcoming'),
-                          selected: _filter == _FixturesFilter.all,
-                          onSelected: (_) => setState(() => _filter = _FixturesFilter.all),
-                        ),
-                        ChoiceChip(
-                          label: const Text('Today'),
-                          selected: _filter == _FixturesFilter.today,
-                          onSelected: (_) => setState(() => _filter = _FixturesFilter.today),
-                        ),
-                        ChoiceChip(
-                          label: const Text('Tomorrow'),
-                          selected: _filter == _FixturesFilter.tomorrow,
-                          onSelected: (_) => setState(() => _filter = _FixturesFilter.tomorrow),
-                        ),
-                      ],
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Wrap(
+                        spacing: 8,
+                        children: [
+                          ChoiceChip(
+                            label: Text('All upcoming', style: chipTextStyle),
+                            selected: _filter == _FixturesFilter.allUpcoming,
+                            onSelected: (_) => setState(() => _filter = _FixturesFilter.allUpcoming),
+                          ),
+                          ChoiceChip(
+                            label: Text('Today', style: chipTextStyle),
+                            selected: _filter == _FixturesFilter.today,
+                            onSelected: (_) => setState(() => _filter = _FixturesFilter.today),
+                          ),
+                          ChoiceChip(
+                            label: Text('Tomorrow', style: chipTextStyle),
+                            selected: _filter == _FixturesFilter.tomorrow,
+                            onSelected: (_) => setState(() => _filter = _FixturesFilter.tomorrow),
+                          ),
+                          ChoiceChip(
+                            label: Text('Results Today', style: chipTextStyle),
+                            selected: _filter == _FixturesFilter.resultsToday,
+                            onSelected: (_) => setState(() => _filter = _FixturesFilter.resultsToday),
+                          ),
+                          ChoiceChip(
+                            label: Text('Yesterday', style: chipTextStyle),
+                            selected: _filter == _FixturesFilter.yesterday,
+                            onSelected: (_) => setState(() => _filter = _FixturesFilter.yesterday),
+                          ),
+                          ChoiceChip(
+                            label: Text('Before Yesterday', style: chipTextStyle),
+                            selected: _filter == _FixturesFilter.beforeYesterday,
+                            onSelected: (_) => setState(() => _filter = _FixturesFilter.beforeYesterday),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 }
@@ -138,87 +157,99 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
                           ],
                         ),
                         const SizedBox(height: 12),
-                        Text(kickoff, style: Theme.of(context).textTheme.bodySmall),
-                        const SizedBox(height: 10),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            OutlinedButton.icon(
-                              onPressed: f.date == null
-                                  ? null
-                                  : () async {
-                                      final isActive = _activeAlerts.contains(f.id);
-                                      if (isActive) {
-                                        await LocalNotificationsService.instance.cancelMatchReminders(f.id);
-                                        setState(() => _activeAlerts.remove(f.id));
-                                        if (!mounted) return;
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('Match alert canceled')),
-                                        );
-                                      } else {
-                                        await LocalNotificationsService.instance.scheduleMatchReminders(
-                                          fixtureId: f.id,
-                                          homeTeam: f.homeTeam,
-                                          awayTeam: f.awayTeam,
-                                          kickoff: f.date!,
-                                        );
-                                        setState(() => _activeAlerts.add(f.id));
-                                        if (!mounted) return;
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('Match alert set')),
-                                        );
-                                      }
-                                    },
-                              icon: Icon(
-                                _activeAlerts.contains(f.id)
-                                    ? Icons.notifications_active
-                                    : Icons.notifications_active_outlined,
-                                color: _activeAlerts.contains(f.id) ? Colors.greenAccent : null,
-                              ),
-                              label: Text(
-                                _activeAlerts.contains(f.id) ? 'Alerted' : 'Alert',
-                                style: TextStyle(
-                                  color: _activeAlerts.contains(f.id) ? Colors.greenAccent : null,
+                            Text(kickoff, style: Theme.of(context).textTheme.bodySmall),
+                            if (f.status == 'FT' || f.status == 'AET' || f.status == 'PEN' || f.status == 'LIVE' || f.status == '1H' || f.status == '2H' || f.status == 'HT')
+                              Expanded(
+                                child: Text(
+                                  '  |  Score: ${f.homeGoals ?? 0} - ${f.awayGoals ?? 0} ${['1H', '2H', 'HT', 'LIVE'].contains(f.status) ? '(Live)' : '(FT)'}',
+                                  style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.green),
                                 ),
                               ),
-                              style: OutlinedButton.styleFrom(
-                                side: BorderSide(
-                                  color: _activeAlerts.contains(f.id)
-                                      ? Colors.greenAccent
-                                      : Theme.of(context).colorScheme.outline,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            ElevatedButton(
-                              onPressed: canPredict
-                                  ? () {
-                                      final kickoffTime =
-                                          f.date ?? DateTime.now().add(const Duration(hours: 2));
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (_) => PredictionScreen(
-                                            fixtureId: f.id,
-                                            kickoffTime: kickoffTime,
-                                            homeTeam: f.homeTeam,
-                                            awayTeam: f.awayTeam,
-                                            homeLogo: f.homeLogo,
-                                            awayLogo: f.awayLogo,
-                                            homeTeamId: f.homeTeamId,
-                                            awayTeamId: f.awayTeamId,
-                                            leagueId: widget.leagueId,
-                                            leagueName: widget.leagueName,
-                                            roomId: widget.roomId,
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  : null,
-                              child: const Text('Predict'),
-                            ),
                           ],
                         ),
-                        if (!canPredict)
+                        const SizedBox(height: 10),
+                        if (f.status == 'NS' || f.status == 'TBD')
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              OutlinedButton.icon(
+                                onPressed: f.date == null
+                                    ? null
+                                    : () async {
+                                        final isActive = _activeAlerts.contains(f.id);
+                                        if (isActive) {
+                                          await LocalNotificationsService.instance.cancelMatchReminders(f.id);
+                                          setState(() => _activeAlerts.remove(f.id));
+                                          if (!mounted) return;
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text('Match alert canceled')),
+                                          );
+                                        } else {
+                                          await LocalNotificationsService.instance.scheduleMatchReminders(
+                                            fixtureId: f.id,
+                                            homeTeam: f.homeTeam,
+                                            awayTeam: f.awayTeam,
+                                            kickoff: f.date!,
+                                          );
+                                          setState(() => _activeAlerts.add(f.id));
+                                          if (!mounted) return;
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text('Match alert set')),
+                                          );
+                                        }
+                                      },
+                                icon: Icon(
+                                  _activeAlerts.contains(f.id)
+                                      ? Icons.notifications_active
+                                      : Icons.notifications_active_outlined,
+                                  color: _activeAlerts.contains(f.id) ? Colors.greenAccent : null,
+                                ),
+                                label: Text(
+                                  _activeAlerts.contains(f.id) ? 'Alerted' : 'Alert',
+                                  style: TextStyle(
+                                    color: _activeAlerts.contains(f.id) ? Colors.greenAccent : null,
+                                  ),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(
+                                    color: _activeAlerts.contains(f.id)
+                                        ? Colors.greenAccent
+                                        : Theme.of(context).colorScheme.outline,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              ElevatedButton(
+                                onPressed: canPredict
+                                    ? () {
+                                        final kickoffTime =
+                                            f.date ?? DateTime.now().add(const Duration(hours: 2));
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => PredictionScreen(
+                                              fixtureId: f.id,
+                                              kickoffTime: kickoffTime,
+                                              homeTeam: f.homeTeam,
+                                              awayTeam: f.awayTeam,
+                                              homeLogo: f.homeLogo,
+                                              awayLogo: f.awayLogo,
+                                              homeTeamId: f.homeTeamId,
+                                              awayTeamId: f.awayTeamId,
+                                              leagueId: widget.leagueId,
+                                              leagueName: widget.leagueName,
+                                              roomId: widget.roomId,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    : null,
+                                child: const Text('Predict'),
+                              ),
+                            ],
+                          ),
+                        if (!canPredict && (f.status == 'NS' || f.status == 'TBD'))
                           const Padding(
                             padding: EdgeInsets.only(top: 8),
                             child: Text(
@@ -239,19 +270,37 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
   }
 
   List<FixtureModel> _applyFilter(List<FixtureModel> fixtures) {
-    if (_filter == _FixturesFilter.all) return fixtures;
     final now = DateTime.now();
     final base = DateTime(now.year, now.month, now.day);
-    final target = _filter == _FixturesFilter.today ? base : base.add(const Duration(days: 1));
+
+    if (_filter == _FixturesFilter.allUpcoming) {
+      return fixtures.where((f) => f.status == 'NS' || f.status == 'TBD').toList();
+    }
+
     return fixtures.where((f) {
       final d = f.date?.toLocal();
       if (d == null) return false;
-      return d.year == target.year && d.month == target.month && d.day == target.day;
+      final isSameDay = (DateTime target) => d.year == target.year && d.month == target.month && d.day == target.day;
+
+      switch (_filter) {
+        case _FixturesFilter.today:
+          return (f.status == 'NS' || f.status == 'TBD') && isSameDay(base);
+        case _FixturesFilter.tomorrow:
+          return (f.status == 'NS' || f.status == 'TBD') && isSameDay(base.add(const Duration(days: 1)));
+        case _FixturesFilter.resultsToday:
+          return f.status != 'NS' && f.status != 'TBD' && isSameDay(base);
+        case _FixturesFilter.yesterday:
+          return f.status != 'NS' && f.status != 'TBD' && isSameDay(base.subtract(const Duration(days: 1)));
+        case _FixturesFilter.beforeYesterday:
+          return f.status != 'NS' && f.status != 'TBD' && isSameDay(base.subtract(const Duration(days: 2)));
+        default:
+          return false;
+      }
     }).toList();
   }
 }
 
-enum _FixturesFilter { today, tomorrow, all }
+enum _FixturesFilter { allUpcoming, today, tomorrow, resultsToday, yesterday, beforeYesterday }
 
 class _TeamRow extends StatelessWidget {
   final String name;
