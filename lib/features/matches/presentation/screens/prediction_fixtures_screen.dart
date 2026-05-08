@@ -126,6 +126,14 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
                             spacing: 8,
                             children: [
                               ChoiceChip(
+                                label: Text('Latest', style: _filter == _FixturesFilter.latestResults ? resultsLabelStyle : resultsUnselectedStyle),
+                                selected: _filter == _FixturesFilter.latestResults,
+                                onSelected: (_) => setState(() => _filter = _FixturesFilter.latestResults),
+                                selectedColor: resultsSelectedColor,
+                                side: BorderSide(color: resultsColor.withOpacity(0.5)),
+                                backgroundColor: isDark ? Colors.transparent : Colors.blue.withOpacity(0.05),
+                              ),
+                              ChoiceChip(
                                 label: Text('Results Today', style: _filter == _FixturesFilter.resultsToday ? resultsLabelStyle : resultsUnselectedStyle),
                                 selected: _filter == _FixturesFilter.resultsToday,
                                 onSelected: (_) => setState(() => _filter = _FixturesFilter.resultsToday),
@@ -323,14 +331,18 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
           return f.status != 'NS' && f.status != 'TBD' && isSameDay(base.subtract(const Duration(days: 1)));
         case _FixturesFilter.beforeYesterday:
           return f.status != 'NS' && f.status != 'TBD' && isSameDay(base.subtract(const Duration(days: 2)));
+        case _FixturesFilter.latestResults:
+          final finished = fixtures.where((f) => f.status != 'NS' && f.status != 'TBD').toList();
+          finished.sort((a, b) => (b.date ?? DateTime.now()).compareTo(a.date ?? DateTime.now()));
+          return finished.take(15).toList();
         default:
-          return false;
+          return <FixtureModel>[];
       }
     }).toList();
   }
 }
 
-enum _FixturesFilter { allUpcoming, today, tomorrow, resultsToday, yesterday, beforeYesterday }
+enum _FixturesFilter { allUpcoming, today, tomorrow, latestResults, resultsToday, yesterday, beforeYesterday }
 
 class _TeamRow extends StatelessWidget {
   final String name;
