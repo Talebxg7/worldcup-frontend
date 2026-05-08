@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/config/football_config.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../../services/football_api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/competition.dart';
 import '../widgets/competition_card.dart';
 import '../../../matches/presentation/screens/prediction_fixtures_screen.dart';
@@ -156,6 +158,50 @@ class _CompetitionSelectionScreenState extends State<CompetitionSelectionScreen>
     ];
 
     _countsFuture = _loadCounts();
+    _checkAnnouncement();
+  }
+
+  Future<void> _checkAnnouncement() async {
+    try {
+      final res = await ApiClient.instance.get('/announcement');
+      if (res.data == null) return;
+      
+      final title = res.data['title'] as String;
+      final body = res.data['body'] as String;
+      final createdAt = res.data['created_at'] as String;
+      
+      final prefs = await SharedPreferences.getInstance();
+      final lastSeen = prefs.getString('last_announcement');
+      
+      if (lastSeen != createdAt) {
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (ctx) => AlertDialog(
+            title: Row(
+              children: [
+                const Icon(Icons.campaign, color: Colors.purple),
+                const SizedBox(width: 8),
+                Expanded(child: Text(title)),
+              ],
+            ),
+            content: Text(body),
+            actions: [
+              ElevatedButton(
+                onPressed: () async {
+                  await prefs.setString('last_announcement', createdAt);
+                  if (ctx.mounted) Navigator.pop(ctx);
+                },
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Failed to fetch announcement: $e');
+    }
   }
 
   Future<Map<int, int>> _loadCounts() async {

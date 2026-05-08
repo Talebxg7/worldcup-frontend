@@ -6,8 +6,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/widgets/flag_circle.dart';
 import '../../../matches/data/models/match_model.dart';
-import '../../../matches/presentation/providers/matches_provider.dart';
-
+import '../../../matches/data/models/match_model.dart';
+import '../admin_screen.dart';
 class EnterResultScreen extends ConsumerStatefulWidget {
   final String matchId;
   const EnterResultScreen({super.key, required this.matchId});
@@ -76,7 +76,13 @@ class _EnterResultScreenState extends ConsumerState<EnterResultScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final matchAsync = ref.watch(matchByIdProvider(widget.matchId));
+    final adminMatchesAsync = ref.watch(adminMatchesProvider);
+    final matchAsync = adminMatchesAsync.whenData(
+      (matches) => matches.firstWhere(
+        (m) => m.id.toString() == widget.matchId,
+        orElse: () => matches.first,
+      ),
+    );
 
     return Scaffold(
       appBar: AppBar(
