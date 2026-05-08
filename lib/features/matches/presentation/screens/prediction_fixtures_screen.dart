@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/config/football_config.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/notifications/local_notifications_service.dart';
 import '../../../../services/football_api_service.dart';
 import '../../../fixture_predictions/presentation/screens/prediction_screen.dart';
@@ -84,42 +85,71 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
                   final isDark = Theme.of(context).brightness == Brightness.dark;
                   final chipTextStyle = TextStyle(color: isDark ? Colors.white : Colors.black);
                   
+                  final resultsColor = AppColors.secondary;
+                  final resultsSelectedColor = resultsColor.withOpacity(0.8);
+                  final resultsLabelStyle = TextStyle(color: Colors.white, fontWeight: FontWeight.bold);
+                  final resultsUnselectedStyle = TextStyle(color: resultsColor);
+                  
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      child: Wrap(
-                        spacing: 8,
+                      child: Row(
                         children: [
-                          ChoiceChip(
-                            label: Text('All upcoming', style: chipTextStyle),
-                            selected: _filter == _FixturesFilter.allUpcoming,
-                            onSelected: (_) => setState(() => _filter = _FixturesFilter.allUpcoming),
+                          Wrap(
+                            spacing: 8,
+                            children: [
+                              ChoiceChip(
+                                label: Text('All upcoming', style: chipTextStyle),
+                                selected: _filter == _FixturesFilter.allUpcoming,
+                                onSelected: (_) => setState(() => _filter = _FixturesFilter.allUpcoming),
+                              ),
+                              ChoiceChip(
+                                label: Text('Today', style: chipTextStyle),
+                                selected: _filter == _FixturesFilter.today,
+                                onSelected: (_) => setState(() => _filter = _FixturesFilter.today),
+                              ),
+                              ChoiceChip(
+                                label: Text('Tomorrow', style: chipTextStyle),
+                                selected: _filter == _FixturesFilter.tomorrow,
+                                onSelected: (_) => setState(() => _filter = _FixturesFilter.tomorrow),
+                              ),
+                            ],
                           ),
-                          ChoiceChip(
-                            label: Text('Today', style: chipTextStyle),
-                            selected: _filter == _FixturesFilter.today,
-                            onSelected: (_) => setState(() => _filter = _FixturesFilter.today),
+                          Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 12),
+                            width: 2,
+                            height: 24,
+                            color: isDark ? Colors.white24 : Colors.black26,
                           ),
-                          ChoiceChip(
-                            label: Text('Tomorrow', style: chipTextStyle),
-                            selected: _filter == _FixturesFilter.tomorrow,
-                            onSelected: (_) => setState(() => _filter = _FixturesFilter.tomorrow),
-                          ),
-                          ChoiceChip(
-                            label: Text('Results Today', style: chipTextStyle),
-                            selected: _filter == _FixturesFilter.resultsToday,
-                            onSelected: (_) => setState(() => _filter = _FixturesFilter.resultsToday),
-                          ),
-                          ChoiceChip(
-                            label: Text('Yesterday', style: chipTextStyle),
-                            selected: _filter == _FixturesFilter.yesterday,
-                            onSelected: (_) => setState(() => _filter = _FixturesFilter.yesterday),
-                          ),
-                          ChoiceChip(
-                            label: Text('Before Yesterday', style: chipTextStyle),
-                            selected: _filter == _FixturesFilter.beforeYesterday,
-                            onSelected: (_) => setState(() => _filter = _FixturesFilter.beforeYesterday),
+                          Wrap(
+                            spacing: 8,
+                            children: [
+                              ChoiceChip(
+                                label: Text('Results Today', style: _filter == _FixturesFilter.resultsToday ? resultsLabelStyle : resultsUnselectedStyle),
+                                selected: _filter == _FixturesFilter.resultsToday,
+                                onSelected: (_) => setState(() => _filter = _FixturesFilter.resultsToday),
+                                selectedColor: resultsSelectedColor,
+                                side: BorderSide(color: resultsColor.withOpacity(0.5)),
+                                backgroundColor: isDark ? Colors.transparent : Colors.blue.withOpacity(0.05),
+                              ),
+                              ChoiceChip(
+                                label: Text('Yesterday', style: _filter == _FixturesFilter.yesterday ? resultsLabelStyle : resultsUnselectedStyle),
+                                selected: _filter == _FixturesFilter.yesterday,
+                                onSelected: (_) => setState(() => _filter = _FixturesFilter.yesterday),
+                                selectedColor: resultsSelectedColor,
+                                side: BorderSide(color: resultsColor.withOpacity(0.5)),
+                                backgroundColor: isDark ? Colors.transparent : Colors.blue.withOpacity(0.05),
+                              ),
+                              ChoiceChip(
+                                label: Text('Before Yesterday', style: _filter == _FixturesFilter.beforeYesterday ? resultsLabelStyle : resultsUnselectedStyle),
+                                selected: _filter == _FixturesFilter.beforeYesterday,
+                                onSelected: (_) => setState(() => _filter = _FixturesFilter.beforeYesterday),
+                                selectedColor: resultsSelectedColor,
+                                side: BorderSide(color: resultsColor.withOpacity(0.5)),
+                                backgroundColor: isDark ? Colors.transparent : Colors.blue.withOpacity(0.05),
+                              ),
+                            ],
                           ),
                         ],
                       ),
