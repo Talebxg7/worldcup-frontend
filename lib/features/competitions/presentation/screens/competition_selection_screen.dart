@@ -139,6 +139,20 @@ class _CompetitionSelectionScreenState extends State<CompetitionSelectionScreen>
         emoji: '🇯🇴',
         isEnabled: true,
       ),
+      Competition(
+        name: 'Botola Pro',
+        subtitle: 'Moroccan League',
+        leagueId: 200,
+        emoji: '🇲🇦',
+        isEnabled: true,
+      ),
+      Competition(
+        name: 'Iraqi League',
+        subtitle: 'Iraqi Premier League',
+        leagueId: 542,
+        emoji: '🇮🇶',
+        isEnabled: true,
+      ),
     ];
 
     _countsFuture = _loadCounts();
@@ -269,6 +283,10 @@ class _CompetitionSelectionScreenState extends State<CompetitionSelectionScreen>
         return const [Color(0xFF1D4ED8), Color(0xFF0F766E)];
       case 305: // Qatar Stars League
         return const [Color(0xFF9D174D), Color(0xFFBE185D)];
+      case 200: // Botola Pro
+        return const [Color(0xFFDC2626), Color(0xFF16A34A)];
+      case 542: // Iraqi League
+        return const [Color(0xFF047857), Color(0xFF1E40AF)];
       default:
         return const [Color(0xFF0EA5E9), Color(0xFF3B82F6)];
     }
