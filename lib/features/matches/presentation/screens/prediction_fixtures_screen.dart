@@ -315,6 +315,12 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
       return fixtures.where((f) => f.status == 'NS' || f.status == 'TBD').toList();
     }
 
+    if (_filter == _FixturesFilter.latestResults) {
+      final finished = fixtures.where((f) => f.status != 'NS' && f.status != 'TBD').toList();
+      finished.sort((a, b) => (b.date ?? DateTime.now()).compareTo(a.date ?? DateTime.now()));
+      return finished.take(15).toList();
+    }
+
     return fixtures.where((f) {
       final d = f.date?.toLocal();
       if (d == null) return false;
@@ -331,12 +337,8 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
           return f.status != 'NS' && f.status != 'TBD' && isSameDay(base.subtract(const Duration(days: 1)));
         case _FixturesFilter.beforeYesterday:
           return f.status != 'NS' && f.status != 'TBD' && isSameDay(base.subtract(const Duration(days: 2)));
-        case _FixturesFilter.latestResults:
-          final finished = fixtures.where((f) => f.status != 'NS' && f.status != 'TBD').toList();
-          finished.sort((a, b) => (b.date ?? DateTime.now()).compareTo(a.date ?? DateTime.now()));
-          return finished.take(15).toList();
         default:
-          return <FixtureModel>[];
+          return false;
       }
     }).toList();
   }
