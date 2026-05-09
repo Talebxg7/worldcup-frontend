@@ -9,13 +9,13 @@ class CompetitionCard extends StatelessWidget {
   final VoidCallback? onTap;
   final List<Color> gradientColors;
   static const Map<int, String> _leagueBackgroundById = {
-    39: 'assets/images/premier_league_bg.png',
-    140: 'assets/images/la_liga_bg.png',
-    135: 'assets/images/serie_a_bg.png',
-    78: 'assets/images/bundesliga_bg.png',
+    39: 'assets/images/premier_league.jpg',
+    140: 'assets/images/la_liga.png',
+    135: 'assets/images/serie_a.jpg',
+    78: 'assets/images/bundesliga.png',
     61: 'assets/images/ligue1_bg.png',
     233: 'assets/images/egyptian_league_bg.png',
-    94: 'assets/images/primeira_liga_bg.png',
+    94: 'assets/images/primeira_liga.jpg',
     1: 'assets/images/world_cup_bg.png',
     2: 'assets/images/uefa_champions_bg.png',
     3: 'assets/images/uefa_europa_bg.png',
