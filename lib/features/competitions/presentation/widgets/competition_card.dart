@@ -16,13 +16,13 @@ class CompetitionCard extends StatelessWidget {
     61: 'assets/images/ligue1_bg.png',
     233: 'assets/images/egyptian_league_bg.png',
     94: 'assets/images/primeira_liga.jpg',
-    1: 'assets/images/world_cup_bg.png',
+    1: 'assets/images/world_cup.png',
     2: 'assets/images/uefa_champions_bg.png',
     3: 'assets/images/uefa_europa_bg.png',
     6: 'assets/images/afcon_bg.png',
     9: 'assets/images/copa_america_bg.png',
-    307: 'assets/images/saudi_league_bg.png',
-    305: 'assets/images/qatar_league_bg.png',
+    307: 'assets/images/saudi_league.jpg',
+    305: 'assets/images/qatar_league.jpg',
     387: 'assets/images/jordan_league_bg.jpg',
   };
 
