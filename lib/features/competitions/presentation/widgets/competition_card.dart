@@ -90,8 +90,6 @@ class CompetitionCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        _LeagueLogo(url: competition.leagueLogoUrl),
-                        const SizedBox(width: 10),
                         Text(
                           competition.emoji,
                           style: const TextStyle(fontSize: 18),
@@ -208,27 +206,4 @@ class CompetitionCard extends StatelessWidget {
   }
 }
 
-class _LeagueLogo extends StatelessWidget {
-  final String url;
-  const _LeagueLogo({required this.url});
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: Image.network(
-        url,
-        width: 28,
-        height: 28,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Container(
-          width: 28,
-          height: 28,
-          color: Colors.white.withOpacity(0.2),
-          child: const Icon(Icons.shield_outlined, color: Colors.white, size: 16),
-        ),
-      ),
-    );
-  }
-}
 
