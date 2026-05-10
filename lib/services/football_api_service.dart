@@ -15,11 +15,11 @@ class FootballApiService {
   }
 
   static Uri _uri(String path, [Map<String, String>? query]) {
-    final originalUrl = Uri.parse('$baseUrl$path').replace(queryParameters: query).toString();
-    if (kIsWeb) {
-      return Uri.parse('https://corsproxy.io/?url=${Uri.encodeComponent(originalUrl)}');
+    if (kIsWeb && !Uri.base.host.contains('localhost')) {
+      // Use Netlify proxy rewrite to bypass CORS and forward headers in production web
+      return Uri.parse('/api-sports/$path').replace(queryParameters: query);
     }
-    return Uri.parse(originalUrl);
+    return Uri.parse('$baseUrl$path').replace(queryParameters: query);
   }
 
   static Future<Map<String, dynamic>> _getJson(
