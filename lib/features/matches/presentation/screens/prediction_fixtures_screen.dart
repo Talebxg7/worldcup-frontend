@@ -177,6 +177,8 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
                 final kickoff = f.date != null ? df.format(f.date!.toLocal()) : '-';
                 final canPredict = f.date != null &&
                     f.date!.subtract(const Duration(hours: 2)).isAfter(DateTime.now());
+                final isEffectivelyFinished = (f.status != 'NS' && f.status != 'TBD') || 
+                    (f.date != null && f.date!.isBefore(DateTime.now().subtract(const Duration(hours: 4))));
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12),
                   child: Padding(
@@ -198,17 +200,22 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
                         Row(
                           children: [
                             Text(kickoff, style: Theme.of(context).textTheme.bodySmall),
-                            if (f.status == 'FT' || f.status == 'AET' || f.status == 'PEN' || f.status == 'LIVE' || f.status == '1H' || f.status == '2H' || f.status == 'HT')
+                            if (isEffectivelyFinished)
                               Expanded(
                                 child: Text(
-                                  '  |  Score: ${f.homeGoals ?? 0} - ${f.awayGoals ?? 0} ${['1H', '2H', 'HT', 'LIVE'].contains(f.status) ? '(Live)' : '(FT)'}',
-                                  style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.green),
+                                  f.homeGoals != null 
+                                      ? '  |  Score: ${f.homeGoals} - ${f.awayGoals} ${['1H', '2H', 'HT', 'LIVE'].contains(f.status) ? '(Live)' : '(FT)'}'
+                                      : '  |  Waiting for result...',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w800, 
+                                    color: f.homeGoals != null ? Colors.green : Colors.orangeAccent,
+                                  ),
                                 ),
                               ),
                           ],
                         ),
                         const SizedBox(height: 10),
-                        if (f.status == 'NS' || f.status == 'TBD')
+                        if (!isEffectivelyFinished && (f.status == 'NS' || f.status == 'TBD'))
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
@@ -287,7 +294,7 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
                               ),
                             ],
                           ),
-                        if (!canPredict && (f.status == 'NS' || f.status == 'TBD'))
+                        if (!isEffectivelyFinished && !canPredict && (f.status == 'NS' || f.status == 'TBD'))
                           const Padding(
                             padding: EdgeInsets.only(top: 8),
                             child: Text(
