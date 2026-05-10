@@ -41,8 +41,16 @@ class PredictionDashboardService {
       } else if (kickoff.isAfter(now)) {
         matchStatus = 'UPCOMING';
       } else {
-        // Kickoff passed but not FT — treat as LIVE-ish for UI
-        matchStatus = st == 'NS' ? 'UPCOMING' : 'LIVE';
+        // Kickoff passed but not FT
+        if (st == 'NS' || st == 'TBD') {
+           if (kickoff.isBefore(now.subtract(const Duration(hours: 4)))) {
+               matchStatus = 'FINISHED';
+           } else {
+               matchStatus = 'LIVE';
+           }
+        } else {
+           matchStatus = 'LIVE';
+        }
       }
 
       final ah = f.homeGoals;

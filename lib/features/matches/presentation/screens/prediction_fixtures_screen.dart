@@ -312,11 +312,19 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
     final base = DateTime(now.year, now.month, now.day);
 
     if (_filter == _FixturesFilter.allUpcoming) {
-      return fixtures.where((f) => f.status == 'NS' || f.status == 'TBD').toList();
+      return fixtures.where((f) {
+        if (f.status != 'NS' && f.status != 'TBD') return false;
+        if (f.date != null && f.date!.isBefore(now.subtract(const Duration(hours: 4)))) return false;
+        return true;
+      }).toList();
     }
 
     if (_filter == _FixturesFilter.latestResults) {
-      final finished = fixtures.where((f) => f.status != 'NS' && f.status != 'TBD').toList();
+      final finished = fixtures.where((f) {
+        if (f.status != 'NS' && f.status != 'TBD') return true;
+        if (f.date != null && f.date!.isBefore(now.subtract(const Duration(hours: 4)))) return true;
+        return false;
+      }).toList();
       finished.sort((a, b) => (b.date ?? DateTime.now()).compareTo(a.date ?? DateTime.now()));
       return finished.take(15).toList();
     }
@@ -332,11 +340,11 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
         case _FixturesFilter.tomorrow:
           return (f.status == 'NS' || f.status == 'TBD') && isSameDay(base.add(const Duration(days: 1)));
         case _FixturesFilter.resultsToday:
-          return f.status != 'NS' && f.status != 'TBD' && isSameDay(base);
+          return (f.status != 'NS' && f.status != 'TBD' || (f.date != null && f.date!.isBefore(now.subtract(const Duration(hours: 4))))) && isSameDay(base);
         case _FixturesFilter.yesterday:
-          return f.status != 'NS' && f.status != 'TBD' && isSameDay(base.subtract(const Duration(days: 1)));
+          return (f.status != 'NS' && f.status != 'TBD' || (f.date != null && f.date!.isBefore(now.subtract(const Duration(hours: 4))))) && isSameDay(base.subtract(const Duration(days: 1)));
         case _FixturesFilter.beforeYesterday:
-          return f.status != 'NS' && f.status != 'TBD' && isSameDay(base.subtract(const Duration(days: 2)));
+          return (f.status != 'NS' && f.status != 'TBD' || (f.date != null && f.date!.isBefore(now.subtract(const Duration(hours: 4))))) && isSameDay(base.subtract(const Duration(days: 2)));
         default:
           return false;
       }
