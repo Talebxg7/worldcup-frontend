@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class FootballApiService {
@@ -14,7 +15,11 @@ class FootballApiService {
   }
 
   static Uri _uri(String path, [Map<String, String>? query]) {
-    return Uri.parse('$baseUrl$path').replace(queryParameters: query);
+    final originalUrl = Uri.parse('$baseUrl$path').replace(queryParameters: query).toString();
+    if (kIsWeb) {
+      return Uri.parse('https://corsproxy.io/?url=${Uri.encodeComponent(originalUrl)}');
+    }
+    return Uri.parse(originalUrl);
   }
 
   static Future<Map<String, dynamic>> _getJson(
