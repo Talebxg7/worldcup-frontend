@@ -28,137 +28,51 @@ class CompetitionSelectionScreen extends StatefulWidget {
 }
 
 class _CompetitionSelectionScreenState extends State<CompetitionSelectionScreen> {
-  late final List<Competition> _competitions;
+  List<Competition>? _competitions;
   late Future<Map<int, int>> _countsFuture;
 
   @override
   void initState() {
     super.initState();
-
-    _competitions = const [
-      Competition(
-        name: 'Premier League',
-        subtitle: 'English Premier League',
-        leagueId: 39,
-        emoji: '🏴',
-        isEnabled: true,
-      ),
-      Competition(
-        name: 'La Liga',
-        subtitle: 'Spanish Primera División',
-        leagueId: 140,
-        emoji: '🇪🇸',
-        isEnabled: true,
-      ),
-      Competition(
-        name: 'Serie A',
-        subtitle: 'Italian Serie A',
-        leagueId: 135,
-        emoji: '🇮🇹',
-        isEnabled: true,
-      ),
-      Competition(
-        name: 'Bundesliga',
-        subtitle: 'German Bundesliga',
-        leagueId: 78,
-        emoji: '🇩🇪',
-        isEnabled: true,
-      ),
-      Competition(
-        name: 'Ligue 1',
-        subtitle: 'French Ligue 1',
-        leagueId: 61,
-        emoji: '🇫🇷',
-        isEnabled: true,
-      ),
-      Competition(
-        name: 'Egyptian Premier League',
-        subtitle: 'Egyptian League',
-        leagueId: 233,
-        emoji: '🇪🇬',
-        isEnabled: true,
-      ),
-      Competition(
-        name: 'Primeira Liga',
-        subtitle: 'Portugal Primeira Liga',
-        leagueId: 94,
-        emoji: '🇵🇹',
-        isEnabled: true,
-      ),
-      Competition(
-        name: 'FIFA World Cup',
-        subtitle: 'FIFA World Cup',
-        leagueId: 1,
-        emoji: '🏆',
-        isEnabled: true,
-      ),
-      Competition(
-        name: 'UEFA Champions League',
-        subtitle: 'UEFA Champions League',
-        leagueId: 2,
-        emoji: '⭐',
-        isEnabled: true,
-      ),
-      Competition(
-        name: 'UEFA Europa League',
-        subtitle: 'UEFA Europa League',
-        leagueId: 3,
-        emoji: '🏅',
-        isEnabled: true,
-      ),
-      Competition(
-        name: 'AFCON',
-        subtitle: 'Africa Cup of Nations',
-        leagueId: 6,
-        emoji: '🌍',
-        isEnabled: true,
-      ),
-      Competition(
-        name: 'Copa America',
-        subtitle: 'CONMEBOL Copa América',
-        leagueId: 9,
-        emoji: '🌎',
-        isEnabled: true,
-      ),
-      Competition(
-        name: 'Saudi Pro League',
-        subtitle: 'Roshn Saudi League',
-        leagueId: 307,
-        emoji: '🇸🇦',
-        isEnabled: true,
-      ),
-      Competition(
-        name: 'Qatar Stars League',
-        subtitle: 'QSL',
-        leagueId: 305,
-        emoji: '🇶🇦',
-        isEnabled: true,
-      ),
-      Competition(
-        name: 'Jordanian Pro League',
-        subtitle: 'Jordan League',
-        leagueId: 387,
-        emoji: '🇯🇴',
-        isEnabled: true,
-      ),
-      Competition(
-        name: 'Botola Pro',
-        subtitle: 'Moroccan League',
-        leagueId: 200,
-        emoji: '🇲🇦',
-        isEnabled: true,
-      ),
-      Competition(
-        name: 'Iraqi League',
-        subtitle: 'Iraqi Premier League',
-        leagueId: 542,
-        emoji: '🇮🇶',
-        isEnabled: true,
-      ),
-    ];
-
-    _countsFuture = _loadCounts();
+    _fetchLeagues();
+    _countsFuture = FootballApiService.getPredictionCounts();
     _checkAnnouncement();
+  }
+
+  Future<void> _fetchLeagues() async {
+    try {
+      final res = await ApiClient.instance.get('/leagues');
+      if (res.data is List) {
+        final List<Competition> loaded = [];
+        for (var item in res.data) {
+          loaded.add(Competition(
+            name: item['name'] ?? '',
+            subtitle: item['subtitle'] ?? '',
+            leagueId: item['api_league_id'],
+            emoji: item['emoji'] ?? '⚽',
+            isEnabled: item['is_enabled'] ?? true,
+          ));
+        }
+        setState(() {
+          _competitions = loaded;
+        });
+      }
+    } catch (e) {
+      debugPrint('Failed to fetch leagues: $e');
+      if (mounted) {
+        setState(() {
+          _competitions = [];
+        });
+      }
+    }
+  }
+
+  Future<void> _refresh() async {
+    setState(() {
+      _countsFuture = FootballApiService.getPredictionCounts();
+    });
+    await _fetchLeagues();
+    await _countsFuture;
   }
 
   Future<void> _checkAnnouncement() async {
@@ -204,23 +118,6 @@ class _CompetitionSelectionScreenState extends State<CompetitionSelectionScreen>
     }
   }
 
-  Future<Map<int, int>> _loadCounts() async {
-    final season = FootballConfig.currentSeason();
-    final enabled = _competitions.where((c) => c.isEnabled).toList();
-
-    final entries = await Future.wait(
-      enabled.map((c) async {
-        final count = await FootballApiService.getUpcomingCount(
-          league: c.leagueId,
-          season: season,
-        );
-        return MapEntry(c.leagueId, count);
-      }),
-    );
-
-    return {for (final e in entries) e.key: e.value};
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -241,9 +138,7 @@ class _CompetitionSelectionScreenState extends State<CompetitionSelectionScreen>
             ),
           ],
           IconButton(
-            onPressed: () => setState(() {
-              _countsFuture = _loadCounts();
-            }),
+            onPressed: _refresh,
             icon: const Icon(Icons.refresh_rounded),
           ),
         ],
@@ -254,7 +149,11 @@ class _CompetitionSelectionScreenState extends State<CompetitionSelectionScreen>
           final counts = snapshot.data ?? const <int, int>{};
           final loading = snapshot.connectionState == ConnectionState.waiting;
 
-          return LayoutBuilder(
+          return _competitions == null 
+            ? const Center(child: CircularProgressIndicator())
+            : RefreshIndicator(
+          onRefresh: _refresh,
+          child: LayoutBuilder(
             builder: (context, c) {
               final w = c.maxWidth;
               final cols = w < 560
@@ -271,9 +170,9 @@ class _CompetitionSelectionScreenState extends State<CompetitionSelectionScreen>
                   crossAxisSpacing: 12,
                   childAspectRatio: 1.1,
                 ),
-                itemCount: _competitions.length,
+                itemCount: _competitions!.length,
                 itemBuilder: (context, index) {
-                  final comp = _competitions[index];
+                  final comp = _competitions![index];
                   return CompetitionCard(
                     competition: comp,
                     gradientColors: _gradientFor(comp.leagueId),
@@ -293,7 +192,8 @@ class _CompetitionSelectionScreenState extends State<CompetitionSelectionScreen>
                 },
               );
             },
-          );
+          ),
+        );
         },
       ),
     );

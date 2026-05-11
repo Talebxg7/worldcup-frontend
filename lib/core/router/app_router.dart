@@ -21,6 +21,7 @@ import '../../features/profile/presentation/screens/profile_page.dart';
 import '../../features/admin/presentation/screens/admin_screen.dart';
 import '../../features/admin/presentation/screens/add_match_screen.dart';
 import '../../features/admin/presentation/screens/enter_result_screen.dart';
+import '../../features/admin/presentation/screens/manage_leagues_screen.dart';
 import '../demo/demo_mode_provider.dart';
 import '../../features/mini_leagues/presentation/screens/mini_league_screen.dart';
 import '../../features/mini_leagues/presentation/screens/room_screen.dart';
@@ -122,6 +123,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/admin/add-match',
         builder: (ctx, state) => const AddMatchScreen(),
+      ),
+      GoRoute(
+        path: '/admin/manage-leagues',
+        builder: (ctx, state) => const ManageLeaguesScreen(),
       ),
       GoRoute(
         path: '/admin/enter-result/:id',

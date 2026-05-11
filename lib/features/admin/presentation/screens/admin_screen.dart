@@ -94,7 +94,15 @@ class AdminScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Spacer(),
+                      Expanded(
+                        child: _ActionCard(
+                          icon: Icons.emoji_events_rounded,
+                          title: 'Leagues',
+                          subtitle: 'Manage Leagues',
+                          color: Colors.orange,
+                          onTap: () => context.push('/admin/manage-leagues'),
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
