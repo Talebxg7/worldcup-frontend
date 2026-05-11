@@ -70,4 +70,8 @@ class RoomRepository {
       data: {'max_members': maxMembers},
     );
   }
+
+  Future<void> leaveRoom(int roomId) async {
+    await ApiClient.instance.delete('/rooms/$roomId/leave');
+  }
 }

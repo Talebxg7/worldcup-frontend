@@ -135,6 +135,36 @@ class _RoomScreenState extends State<RoomScreen> {
     }
   }
 
+  Future<void> _leaveRoom() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Leave Room'),
+        content: const Text('Are you sure you want to leave this room?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Leave'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      await _repo.leaveRoom(widget.roomId);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Left the room')));
+        Navigator.of(context).pop(true);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to leave room')));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final df = DateFormat('EEE, MMM d • HH:mm');
@@ -237,6 +267,12 @@ class _RoomScreenState extends State<RoomScreen> {
                                 onPressed: () => _openSettings(data.details),
                                 icon: const Icon(Icons.settings_rounded),
                                 label: const Text('Settings'),
+                              ),
+                            if (!room.isHost)
+                              OutlinedButton.icon(
+                                onPressed: _leaveRoom,
+                                icon: const Icon(Icons.exit_to_app_rounded, color: Colors.redAccent),
+                                label: const Text('Leave', style: TextStyle(color: Colors.redAccent)),
                               ),
                           ],
                         ),

@@ -21,6 +21,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
   bool _isLoading = false;
+  bool _agreedToTerms = false;
   String? _errorMessage;
 
   @override
@@ -34,6 +35,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
+    if (!_agreedToTerms) {
+      setState(() => _errorMessage = 'You must agree to the Terms of Service and Privacy Policy.');
+      return;
+    }
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -237,13 +242,53 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ).animate().slideX(begin: -0.2, duration: 400.ms, delay: 350.ms)
                     .fadeIn(duration: 300.ms, delay: 350.ms),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
+                
+                // Legal text Checkbox
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: Checkbox(
+                        value: _agreedToTerms,
+                        onChanged: (v) {
+                          setState(() {
+                            _agreedToTerms = v ?? false;
+                          });
+                        },
+                        activeColor: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Wrap(
+                        children: [
+                          Text('I agree to the ', style: Theme.of(context).textTheme.bodySmall),
+                          InkWell(
+                            onTap: () => context.push('/terms-of-service'),
+                            child: Text('Terms of Service', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                          ),
+                          Text(' and ', style: Theme.of(context).textTheme.bodySmall),
+                          InkWell(
+                            onTap: () => context.push('/privacy-policy'),
+                            child: Text('Privacy Policy', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                          ),
+                          Text('.', style: Theme.of(context).textTheme.bodySmall),
+                        ],
+                      ),
+                    ),
+                  ],
+                ).animate().fadeIn(duration: 300.ms, delay: 350.ms),
+
+                const SizedBox(height: 24),
 
                 // Register button
                 SizedBox(
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: _isLoading ? null : _register,
+                    onPressed: (_isLoading || !_agreedToTerms) ? null : _register,
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),

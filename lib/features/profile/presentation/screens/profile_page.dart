@@ -307,6 +307,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       if (image == null) return;
 
       final bytes = await image.readAsBytes();
+      
+      // Limit file size to 2MB to save bandwidth and storage
+      if (bytes.length > 2 * 1024 * 1024) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Image is too large. Please select an image under 2MB.')),
+          );
+        }
+        return;
+      }
+
       final base64String = 'data:image/jpeg;base64,${base64Encode(bytes)}';
 
       // Update Firebase
@@ -593,6 +604,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                               const SnackBar(content: Text('Email copied to clipboard')),
                             );
                           },
+                        ),
+                        const Divider(height: 1),
+                        ListTile(
+                          leading: const Icon(Icons.shield_outlined),
+                          title: const Text('Privacy Policy'),
+                          trailing: const Icon(Icons.chevron_right_rounded),
+                          onTap: () => context.push('/privacy-policy'),
+                        ),
+                        const Divider(height: 1),
+                        ListTile(
+                          leading: const Icon(Icons.description_outlined),
+                          title: const Text('Terms of Service'),
+                          trailing: const Icon(Icons.chevron_right_rounded),
+                          onTap: () => context.push('/terms-of-service'),
                         ),
                       ],
                     ),

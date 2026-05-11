@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/config/football_config.dart';
@@ -20,11 +21,25 @@ class LiveScreen extends StatefulWidget {
 
 class _LiveScreenState extends State<LiveScreen> {
   late Future<_LiveData> _future;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     _future = _load();
+    _startPolling();
+  }
+
+  void _startPolling() {
+    _timer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (mounted) _refresh();
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   Future<_LiveData> _load() async {

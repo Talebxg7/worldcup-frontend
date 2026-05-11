@@ -7,6 +7,8 @@ import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/reset_password_screen.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
+import '../../features/legal/presentation/screens/privacy_policy_screen.dart';
+import '../../features/legal/presentation/screens/terms_of_service_screen.dart';
 import '../shell/main_shell.dart';
 import '../../features/competitions/presentation/screens/competition_selection_screen.dart';
 import '../../features/matches/presentation/screens/match_detail_screen.dart';
@@ -63,6 +65,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           prefilledToken: state.uri.queryParameters['token'],
         ),
       ),
+      GoRoute(path: '/privacy-policy', builder: (ctx, state) => const PrivacyPolicyScreen()),
+      GoRoute(path: '/terms-of-service', builder: (ctx, state) => const TermsOfServiceScreen()),
       ShellRoute(
         builder: (ctx, state, child) => MainShell(child: child),
         routes: [

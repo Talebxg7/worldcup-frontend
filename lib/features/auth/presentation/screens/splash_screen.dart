@@ -21,18 +21,30 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   Future<void> _navigate() async {
     await Future.delayed(const Duration(milliseconds: 2500));
     if (!mounted) return;
+
     final authState = ref.read(authStateProvider);
-    authState.when(
-      data: (user) {
-        if (user != null) {
-          context.go('/home');
-        } else {
-          context.go('/login');
-        }
-      },
-      loading: () => Future.delayed(const Duration(milliseconds: 500), _navigate),
-      error: (_, __) => context.go('/login'),
-    );
+    
+    if (authState.isLoading) {
+      // If still loading (e.g. slow network), check again shortly
+      Future.delayed(const Duration(milliseconds: 500), _navigate);
+      return;
+    }
+
+    if (authState.hasError) {
+      // Likely a network timeout or parsing error
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Network error. Proceeding offline if possible.')),
+      );
+      context.go('/login');
+      return;
+    }
+
+    final user = authState.value;
+    if (user != null) {
+      context.go('/home');
+    } else {
+      context.go('/login');
+    }
   }
 
   @override
