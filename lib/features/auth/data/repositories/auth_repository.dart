@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../core/network/api_client.dart';
 import '../../data/models/user_model.dart';
 import '../../../../core/constants/app_constants.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthRepository {
   final ApiClient _api = ApiClient.instance;
@@ -45,6 +46,42 @@ class AuthRepository {
       rethrow;
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
+    }
+  }
+
+  Future<UserModel> googleSignIn() async {
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile'],
+      );
+      
+      final GoogleSignInAccount? account = await googleSignIn.signIn();
+      if (account == null) {
+        throw Exception('Google Sign-In aborted');
+      }
+
+      final GoogleSignInAuthentication auth = await account.authentication;
+      if (auth.idToken == null) {
+        throw Exception('Failed to get Google ID token');
+      }
+
+      final response = await _api.post('/auth/google', data: {
+        'idToken': auth.idToken,
+      });
+
+      final data = response.data as Map<String, dynamic>;
+      final token = data['token'] as String;
+      final user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
+      
+      await _storage.write(key: AppConstants.tokenKey, value: token);
+      await _storage.write(key: AppConstants.userKey, value: jsonEncode(user.toJson()));
+      return user;
+    } on ApiException {
+      rethrow;
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    } catch (e) {
+      throw Exception('Google Sign-In Failed: $e');
     }
   }
 

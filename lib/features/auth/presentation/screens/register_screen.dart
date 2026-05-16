@@ -59,6 +59,27 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     }
   }
 
+  Future<void> _googleLogin() async {
+    if (!_agreedToTerms) {
+      setState(() => _errorMessage = 'You must agree to the Terms of Service and Privacy Policy.');
+      return;
+    }
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    try {
+      await ref.read(authStateProvider.notifier).googleLogin();
+      if (!mounted) return;
+      context.go('/home');
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _errorMessage = e.toString());
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -312,6 +333,41 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   ),
                 ).animate().slideY(begin: 0.3, duration: 400.ms, delay: 400.ms)
                     .fadeIn(duration: 300.ms, delay: 400.ms),
+
+                const SizedBox(height: 24),
+
+                // OR divider
+                Row(
+                  children: [
+                    const Expanded(child: Divider()),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text('OR', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey)),
+                    ),
+                    const Expanded(child: Divider()),
+                  ],
+                ).animate().fadeIn(duration: 300.ms, delay: 420.ms),
+
+                const SizedBox(height: 24),
+
+                // Google Sign In button
+                SizedBox(
+                  height: 52,
+                  child: OutlinedButton.icon(
+                    onPressed: (_isLoading || !_agreedToTerms) ? null : _googleLogin,
+                    style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      side: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    icon: Image.network('https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg', height: 24),
+                    label: const Text(
+                      'Sign up with Google',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
+                    ),
+                  ),
+                ).animate().slideY(begin: 0.3, duration: 400.ms, delay: 450.ms).fadeIn(duration: 300.ms, delay: 450.ms),
 
                 const SizedBox(height: 16),
 
