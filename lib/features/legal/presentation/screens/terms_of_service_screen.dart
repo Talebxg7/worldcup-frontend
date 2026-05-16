@@ -63,9 +63,7 @@ class TermsOfServiceScreen extends StatelessWidget {
               '12. Termination\n\n'
               'We reserve the right to suspend or terminate user access to the application at our sole discretion if these Terms and Conditions are violated.\n\n'
               '13. Contact Information\n\n'
-              'For any questions, concerns, or intellectual property claims, please contact us at:\n'
-              '- Email: Predict.game433@gmail.com\n'
-              '- Phone: +966 55 625 7109\n\n'
+              '- Email: Predict.game433@gmail.com\n\n'
               '14. Governing Law\n\n'
               'These Terms and Conditions shall be governed and interpreted in accordance with the laws of Jordan, and any disputes shall be subject to the exclusive jurisdiction of the competent courts in that jurisdiction.',
             ),

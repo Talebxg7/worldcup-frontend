@@ -43,9 +43,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
               '7. Updates To This Notice\n\n'
               'We may update this privacy notice from time to time. The updated version will be indicated by an updated "Revised" date and the updated version will be effective as soon as it is accessible. We encourage you to review this privacy notice frequently to be informed of how we are protecting your information.\n\n'
               '8. Contact Us\n\n'
-              'If you have questions or comments about this notice, you may email us at:\n'
-              '- Email: Predict.game433@gmail.com\n'
-              '- Phone: +966 55 625 7109',
+              '- Email: Predict.game433@gmail.com',
             ),
           ],
         ),
