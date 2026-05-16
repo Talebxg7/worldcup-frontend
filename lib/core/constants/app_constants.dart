@@ -2,7 +2,7 @@ class AppConstants {
   // API
   // static const String baseUrl = 'http://192.168.1.32:3000/api'; // Phone over Wi-Fi
   // static const String baseUrl = 'http://localhost:3000/api'; // Windows desktop / local dev
-  static const String baseUrl = 'https://worldcup-backend-uwdb.onrender.com/api';
+  static const String baseUrl = 'https://whowillwin-api.onrender.com/api';
 
   // Storage Keys
   static const String tokenKey = 'auth_token';
