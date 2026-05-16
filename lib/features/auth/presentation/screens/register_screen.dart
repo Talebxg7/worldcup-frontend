@@ -264,16 +264,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           Text('I agree to the ', style: Theme.of(context).textTheme.bodySmall),
-                          InkWell(
+                          GestureDetector(
                             onTap: () => context.push('/terms-of-service'),
-                            child: Text('Terms of Service', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                            child: Text('Terms of Service', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold, decoration: TextDecoration.underline)),
                           ),
                           Text(' and ', style: Theme.of(context).textTheme.bodySmall),
-                          InkWell(
+                          GestureDetector(
                             onTap: () => context.push('/privacy-policy'),
-                            child: Text('Privacy Policy', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                            child: Text('Privacy Policy', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold, decoration: TextDecoration.underline)),
                           ),
                           Text('.', style: Theme.of(context).textTheme.bodySmall),
                         ],
