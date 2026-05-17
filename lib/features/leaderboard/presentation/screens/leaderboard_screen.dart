@@ -407,10 +407,12 @@ class _PodiumItem extends StatelessWidget {
           CircleAvatar(
             radius: 24,
             backgroundColor: bgColor,
-            backgroundImage: (entry.avatarUrl != null && entry.avatarUrl!.startsWith('data:image'))
-                ? MemoryImage(base64Decode(entry.avatarUrl!.split(',').last))
+            backgroundImage: entry.avatarUrl != null
+                ? (entry.avatarUrl!.startsWith('data:image')
+                    ? MemoryImage(base64Decode(entry.avatarUrl!.split(',').last)) as ImageProvider
+                    : NetworkImage(entry.avatarUrl!))
                 : null,
-            child: (entry.avatarUrl == null || !entry.avatarUrl!.startsWith('data:image'))
+            child: entry.avatarUrl == null
                 ? Text(
                     entry.username.isNotEmpty ? entry.username[0].toUpperCase() : '?',
                     style: const TextStyle(
@@ -523,10 +525,12 @@ class _LeaderboardRow extends StatelessWidget {
               backgroundColor: isCurrentUser
                   ? AppColors.primary
                   : AppColors.secondary.withOpacity(0.2),
-              backgroundImage: (entry.avatarUrl != null && entry.avatarUrl!.startsWith('data:image'))
-                  ? MemoryImage(base64Decode(entry.avatarUrl!.split(',').last))
+              backgroundImage: entry.avatarUrl != null
+                  ? (entry.avatarUrl!.startsWith('data:image')
+                      ? MemoryImage(base64Decode(entry.avatarUrl!.split(',').last)) as ImageProvider
+                      : NetworkImage(entry.avatarUrl!))
                   : null,
-              child: (entry.avatarUrl == null || !entry.avatarUrl!.startsWith('data:image'))
+              child: entry.avatarUrl == null
                   ? Text(
                       entry.username.isNotEmpty ? entry.username[0].toUpperCase() : '?',
                       style: TextStyle(

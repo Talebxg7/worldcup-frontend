@@ -324,10 +324,12 @@ class _RoomScreenState extends State<RoomScreen> {
                                 CircleAvatar(
                                   radius: 14,
                                   backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                                  backgroundImage: (r.avatarUrl != null && r.avatarUrl!.startsWith('data:image'))
-                                      ? MemoryImage(base64Decode(r.avatarUrl!.split(',').last))
+                                  backgroundImage: r.avatarUrl != null
+                                      ? (r.avatarUrl!.startsWith('data:image')
+                                          ? MemoryImage(base64Decode(r.avatarUrl!.split(',').last)) as ImageProvider
+                                          : NetworkImage(r.avatarUrl!))
                                       : null,
-                                  child: (r.avatarUrl == null || !r.avatarUrl!.startsWith('data:image'))
+                                  child: r.avatarUrl == null
                                       ? Text(
                                           r.username.isNotEmpty ? r.username[0].toUpperCase() : '?',
                                           style: TextStyle(
