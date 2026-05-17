@@ -17,8 +17,8 @@ class FootballApiService {
   static Uri _uri(String path, [Map<String, String>? query]) {
     final innerUrl = Uri.parse('$baseUrl$path').replace(queryParameters: query);
     if (kIsWeb && !Uri.base.host.contains('localhost')) {
-      // Use corsproxy to bypass CORS on GitHub Pages
-      return Uri.parse('https://corsproxy.io/?${Uri.encodeComponent(innerUrl.toString())}');
+      // Use our backend proxy to bypass CORS
+      return Uri.parse('https://whowillwin-api.onrender.com/api/proxy/football?url=${Uri.encodeComponent(innerUrl.toString())}');
     }
     return innerUrl;
   }
