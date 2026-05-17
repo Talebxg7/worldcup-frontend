@@ -80,7 +80,7 @@ class _PredictionScreenState extends State<PredictionScreen>
 
   Future<void> _init() async {
     try {
-      final existing = await _repo.getPrediction(widget.fixtureId);
+      final existing = await _repo.getPrediction(widget.fixtureId, roomId: widget.roomId);
       if (existing != null) {
         _model = existing;
         _model = _sanitizeModel(_model);
@@ -190,7 +190,7 @@ class _PredictionScreenState extends State<PredictionScreen>
     if (_locked) return;
     setState(() => _saving = true);
     try {
-      await _repo.savePrediction(_model);
+      await _repo.savePrediction(_model, roomId: widget.roomId);
       final dashRepo = DashboardPredictionRepository();
       await dashRepo.upsert(
         DashboardPredictionModel(

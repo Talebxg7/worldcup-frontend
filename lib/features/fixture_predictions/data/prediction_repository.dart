@@ -6,23 +6,25 @@ class PredictionRepository {
   static const _predictionsKey = 'fixture_predictions_v1';
   static const _weeklyJokerKey = 'weekly_joker_v1';
 
-  Future<FixturePredictionModel?> getPrediction(int fixtureId) async {
+  Future<FixturePredictionModel?> getPrediction(int fixtureId, {int? roomId}) async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_predictionsKey);
     if (raw == null || raw.isEmpty) return null;
     final map = jsonDecode(raw) as Map<String, dynamic>;
-    final v = map['$fixtureId'];
+    final key = roomId == null ? '$fixtureId' : '${fixtureId}_$roomId';
+    final v = map[key];
     if (v is! Map<String, dynamic>) return null;
     return FixturePredictionModel.fromJson(v);
   }
 
-  Future<void> savePrediction(FixturePredictionModel prediction) async {
+  Future<void> savePrediction(FixturePredictionModel prediction, {int? roomId}) async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_predictionsKey);
     final map = raw == null || raw.isEmpty
         ? <String, dynamic>{}
         : (jsonDecode(raw) as Map<String, dynamic>);
-    map['${prediction.fixtureId}'] = prediction.toJson();
+    final key = roomId == null ? '${prediction.fixtureId}' : '${prediction.fixtureId}_$roomId';
+    map[key] = prediction.toJson();
     await prefs.setString(_predictionsKey, jsonEncode(map));
   }
 
