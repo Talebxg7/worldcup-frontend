@@ -123422,7 +123422,7 @@ $S:102}
 A.b4C.prototype={
 $2(a,b){var s=this,r=null,q=s.b,p=s.c,o=t.p,n=A.aY(A.b([A.lV(r,B.bC,!1,r,!0,B.r,r,A.nt(),q,r,r,r,r,r,2,B.Tg,B.G,!0,r,!0,r,!1,r,B.bn,r,r,r,r,r,r,r,r,1,r,r,!1,"\u2022",r,r,r,r,r,!1,r,r,!1,r,!0,r,B.aN,r,r,r,r,r,r,r,r,r,r,r,r,!0,B.R,r,B.au,r,r,r,r),B.ao,A.lV(r,B.bC,!1,r,!0,B.r,r,A.nt(),p,r,r,r,r,r,2,B.T5,B.G,!0,r,!0,r,!1,r,B.bn,r,r,r,r,r,r,r,r,3,r,r,!1,"\u2022",r,r,r,r,r,!1,r,r,!1,r,!0,r,B.aN,r,r,r,r,r,r,r,r,r,r,r,r,!0,B.R,r,B.au,r,r,r,r)],o),B.m,B.j,B.a3,0,B.q),m=s.d,l=A.ei(B.cv,new A.b4A(m),r),k=s.a,j=k.a
 q=j?r:new A.b4B(k,q,p,b,a,m)
-return A.iw(A.b([l,A.he(j?B.pj:B.adl,q,r)],o),n,B.ack)},
+return A.iw(A.b([l,A.he(j?B.pj:B.adl,q,r)],o),n,B.acj)},
 $S:97}
 A.b4A.prototype={
 $0(){A.bQ(this.a,!1).bY(null)
@@ -123479,7 +123479,7 @@ if(s!=null)return A.N("Error: "+A.j(s),q,q,q,q,q,q,q,q)
 s=b.b
 r=s==null?q:s.a
 s=J.a_(r)
-return A.aY(A.b([A.fW(!1,q,q,q,!0,q,q,q,!0,q,q,B.RI,q,q,q,q,q,!1,q,q,q,q,q,q,B.ac6,q,A.N(A.j(s.i(r,"totalPaidRooms")),q,q,q,q,B.aa_,q,q,q),q),B.hT,A.fW(!1,q,q,q,!0,q,q,q,!0,q,q,B.RK,q,q,q,q,q,!1,q,q,q,q,q,q,B.acf,q,A.N("$"+A.j(s.i(r,"totalRevenueUSD")),q,q,q,q,B.a9R,q,q,q),q)],t.p),B.m,B.j,B.a3,0,B.q)},
+return A.aY(A.b([A.fW(!1,q,q,q,!0,q,q,q,!0,q,q,B.RI,q,q,q,q,q,!1,q,q,q,q,q,q,B.ac6,q,A.N(A.j(s.i(r,"totalPaidRooms")),q,q,q,q,B.aa_,q,q,q),q),B.hT,A.fW(!1,q,q,q,!0,q,q,q,!0,q,q,B.RK,q,q,q,q,q,!1,q,q,q,q,q,q,B.ace,q,A.N("$"+A.j(s.i(r,"totalRevenueUSD")),q,q,q,q,B.a9R,q,q,q),q)],t.p),B.m,B.j,B.a3,0,B.q)},
 $S:308}
 A.b4V.prototype={
 $0(){A.bQ(this.a,!1).bY(null)
@@ -123497,7 +123497,7 @@ k=q.c
 n=A.ei(B.cv,new A.b4Q(k),p)
 r=m.b
 o=r?p:new A.b4R(m,b,o,a,q.d,k)
-return A.iw(A.b([n,A.he(r?B.pj:B.pD,o,p)],s),l,B.aco)},
+return A.iw(A.b([n,A.he(r?B.pj:B.pD,o,p)],s),l,B.acn)},
 $S:97}
 A.b4O.prototype={
 $1(a){var s=null
@@ -124370,7 +124370,7 @@ break
 case 6:case 1:return A.q(q,r)
 case 2:return A.p(o.at(-1),r)}})
 return A.r($async$F0,r)},
-E(a){var s,r=this,q=null,p=A.f3(q,q,q,!0,!0,q,q,1,q,q,q,!1,q,!1,q,q,q,q,!0,q,q,q,q,q,B.acs,q,q,q,1,q,!0),o=A.b([B.acg,B.as],t.p),n=r.z
+E(a){var s,r=this,q=null,p=A.f3(q,q,q,!0,!0,q,q,1,q,q,q,!1,q,!1,q,q,q,q,!0,q,q,q,q,q,B.acs,q,q,q,1,q,!0),o=A.b([B.acf,B.as],t.p),n=r.z
 if(n!=null)o.push(A.N(n,q,q,q,q,B.pC,q,q,q))
 n=r.Q
 if(n!=null)o.push(A.N(n,q,q,q,q,B.Gr,q,q,q))
@@ -124736,7 +124736,7 @@ i=A.yw(h,0.3,A.aL(0,j,0,0),i)
 h=A.aL(0,m,0,0)
 s.push(A.ep(i,A.aL(0,j,0,0),h))
 s.push(B.as)
-g=A.e_(A.b5(A.b([A.N("Already have an account? ",n,n,n,n,A.E(a).ok.z,n,n,n),A.ei(B.ach,new A.aYg(a),A.yF(n,n,n,n,n,n,n,n,n,n,n,B.Q,B.a_,n,n,n,n,n,n,n))],g),B.m,B.aT,B.k,0,n))
+g=A.e_(A.b5(A.b([A.N("Already have an account? ",n,n,n,n,A.E(a).ok.z,n,n,n),A.ei(B.acg,new A.aYg(a),A.yF(n,n,n,n,n,n,n,n,n,n,n,B.Q,B.a_,n,n,n,n,n,n,n))],g),B.m,B.aT,B.k,0,n))
 h=A.aL(0,m,0,0)
 s.push(A.ep(g,A.aL(0,j,0,0),h))
 s.push(B.bu)
@@ -125444,7 +125444,7 @@ s=A.N("Up to",d,d,d,d,A.cs(d,d,r==null?s.k3:r,d,d,d,d,d,d,d,d,10,d,d,d,d,d,!0,d,
 r=e.e
 r===$&&A.a()
 q=t.p
-s=A.f3(A.b([new A.ao(B.tz,A.ei(A.aY(A.b([s,A.N(""+4*(r.e?2:1)+" pts",d,d,d,d,B.ly,d,d,d)],q),B.ew,B.aT,B.a3,0,B.q),e.gaEl(),d),d)],q),d,d,!0,!0,d,d,1,!0,d,d,!1,d,!1,d,d,d,d,!0,d,d,d,d,d,B.acr,d,d,d,1,d,!0)
+s=A.f3(A.b([new A.ao(B.tz,A.ei(A.aY(A.b([s,A.N(""+4*(r.e?2:1)+" pts",d,d,d,d,B.ly,d,d,d)],q),B.ew,B.aT,B.a3,0,B.q),e.gaEl(),d),d)],q),d,d,!0,!0,d,d,1,!0,d,d,!1,d,!1,d,d,d,d,!0,d,d,d,d,d,B.acq,d,d,d,1,d,!0)
 r=e.a.d.cG(c).dz(new A.b6(Date.now(),0,!1))||e.r?d:e.gaBS()
 p=A.pu(d,d,d,d,d,d,d,d,d,d,d,d,B.dV,d,new A.bX(A.aP(16),B.t),d,d,d,d,d)
 if(e.a.d.cG(c).dz(new A.b6(Date.now(),0,!1)))o="Predictions are closed for this match"
@@ -125486,7 +125486,7 @@ o===$&&A.a()
 if(o.e)o="  \u2192  with Joker: 8 pts (\xd72)"
 else o=""
 s=t.p
-o=A.js(A.aY(A.b([q,B.e4,p,B.ao,A.N("Match subtotal: 4 pts"+o,r,r,r,r,r,r,r,r),B.ao,B.adh,B.ae,B.acd],s),B.a2,B.j,B.k,0,B.q),r,B.G,r,r,r,B.U)
+o=A.js(A.aY(A.b([q,B.e4,p,B.ao,A.N("Match subtotal: 4 pts"+o,r,r,r,r,r,r,r,r),B.ao,B.adh,B.ae,B.acr],s),B.a2,B.j,B.k,0,B.q),r,B.G,r,r,r,B.U)
 return A.iw(A.b([A.ei(B.ac3,new A.aWo(a),r)],s),o,B.acU)},
 $S:31}
 A.aWo.prototype={
@@ -126010,7 +126010,7 @@ s=2
 return A.m(p,$async$zz)
 case 2:return A.q(null,r)}})
 return A.r($async$zz,r)},
-E(a){var s=null,r=A.vP("EEE, MMM d \u2022 HH:mm"),q=A.f3(A.b([A.ea(s,s,B.dr,s,s,this.gP_(),s,s,s)],t.p),s,s,!0,!0,s,s,1,!0,s,s,!1,s,!1,s,s,s,s,!0,s,s,s,s,s,B.ace,s,s,s,1,s,!0),p=this.d
+E(a){var s=null,r=A.vP("EEE, MMM d \u2022 HH:mm"),q=A.f3(A.b([A.ea(s,s,B.dr,s,s,this.gP_(),s,s,s)],t.p),s,s,!0,!0,s,s,1,!0,s,s,!1,s,!1,s,s,s,s,!0,s,s,s,s,s,B.acd,s,s,s,1,s,!0),p=this.d
 p===$&&A.a()
 return A.eh(q,s,A.tb(new A.aTG(this,r),p,t.Kb),s,s)}}
 A.aTD.prototype={
@@ -126174,7 +126174,7 @@ s=A.b([new A.wk(n.d,48,p),B.ao,A.N(n.b,p,p,p,p,B.ha,B.bI,p,p)],f)
 if(l)s.push(A.N(A.j(m),p,p,p,p,B.Gn,p,p,p))
 m=A.bw(A.aY(s,B.m,B.j,B.k,0,B.q),1,p)
 s=A.b([],f)
-if(!l)s.push(B.acq)
+if(!l)s.push(B.acp)
 else s.push(A.N("-",p,p,p,p,A.cs(p,p,A.V(B.d.ao(178.5),B.h.n()>>>16&255,B.h.n()>>>8&255,B.h.n()&255),p,p,p,p,p,p,p,p,32,p,p,B.ke,p,p,!0,p,p,p,p,p,p,p,p),p,p,p))
 if(k){k=A.V(51,B.h.n()>>>16&255,B.h.n()>>>8&255,B.h.n()&255)
 r=A.aP(6)
@@ -127237,7 +127237,7 @@ k=A.N("Members: "+q.w+"/"+q.r,h,h,h,h,h,h,h,h)
 j=A.b([A.bft(B.o3,B.Gz,new A.b_4(a,q),h),A.tH(B.Sp,B.abz,new A.b_5(a,q),h)],m)
 i=q.x
 if(i)j.push(A.tH(B.RS,B.acz,new A.b_6(p,r),h))
-if(!i)j.push(A.tH(B.S2,B.acp,p.gay8(),h))
+if(!i)j.push(A.tH(B.S2,B.aco,p.gay8(),h))
 o=A.iy(new A.ao(B.dW,A.aY(A.b([o,B.da,n,B.d9,l,B.ao,k,B.ae,A.Ef(j,B.f9,8,8)],m),B.a2,B.j,B.k,0,B.q),h),h,h,h)
 n=A.b([B.U5,B.dS],m)
 B.b.L(n,J.ex(r.b,new A.b_7(p,a),t.l7))
@@ -127342,7 +127342,7 @@ else h=!1
 if(h){h=A.b([],o)
 if(a.at===!0)h.push(A.bt(j,B.acY,B.n,j,j,new A.b8(B.fL,j,j,A.aP(4),j,j,B.D),j,j,j,B.jY,j,j,j))
 if(a.Q===!0)h.push(A.bt(j,B.acC,B.n,j,j,new A.b8(B.rQ,j,j,A.aP(4),j,j,B.D),j,j,j,B.jY,j,j,j))
-if(a.as===!0)h.push(A.bt(j,B.aci,B.n,j,j,new A.b8(B.t2,j,j,A.aP(4),j,j,B.D),j,j,j,B.jY,j,j,j))
+if(a.as===!0)h.push(A.bt(j,B.ach,B.n,j,j,new A.b8(B.t2,j,j,A.aP(4),j,j,B.D),j,j,j,B.jY,j,j,j))
 B.b.L(i,A.b([B.e4,A.Ef(h,B.f9,4,6)],o))}return new A.ao(B.dq,A.bt(j,A.aY(i,B.a2,B.j,B.k,0,B.q),B.n,j,j,new A.b8(r,j,j,p,j,j,B.D),j,j,j,B.fw,j,j,j),j)},
 $S:874}
 A.aZX.prototype={
@@ -128358,7 +128358,7 @@ a8=A.bab(new A.aXs(b4,r),B.RL,B.ad5,B.abc,a8===!0)
 a9=A.eB(a4?B.R8:B.Ri,B.u,b2,b2)
 a9=A.bab(new A.aXt(b1.f),a9,A.N(a4?"Dark theme on":"Light theme on",b2,b2,b2,b2,b2,b2,b2,b2),B.acw,a4)
 b0=t.p
-a6=A.b([new A.U0(n,p,d,f,c===!0,new A.aXu(b4,b,p,m,r),new A.aXv(b4,b,p,r),b2),B.bu,a1,B.ae,a2,B.bu,new A.a9F(g,new A.aXw(b5),b2),B.bu,a3,B.ao,A.iy(A.aY(A.b([a7,B.dS,a8,B.dS,a9,B.dS,A.fW(!1,b2,b2,b2,!0,b2,b2,b2,!0,b2,b2,B.RP,b2,b2,b2,b2,b4.gaol(),!1,b2,b2,b2,b2,A.N(b4.Q==="ar"?"\u0627\u0644\u0639\u0631\u0628\u064a\u0629":"English",b2,b2,b2,b2,b2,b2,b2,b2),b2,B.acl,b2,B.ko,b2),B.dS,A.fW(!1,b2,b2,b2,!0,b2,b2,b2,!0,b2,b2,B.Sj,b2,b2,b2,b2,new A.aXx(b5),!1,b2,b2,b2,b2,B.acy,b2,B.ac2,b2,A.ea(b2,b2,B.RV,b2,b2,new A.aXy(b5),b2,b2,b2),b2),B.dS,A.fW(!1,b2,b2,b2,!0,b2,b2,b2,!0,b2,b2,B.S_,b2,b2,b2,b2,new A.aXz(b5),!1,b2,b2,b2,b2,b2,b2,B.GA,b2,B.ko,b2),B.dS,A.fW(!1,b2,b2,b2,!0,b2,b2,b2,!0,b2,b2,B.Sv,b2,b2,b2,b2,new A.aXp(b5),!1,b2,b2,b2,b2,b2,b2,B.ady,b2,B.ko,b2)],b0),B.m,B.j,B.k,0,B.q),a5,b2,new A.bX(a6,B.t))],b0)
+a6=A.b([new A.U0(n,p,d,f,c===!0,new A.aXu(b4,b,p,m,r),new A.aXv(b4,b,p,r),b2),B.bu,a1,B.ae,a2,B.bu,new A.a9F(g,new A.aXw(b5),b2),B.bu,a3,B.ao,A.iy(A.aY(A.b([a7,B.dS,a8,B.dS,a9,B.dS,A.fW(!1,b2,b2,b2,!0,b2,b2,b2,!0,b2,b2,B.RP,b2,b2,b2,b2,b4.gaol(),!1,b2,b2,b2,b2,A.N(b4.Q==="ar"?"\u0627\u0644\u0639\u0631\u0628\u064a\u0629":"English",b2,b2,b2,b2,b2,b2,b2,b2),b2,B.ack,b2,B.ko,b2),B.dS,A.fW(!1,b2,b2,b2,!0,b2,b2,b2,!0,b2,b2,B.Sj,b2,b2,b2,b2,new A.aXx(b5),!1,b2,b2,b2,b2,B.acy,b2,B.ac2,b2,A.ea(b2,b2,B.RV,b2,b2,new A.aXy(b5),b2,b2,b2),b2),B.dS,A.fW(!1,b2,b2,b2,!0,b2,b2,b2,!0,b2,b2,B.S_,b2,b2,b2,b2,new A.aXz(b5),!1,b2,b2,b2,b2,b2,b2,B.GA,b2,B.ko,b2),B.dS,A.fW(!1,b2,b2,b2,!0,b2,b2,b2,!0,b2,b2,B.Sv,b2,b2,b2,b2,new A.aXp(b5),!1,b2,b2,b2,b2,b2,b2,B.ady,b2,B.ko,b2)],b0),B.m,B.j,B.k,0,B.q),a5,b2,new A.bX(a6,B.t))],b0)
 if((h?b2:r.d)===!0){r=a4?B.ck:a.x1.b
 h=A.aP(16)
 B.b.L(a6,A.b([B.as,A.iy(A.fW(!1,b2,b2,b2,!0,b2,b2,b2,!0,b2,b2,B.RU,b2,b2,b2,b2,new A.aXq(b5),!1,b2,b2,b2,b2,B.acv,b2,B.abE,b2,B.Sl,b2),r,b2,new A.bX(h,B.t))],b0))}a6.push(B.bu)
@@ -132691,8 +132691,8 @@ B.rf=new A.ll(null,null,null,null,null,null,null,null,null,null)
 B.b8=new A.ff(B.H,null,null,B.rf,null)
 B.acK=new A.a9("No upcoming fixtures.",null,null,null,null,null,null,null,null,null,null)
 B.Lb=new A.ff(B.H,null,null,B.acK,null)
-B.acn=new A.a9("No live matches in this room league.",null,null,null,null,null,null,null,null,null,null)
-B.Lc=new A.ff(B.H,null,null,B.acn,null)
+B.acm=new A.a9("No live matches in this room league.",null,null,null,null,null,null,null,null,null,null)
+B.Lc=new A.ff(B.H,null,null,B.acm,null)
 B.abl=new A.a9("No standings data.",null,null,null,null,null,null,null,null,null,null)
 B.Le=new A.ff(B.H,null,null,B.abl,null)
 B.Lf=new A.Ae(null,null,null,null,null,null,null,null,null)
@@ -135216,8 +135216,8 @@ B.ad6=new A.a9("Change Profile Photo",null,B.Gm,null,null,null,null,null,null,nu
 B.a0r=new A.ao(B.aZ,B.ad6,null)
 B.Py=new A.ah(0,8,0,0)
 B.a8W=new A.A(!0,B.du,null,null,null,null,12,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
-B.acm=new A.a9("Predictions are closed for this match",null,B.a8W,null,null,null,null,null,null,null,null)
-B.a0s=new A.ao(B.Py,B.acm,null)
+B.acl=new A.a9("Predictions are closed for this match",null,B.a8W,null,null,null,null,null,null,null,null)
+B.a0s=new A.ao(B.Py,B.acl,null)
 B.B0=new A.Ci(null)
 B.bG=new A.a0N(0,"fill")
 B.ba=new A.a0N(1,"stroke")
@@ -135651,8 +135651,8 @@ B.adm=new A.a9("Failed to leave room",null,null,null,null,null,null,null,null,nu
 B.a52=new A.eC(B.adm,null,null,null,null,null,null,null,null,null,null,null,null,B.a9,!1,null,null,null,B.r,null)
 B.adi=new A.a9("Profile photo updated!",null,null,null,null,null,null,null,null,null,null)
 B.a53=new A.eC(B.adi,null,null,null,null,null,null,null,null,null,null,null,null,B.a9,!1,null,null,null,B.r,null)
-B.acj=new A.a9("Prediction saved!",null,null,null,null,null,null,null,null,null,null)
-B.a54=new A.eC(B.acj,null,null,null,null,null,null,null,null,null,null,null,null,B.a9,!1,null,null,null,B.r,null)
+B.aci=new A.a9("Prediction saved!",null,null,null,null,null,null,null,null,null,null)
+B.a54=new A.eC(B.aci,null,null,null,null,null,null,null,null,null,null,null,null,B.a9,!1,null,null,null,B.r,null)
 B.ads=new A.a9("Points updated!",null,null,null,null,null,null,null,null,null,null)
 B.a55=new A.eC(B.ads,null,null,null,null,null,null,null,null,null,null,null,null,B.a9,!1,null,null,null,B.r,null)
 B.abS=new A.a9("Image is too large. Please select an image under 2MB.",null,null,null,null,null,null,null,null,null,null)
@@ -136173,21 +136173,21 @@ B.ac8=new A.a9("Add New Match",null,null,null,null,null,null,null,null,null,null
 B.ac9=new A.a9("Private Leaderboard",null,B.ly,null,null,null,null,null,null,null,null)
 B.aca=new A.a9("Match reminders & updates",null,null,null,null,null,null,null,null,null,null)
 B.acc=new A.a9("Enter Result",null,null,null,null,null,null,null,null,null,null)
-B.acd=new A.a9("Match events (optional picks): +0.5 correct, \u22120.5 wrong",null,null,null,null,null,null,null,null,null,null)
-B.ace=new A.a9("Live Matches",null,null,null,null,null,null,null,null,null,null)
-B.acf=new A.a9("Gross Revenue",null,null,null,null,null,null,null,null,null,null)
-B.acg=new A.a9("Enter your email. We will send a reset code.",null,B.Gk,null,null,null,null,null,null,null,null)
-B.ach=new A.a9("Sign In",null,B.pB,null,null,null,null,null,null,null,null)
+B.acd=new A.a9("Live Matches",null,null,null,null,null,null,null,null,null,null)
+B.ace=new A.a9("Gross Revenue",null,null,null,null,null,null,null,null,null,null)
+B.acf=new A.a9("Enter your email. We will send a reset code.",null,B.Gk,null,null,null,null,null,null,null,null)
+B.acg=new A.a9("Sign In",null,B.pB,null,null,null,null,null,null,null,null)
 B.Gl=new A.A(!0,B.h,null,null,null,null,10,B.V,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
-B.aci=new A.a9("PENALTY",null,B.Gl,null,null,null,null,null,null,null,null)
-B.ack=new A.a9("Send Global Push",null,null,null,null,null,null,null,null,null,null)
-B.acl=new A.a9("Language",null,null,null,null,null,null,null,null,null,null)
-B.aco=new A.a9("Override Match",null,null,null,null,null,null,null,null,null,null)
+B.ach=new A.a9("PENALTY",null,B.Gl,null,null,null,null,null,null,null,null)
+B.acj=new A.a9("Send Global Push",null,null,null,null,null,null,null,null,null,null)
+B.ack=new A.a9("Language",null,null,null,null,null,null,null,null,null,null)
+B.acn=new A.a9("Override Match",null,null,null,null,null,null,null,null,null,null)
 B.pF=new A.a9("Log out",null,null,null,null,null,null,null,null,null,null)
-B.acp=new A.a9("Leave",null,B.Gg,null,null,null,null,null,null,null,null)
+B.aco=new A.a9("Leave",null,B.Gg,null,null,null,null,null,null,null,null)
 B.a6U=new A.A(!0,B.h,null,null,null,null,24,B.az,null,3,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
-B.acq=new A.a9("VS",null,B.a6U,null,null,null,null,null,null,null,null)
-B.acr=new A.a9("Prediction",null,null,null,null,null,null,null,null,null,null)
+B.acp=new A.a9("VS",null,B.a6U,null,null,null,null,null,null,null,null)
+B.acq=new A.a9("Prediction",null,null,null,null,null,null,null,null,null,null)
+B.acr=new A.a9("Match events (optional picks): +1 correct, \u22121 wrong",null,null,null,null,null,null,null,null,null,null)
 B.acs=new A.a9("Forgot Password",null,null,null,null,null,null,null,null,null,null)
 B.acu=new A.a9("Select language",null,null,null,null,null,null,null,null,null,null)
 B.acv=new A.a9("Manage matches & results",null,null,null,null,null,null,null,null,null,null)
