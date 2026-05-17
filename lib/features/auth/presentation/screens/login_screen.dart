@@ -253,10 +253,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                               side: BorderSide(color: Colors.grey.shade300),
                             ),
-                            icon: Image.network('https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg', height: 24),
+                            icon: Image.network(
+                              'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/120px-Google_%22G%22_logo.svg.png',
+                              height: 24,
+                              errorBuilder: (context, error, stackTrace) => const Icon(Icons.g_mobiledata_rounded, size: 32, color: Colors.white),
+                            ),
                             label: const Text(
                               'Sign in with Google',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
                             ),
                           ),
                         ).animate().slideY(begin: 0.3, duration: 400.ms, delay: 500.ms).fadeIn(duration: 300.ms, delay: 500.ms),
