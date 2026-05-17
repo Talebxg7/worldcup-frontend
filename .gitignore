@@ -49,3 +49,7 @@ app.*.map.json
 
 backend/
 
+
+# Android Keystore
+*.jks
+key.properties

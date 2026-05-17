@@ -127,10 +127,20 @@ class DashboardPredictionModel {
       predictedWinner: (json['winner'] as String?) ?? 'DRAW',
       jokerUsed: (json['jokerUsed'] as bool?) ?? false,
       matchStatus: (json['matchStatus'] as String?) ?? 'UPCOMING',
-      pointsEarned: (json['pointsEarned'] as num?)?.toInt(),
-      actualHomeGoals: (json['actualHomeGoals'] as num?)?.toInt(),
-      actualAwayGoals: (json['actualAwayGoals'] as num?)?.toInt(),
+      pointsEarned: _parseInt(json['pointsEarned']),
+      actualHomeGoals: _parseInt(json['actualHomeGoals']),
+      actualAwayGoals: _parseInt(json['actualAwayGoals']),
       savedAtIso: (json['savedAt'] as String?) ?? DateTime.now().toIso8601String(),
     );
+  }
+
+  static int? _parseInt(dynamic val) {
+    if (val == null) return null;
+    if (val is num) return val.toInt();
+    if (val is String) {
+      final parsed = double.tryParse(val);
+      if (parsed != null) return parsed.toInt();
+    }
+    return null;
   }
 }
