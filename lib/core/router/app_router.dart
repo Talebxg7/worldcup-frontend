@@ -42,6 +42,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           state.matchedLocation == '/register' ||
           state.matchedLocation == '/forgot-password' ||
           state.matchedLocation == '/reset-password' ||
+          state.matchedLocation == '/privacy-policy' ||
+          state.matchedLocation == '/terms-of-service' ||
           state.matchedLocation == '/splash';
 
       if (!isLoggedIn && !isAuthRoute) return '/login';
