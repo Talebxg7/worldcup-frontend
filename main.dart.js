@@ -36725,7 +36725,7 @@ return A.r($async$ah_,r)},
 a4L:function a4L(a){this.a=a},
 btD(a,b){var s=A.NZ()
 s=B.c.q(s.gmc(s),"localhost")
-if(!s)return A.dk("/api-sports/"+a,0,null).V3(0,b)
+if(!s)return A.dk("https://corsproxy.io/?https://v3.football.api-sports.io/"+a,0,null).V3(0,b)
 return A.dk("https://v3.football.api-sports.io/"+a,0,null).V3(0,b)},
 wf(a,b){var s=0,r=A.t(t.P),q,p,o
 var $async$wf=A.o(function(c,d){if(c===1)return A.p(d,r)
