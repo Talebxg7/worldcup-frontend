@@ -22,13 +22,40 @@ class _ManageLeaguesScreenState extends State<ManageLeaguesScreen> {
   Future<void> _fetchLeagues() async {
     try {
       final res = await ApiClient.instance.get('/leagues/all');
+      final list = res.data as List;
+      list.sort((a, b) => ((a['order_index'] as int?) ?? 99).compareTo((b['order_index'] as int?) ?? 99));
       setState(() {
-        _leagues = res.data as List;
+        _leagues = list;
         _isLoading = false;
       });
     } catch (e) {
       debugPrint('Error fetching leagues: $e');
       setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _updateOrder(int oldIndex, int newIndex) async {
+    if (newIndex > oldIndex) {
+      newIndex -= 1;
+    }
+    setState(() {
+      final item = _leagues.removeAt(oldIndex);
+      _leagues.insert(newIndex, item);
+    });
+
+    try {
+      final orders = _leagues.asMap().entries.map((e) {
+        return {
+          'api_league_id': e.value['api_league_id'],
+          'order_index': e.key + 1,
+        };
+      }).toList();
+
+      await ApiClient.instance.put('/admin/leagues/order', data: {'orders': orders});
+    } catch (e) {
+      debugPrint('Error updating order: $e');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update order: $e')));
+      _fetchLeagues(); // Revert on failure
     }
   }
 
@@ -119,13 +146,22 @@ class _ManageLeaguesScreenState extends State<ManageLeaguesScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
+          : ReorderableListView.builder(
+              onReorder: _updateOrder,
               itemCount: _leagues.length,
               itemBuilder: (context, index) {
                 final league = _leagues[index];
                 final isEnabled = league['is_enabled'] ?? false;
                 return ListTile(
-                  leading: Text(league['emoji'] ?? '⚽', style: const TextStyle(fontSize: 24)),
+                  key: ValueKey(league['api_league_id']),
+                  leading: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.drag_handle, color: Colors.grey),
+                      const SizedBox(width: 8),
+                      Text(league['emoji'] ?? '⚽', style: const TextStyle(fontSize: 24)),
+                    ],
+                  ),
                   title: Text(league['name']),
                   subtitle: Text('ID: ${league['api_league_id']}'),
                   trailing: Row(

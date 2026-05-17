@@ -151,34 +151,68 @@ class _CompetitionSelectionScreenState extends State<CompetitionSelectionScreen>
                       ? 3
                       : 4;
 
-              return GridView.builder(
-                padding: const EdgeInsets.all(16),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: cols,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 1.1,
-                ),
-                itemCount: _competitions!.length,
-                itemBuilder: (context, index) {
-                  final comp = _competitions![index];
-                  return CompetitionCard(
-                    competition: comp,
-                    gradientColors: _gradientFor(comp.leagueId),
-                    upcomingCount: comp.upcomingCount,
-                    isLoadingCount: false,
-                    onTap: () {
-                      final onSelect = widget.onSelect;
-                      if (onSelect != null) {
-                        onSelect(context, comp);
-                        return;
-                      }
-                      context.go(
-                        '/home/fixtures?leagueId=${comp.leagueId}&leagueName=${Uri.encodeComponent(comp.name)}',
-                      );
-                    },
-                  );
-                },
+              return CustomScrollView(
+                slivers: [
+                  if (_competitions!.isNotEmpty)
+                    SliverPadding(
+                      padding: const EdgeInsets.all(16),
+                      sliver: SliverToBoxAdapter(
+                        child: AspectRatio(
+                          aspectRatio: (cols == 2 ? 2.2 : 3.3) / 1.1,
+                          child: CompetitionCard(
+                            competition: _competitions![0],
+                            gradientColors: _gradientFor(_competitions![0].leagueId),
+                            upcomingCount: _competitions![0].upcomingCount,
+                            isLoadingCount: false,
+                            onTap: () {
+                              final onSelect = widget.onSelect;
+                              if (onSelect != null) {
+                                onSelect(context, _competitions![0]);
+                                return;
+                              }
+                              context.go(
+                                '/home/fixtures?leagueId=${_competitions![0].leagueId}&leagueName=${Uri.encodeComponent(_competitions![0].name)}',
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (_competitions!.length > 1)
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 16),
+                      sliver: SliverGrid(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: cols,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 1.1,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final comp = _competitions![index + 1];
+                            return CompetitionCard(
+                              competition: comp,
+                              gradientColors: _gradientFor(comp.leagueId),
+                              upcomingCount: comp.upcomingCount,
+                              isLoadingCount: false,
+                              onTap: () {
+                                final onSelect = widget.onSelect;
+                                if (onSelect != null) {
+                                  onSelect(context, comp);
+                                  return;
+                                }
+                                context.go(
+                                  '/home/fixtures?leagueId=${comp.leagueId}&leagueName=${Uri.encodeComponent(comp.name)}',
+                                );
+                              },
+                            );
+                          },
+                          childCount: _competitions!.length - 1,
+                        ),
+                      ),
+                    ),
+                ],
               );
             },
           ),

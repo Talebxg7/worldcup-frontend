@@ -70,39 +70,30 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-              // Hero Header
-              Container(
-                height: size.height * 0.38,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0xFF006633), Color(0xFF004499)],
-                  ),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(40),
-                    bottomRight: Radius.circular(40),
-                  ),
-                ),
-                child: SafeArea(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(24),
-                          child: Image.asset(
-                            'assets/images/logo.png',
-                            height: 160,
-                            fit: BoxFit.contain,
-                          ),
-                        ).animate().scaleXY(begin: 0.8, duration: 500.ms, curve: Curves.elasticOut),
-                      ],
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/auth_bg.jpg'),
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(Colors.black54, BlendMode.darken),
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Hero Header with Logo
+              SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 40, bottom: 20),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      height: 160,
+                      fit: BoxFit.contain,
                     ),
-                  ),
+                  ).animate().scaleXY(begin: 0.8, duration: 500.ms, curve: Curves.elasticOut),
                 ),
               ),
 
@@ -313,7 +304,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               ],
             ),
+          ),
         ),
+      ),
     );
   }
 }
