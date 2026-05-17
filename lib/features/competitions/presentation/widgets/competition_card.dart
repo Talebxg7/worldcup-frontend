@@ -16,7 +16,7 @@ class CompetitionCard extends StatelessWidget {
     61: 'assets/images/ligue1_bg.png',
     233: 'assets/images/egyptian_league.png',
     94: 'assets/images/portuguese.webp',
-    1: 'assets/images/world_cup_hero.jpg',
+    1: 'assets/images/world_cup.png',
     2: 'assets/images/uefa_champions_bg.png',
     3: 'assets/images/uefa_europa_bg.png',
     6: 'assets/images/afcon_bg.png',

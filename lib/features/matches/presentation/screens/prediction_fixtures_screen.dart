@@ -60,7 +60,19 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
           ),
         ],
       ),
-      body: FutureBuilder<List<FixtureModel>>(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: widget.leagueId == 1
+            ? const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/world_cup_hero.jpg'),
+                  fit: BoxFit.cover,
+                  colorFilter: ColorFilter.mode(Colors.black54, BlendMode.darken),
+                ),
+              )
+            : null,
+        child: FutureBuilder<List<FixtureModel>>(
         future: _future,
         builder: (context, snap) {
           if (snap.connectionState == ConnectionState.waiting) {
@@ -310,6 +322,7 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
             ),
           );
         },
+      ),
       ),
     );
   }
