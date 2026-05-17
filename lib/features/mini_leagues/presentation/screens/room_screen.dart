@@ -385,18 +385,18 @@ class _RoomScreenState extends State<RoomScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   if (first.homeTeamFlag != null) ...[
-                                    Image.network(first.homeTeamFlag!, width: 24, height: 24),
-                                    const SizedBox(width: 8),
+                                    Image.network(first.homeTeamFlag!, width: 36, height: 36),
+                                    const SizedBox(width: 12),
                                   ],
-                                  Text(first.homeTeam, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  Text(first.homeTeam, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                   const Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 12),
-                                    child: Text('vs', style: TextStyle(color: Colors.grey)),
+                                    padding: EdgeInsets.symmetric(horizontal: 16),
+                                    child: Text('VS', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w800, fontSize: 13)),
                                   ),
-                                  Text(first.awayTeam, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  Text(first.awayTeam, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                   if (first.awayTeamFlag != null) ...[
-                                    const SizedBox(width: 8),
-                                    Image.network(first.awayTeamFlag!, width: 24, height: 24),
+                                    const SizedBox(width: 12),
+                                    Image.network(first.awayTeamFlag!, width: 36, height: 36),
                                   ],
                                 ],
                               ),
