@@ -429,12 +429,16 @@ class FixtureStatisticsModel {
   final String teamName;
   final int shotsTotal;
   final int shotsOnGoal;
+  final int redCards;
+  final int yellowCards;
 
   const FixtureStatisticsModel({
     required this.teamId,
     required this.teamName,
     required this.shotsTotal,
     required this.shotsOnGoal,
+    required this.redCards,
+    required this.yellowCards,
   });
 
   factory FixtureStatisticsModel.fromJson(Map<String, dynamic> json) {
@@ -459,6 +463,8 @@ class FixtureStatisticsModel {
       teamName: (team['name'] as String?) ?? '',
       shotsTotal: readInt('Total Shots'),
       shotsOnGoal: readInt('Shots on Goal'),
+      redCards: readInt('Red Cards'),
+      yellowCards: readInt('Yellow Cards'),
     );
   }
 }

@@ -50,66 +50,47 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF006633), // FIFA deep green
-              Color(0xFF004499), // FIFA blue
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(32),
-                  child: Image.asset(
-                    'assets/images/logo.png',
-                    height: 220,
-                    fit: BoxFit.contain,
-                  ),
-                )
-                    .animate()
-                    .scaleXY(begin: 0.5, duration: 600.ms, curve: Curves.elasticOut)
-                    .fadeIn(duration: 400.ms),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isLandscape = constraints.maxWidth > constraints.maxHeight;
+          final bgImage = isLandscape 
+              ? 'assets/images/splash_bg_desktop.jpg' 
+              : 'assets/images/splash_bg_mobile.jpg';
 
-                const SizedBox(height: 64),
-
-                // Loading indicator
-                SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Colors.white.withOpacity(0.7),
-                    ),
-                    strokeWidth: 2,
-                  ),
-                )
-                    .animate()
-                    .fadeIn(duration: 400.ms, delay: 800.ms),
-
-                const SizedBox(height: 16),
-
-                Text(
-                  'Predict. Compete. Win.',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
-                    fontSize: 14,
-                    letterSpacing: 1,
-                  ),
-                )
-                    .animate()
-                    .fadeIn(duration: 400.ms, delay: 1000.ms),
-              ],
+          return Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(bgImage),
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-        ),
+            child: SafeArea(
+              child: Stack(
+                children: [
+                  Positioned(
+                    bottom: 64,
+                    left: 0,
+                    right: 0,
+                    child: Center(
+                      child: SizedBox(
+                        width: 40,
+                        height: 40,
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white.withOpacity(0.7),
+                          ),
+                          strokeWidth: 2,
+                        ),
+                      ).animate().fadeIn(duration: 400.ms, delay: 800.ms),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ).animate().fadeIn(duration: 500.ms);
+        },
       ),
     );
   }

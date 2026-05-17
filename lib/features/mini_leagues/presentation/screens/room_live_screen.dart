@@ -80,7 +80,13 @@ class _RoomLiveScreenState extends State<RoomLiveScreen> {
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12),
                   child: ExpansionTile(
-                    title: Text('${f.homeTeam} vs ${f.awayTeam}'),
+                    title: Row(
+                      children: [
+                        if (f.homeLogo != null) Padding(padding: const EdgeInsets.only(right: 8), child: Image.network(f.homeLogo!, width: 20, height: 20)),
+                        Expanded(child: Text('${f.homeTeam} vs ${f.awayTeam}', style: const TextStyle(fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                        if (f.awayLogo != null) Padding(padding: const EdgeInsets.only(left: 8), child: Image.network(f.awayLogo!, width: 20, height: 20)),
+                      ],
+                    ),
                     subtitle: Text(
                       '${f.minute != null ? "${f.minute}′" : (f.statusLong ?? f.status ?? "")} • ${f.date != null ? df.format(f.date!.toLocal()) : ""}',
                     ),
@@ -112,6 +118,8 @@ class _RoomLiveScreenState extends State<RoomLiveScreen> {
                               children: [
                                 _kv('Shots', '${extra.homeShots} - ${extra.awayShots}'),
                                 _kv('Shots on goal', '${extra.homeShotsOnGoal} - ${extra.awayShotsOnGoal}'),
+                                _kv('Red Cards', '${extra.homeRedCards} - ${extra.awayRedCards}'),
+                                _kv('Yellow Cards', '${extra.homeYellowCards} - ${extra.awayYellowCards}'),
                                 _kv('Goal scorers', extra.goalScorersText),
                               ],
                             ),
@@ -133,19 +141,23 @@ class _RoomLiveScreenState extends State<RoomLiveScreen> {
     final stats = await FootballApiService.getFixtureStatistics(fixtureId: fixtureId);
     final events = await FootballApiService.getFixtureEvents(fixtureId: fixtureId);
 
-    int homeShots = 0;
-    int awayShots = 0;
-    int homeOn = 0;
-    int awayOn = 0;
+    int homeShots = 0, awayShots = 0;
+    int homeOn = 0, awayOn = 0;
+    int homeRed = 0, awayRed = 0;
+    int homeYellow = 0, awayYellow = 0;
 
     if (stats.isNotEmpty) {
       final a = stats.first;
       homeShots = a.shotsTotal;
       homeOn = a.shotsOnGoal;
+      homeRed = a.redCards;
+      homeYellow = a.yellowCards;
       if (stats.length > 1) {
         final b = stats[1];
         awayShots = b.shotsTotal;
         awayOn = b.shotsOnGoal;
+        awayRed = b.redCards;
+        awayYellow = b.yellowCards;
       }
     }
 
@@ -153,7 +165,8 @@ class _RoomLiveScreenState extends State<RoomLiveScreen> {
         .where((e) => e.type.toLowerCase() == 'goal')
         .map((e) {
           final m = e.elapsedMinute != null ? '${e.elapsedMinute}′ ' : '';
-          return '$m${e.playerName ?? 'Unknown'} (${e.teamName})';
+          final extra = e.detail.toLowerCase().contains('penalty') ? ' (Pen)' : '';
+          return '$m${e.playerName ?? 'Unknown'}$extra (${e.teamName})';
         })
         .toList();
 
@@ -162,7 +175,11 @@ class _RoomLiveScreenState extends State<RoomLiveScreen> {
       awayShots: awayShots,
       homeShotsOnGoal: homeOn,
       awayShotsOnGoal: awayOn,
-      goalScorersText: goals.isEmpty ? 'No goals yet' : goals.join(' · '),
+      homeRedCards: homeRed,
+      awayRedCards: awayRed,
+      homeYellowCards: homeYellow,
+      awayYellowCards: awayYellow,
+      goalScorersText: goals.isEmpty ? 'No goals yet' : goals.join('\n'),
     );
   }
 }
@@ -171,6 +188,7 @@ Widget _kv(String k, String v) {
   return Padding(
     padding: const EdgeInsets.only(top: 6),
     child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
           width: 110,
@@ -195,6 +213,10 @@ class _FixtureLiveExtra {
   final int awayShots;
   final int homeShotsOnGoal;
   final int awayShotsOnGoal;
+  final int homeRedCards;
+  final int awayRedCards;
+  final int homeYellowCards;
+  final int awayYellowCards;
   final String goalScorersText;
 
   const _FixtureLiveExtra({
@@ -202,6 +224,10 @@ class _FixtureLiveExtra {
     required this.awayShots,
     required this.homeShotsOnGoal,
     required this.awayShotsOnGoal,
+    required this.homeRedCards,
+    required this.awayRedCards,
+    required this.homeYellowCards,
+    required this.awayYellowCards,
     required this.goalScorersText,
   });
 }
