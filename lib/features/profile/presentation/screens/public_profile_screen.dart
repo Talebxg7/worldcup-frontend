@@ -32,12 +32,19 @@ class PublicProfileModel {
       username: json['username'] ?? '',
       avatarUrl: json['avatar_url'],
       country: json['country'] ?? '',
-      totalPoints: (json['total_points'] as num?)?.toDouble() ?? 0.0,
+      totalPoints: _parseNum(json['total_points'])?.toDouble() ?? 0.0,
       totalPredictions: (json['total_predictions'] as num?)?.toInt() ?? 0,
       rank: (json['rank'] as num?)?.toInt() ?? 0,
-      seasonPoints: (json['season_points'] as num?)?.toDouble() ?? 0.0,
+      seasonPoints: _parseNum(json['season_points'])?.toDouble() ?? 0.0,
       contextLabel: json['context_label'] ?? 'Global',
     );
+  }
+
+  static num? _parseNum(dynamic val) {
+    if (val == null) return null;
+    if (val is num) return val;
+    if (val is String) return num.tryParse(val);
+    return null;
   }
 }
 

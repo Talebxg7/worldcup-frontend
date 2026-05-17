@@ -76,8 +76,15 @@ class RoomLeaderboardRowModel {
       userId: (json['user_id'] as num?)?.toInt() ?? 0,
       username: (json['username'] as String?) ?? '',
       avatarUrl: json['avatar_url'] as String?,
-      points: (json['points'] as num?)?.toInt() ?? 0,
+      points: _parseNum(json['points'])?.toInt() ?? 0,
     );
+  }
+
+  static num? _parseNum(dynamic val) {
+    if (val == null) return null;
+    if (val is num) return val;
+    if (val is String) return num.tryParse(val);
+    return null;
   }
 }
 
@@ -140,7 +147,7 @@ class RoomPredictionPeekModel {
       joker: json['joker'] as bool?,
       actualHomeScore: (json['actual_home_score'] as num?)?.toInt(),
       actualAwayScore: (json['actual_away_score'] as num?)?.toInt(),
-      pointsEarned: (json['points_earned'] as num?)?.toInt(),
+      pointsEarned: RoomLeaderboardRowModel._parseNum(json['points_earned'])?.toInt(),
       status: json['status'] as String?,
     );
   }

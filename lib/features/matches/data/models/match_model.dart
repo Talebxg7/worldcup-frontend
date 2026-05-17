@@ -122,9 +122,16 @@ class PredictionModel extends Equatable {
       userId: json['user_id'] as int,
       homeScore: json['home_score'] as int,
       awayScore: json['away_score'] as int,
-      pointsEarned: json['points_earned'] as int?,
+      pointsEarned: _parseNum(json['points_earned'])?.toInt(),
       submittedAt: DateTime.parse(json['submitted_at'] as String),
     );
+  }
+
+  static num? _parseNum(dynamic val) {
+    if (val == null) return null;
+    if (val is num) return val;
+    if (val is String) return num.tryParse(val);
+    return null;
   }
 
   Map<String, dynamic> toJson() => {
