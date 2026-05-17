@@ -36985,7 +36985,7 @@ return A.r($async$aht,r)},
 a5a:function a5a(a){this.a=a},
 buD(a,b){var s=A.dk("https://v3.football.api-sports.io/"+a,0,null).ada(0,b),r=A.Ob()
 r=B.c.q(r.gmg(r),"localhost")
-if(!r)return A.dk("https://corsproxy.io/?"+A.oW(2,s.grS(),B.a8,!1),0,null)
+if(!r)return A.dk("https://whowillwin-api.onrender.com/api/proxy/football?url="+A.oW(2,s.grS(),B.a8,!1),0,null)
 return s},
 ws(a,b){var s=0,r=A.t(t.P),q,p,o
 var $async$ws=A.o(function(c,d){if(c===1)return A.p(d,r)
