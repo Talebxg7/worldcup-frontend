@@ -5,6 +5,7 @@ import '../../../../core/network/api_client.dart';
 import '../../data/models/user_model.dart';
 import '../../../../core/constants/app_constants.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/foundation.dart';
 
 class AuthRepository {
   final ApiClient _api = ApiClient.instance;
@@ -53,8 +54,8 @@ class AuthRepository {
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn(
         scopes: ['email', 'profile'],
-        clientId: '604323730083-db8buapk2e3s42kdmj7v3cvaah7vsqpq.apps.googleusercontent.com',
-        serverClientId: '604323730083-db8buapk2e3s42kdmj7v3cvaah7vsqpq.apps.googleusercontent.com',
+        clientId: kIsWeb ? '604323730083-db8buapk2e3s42kdmj7v3cvaah7vsqpq.apps.googleusercontent.com' : null,
+        serverClientId: kIsWeb ? null : '604323730083-db8buapk2e3s42kdmj7v3cvaah7vsqpq.apps.googleusercontent.com',
       );
       
       final GoogleSignInAccount? account = await googleSignIn.signIn();
