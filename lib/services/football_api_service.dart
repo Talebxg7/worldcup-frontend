@@ -16,8 +16,8 @@ class FootballApiService {
 
   static Uri _uri(String path, [Map<String, String>? query]) {
     if (kIsWeb && !Uri.base.host.contains('localhost')) {
-      // Use Netlify proxy rewrite to bypass CORS and forward headers in production web
-      return Uri.parse('/api-sports/$path').replace(queryParameters: query);
+      // Use corsproxy to bypass CORS on GitHub Pages
+      return Uri.parse('https://corsproxy.io/?https://v3.football.api-sports.io/$path').replace(queryParameters: query);
     }
     return Uri.parse('$baseUrl$path').replace(queryParameters: query);
   }
