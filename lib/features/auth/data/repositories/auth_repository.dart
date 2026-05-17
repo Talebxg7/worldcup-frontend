@@ -53,7 +53,6 @@ class AuthRepository {
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn(
         scopes: ['email', 'profile'],
-        serverClientId: '604323730083-db8buapk2e3s42kdmj7v3cvaah7vsqpq.apps.googleusercontent.com',
       );
       
       final GoogleSignInAccount? account = await googleSignIn.signIn();

@@ -29,13 +29,11 @@ class CompetitionSelectionScreen extends StatefulWidget {
 
 class _CompetitionSelectionScreenState extends State<CompetitionSelectionScreen> {
   List<Competition>? _competitions;
-  late Future<Map<int, int>> _countsFuture;
 
   @override
   void initState() {
     super.initState();
     _fetchLeagues();
-    _countsFuture = FootballApiService.getPredictionCounts();
     _checkAnnouncement();
   }
 
@@ -68,11 +66,7 @@ class _CompetitionSelectionScreenState extends State<CompetitionSelectionScreen>
   }
 
   Future<void> _refresh() async {
-    setState(() {
-      _countsFuture = FootballApiService.getPredictionCounts();
-    });
     await _fetchLeagues();
-    await _countsFuture;
   }
 
   Future<void> _checkAnnouncement() async {
@@ -143,13 +137,7 @@ class _CompetitionSelectionScreenState extends State<CompetitionSelectionScreen>
           ),
         ],
       ),
-      body: FutureBuilder<Map<int, int>>(
-        future: _countsFuture,
-        builder: (context, snapshot) {
-          final counts = snapshot.data ?? const <int, int>{};
-          final loading = snapshot.connectionState == ConnectionState.waiting;
-
-          return _competitions == null 
+      body: _competitions == null 
             ? const Center(child: CircularProgressIndicator())
             : RefreshIndicator(
           onRefresh: _refresh,
@@ -176,8 +164,8 @@ class _CompetitionSelectionScreenState extends State<CompetitionSelectionScreen>
                   return CompetitionCard(
                     competition: comp,
                     gradientColors: _gradientFor(comp.leagueId),
-                    upcomingCount: counts[comp.leagueId],
-                    isLoadingCount: loading,
+                    upcomingCount: 0,
+                    isLoadingCount: false,
                     onTap: () {
                       final onSelect = widget.onSelect;
                       if (onSelect != null) {
@@ -193,9 +181,7 @@ class _CompetitionSelectionScreenState extends State<CompetitionSelectionScreen>
               );
             },
           ),
-        );
-        },
-      ),
+        ),
     );
   }
 
