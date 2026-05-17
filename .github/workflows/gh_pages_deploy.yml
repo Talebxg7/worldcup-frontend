@@ -24,11 +24,12 @@ jobs:
         run: flutter pub get
 
       - name: Build Web App
-        # Important: the base-href must match your repository name!
-        run: flutter build web --release --base-href /worldcup-frontend/
+        # When using a custom domain, base-href must be /
+        run: flutter build web --release --base-href /
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build/web
+          cname: www.whowillwinapp.com
