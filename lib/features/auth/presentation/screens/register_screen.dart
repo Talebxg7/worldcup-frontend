@@ -130,17 +130,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                 const SizedBox(height: 32),
 
-                // Trophy decoration
+                // Logo decoration
                 Center(
-                  child: Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      gradient: AppColors.heroGradient,
-                      borderRadius: BorderRadius.circular(20),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      height: 90,
+                      fit: BoxFit.contain,
                     ),
-                    child: const Icon(Icons.emoji_events_rounded,
-                        color: Colors.white, size: 40),
                   ),
                 ).animate()
                     .scaleXY(begin: 0.8, duration: 500.ms, curve: Curves.elasticOut)
