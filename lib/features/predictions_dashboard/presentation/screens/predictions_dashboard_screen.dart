@@ -255,8 +255,8 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
                                 dateFormat: df,
                                 winnerLabel: _winnerLabel(p),
                                 tabIndex: tabIndex,
-                                onTap: () {
-                                  Navigator.of(context).push(
+                                onTap: () async {
+                                  await Navigator.of(context).push(
                                     MaterialPageRoute(
                                       builder: (_) => PredictionScreen(
                                         fixtureId: int.parse(p.fixtureId),
@@ -272,10 +272,11 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
                                       ),
                                     ),
                                   );
+                                  if (mounted) _load();
                                 },
                                 onEdit: canEdit
-                                    ? () {
-                                        Navigator.of(context).push(
+                                    ? () async {
+                                        await Navigator.of(context).push(
                                           MaterialPageRoute(
                                             builder: (_) => PredictionScreen(
                                               fixtureId: int.parse(p.fixtureId),
@@ -291,6 +292,7 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
                                             ),
                                           ),
                                         );
+                                        if (mounted) _load();
                                       }
                                     : null,
                               ),

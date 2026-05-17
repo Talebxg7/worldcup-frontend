@@ -243,8 +243,8 @@ class _RoomScreenState extends State<RoomScreen> {
                           runSpacing: 8,
                           children: [
                             FilledButton.icon(
-                              onPressed: () {
-                                Navigator.of(context).push(
+                              onPressed: () async {
+                                await Navigator.of(context).push(
                                   MaterialPageRoute(
                                     builder: (_) => PredictionFixturesScreen(
                                       leagueId: room.leagueId,
@@ -253,6 +253,9 @@ class _RoomScreenState extends State<RoomScreen> {
                                     ),
                                   ),
                                 );
+                                if (mounted) {
+                                  _refresh();
+                                }
                               },
                               icon: const Icon(Icons.sports_soccer_rounded),
                               label: const Text('Predict'),
