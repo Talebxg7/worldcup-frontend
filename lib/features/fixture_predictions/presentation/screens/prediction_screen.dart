@@ -125,7 +125,7 @@ class _PredictionScreenState extends State<PredictionScreen>
               const SizedBox(height: 8),
               const Text('Winner pick correct (Home/Draw/Away): +2'),
               const SizedBox(height: 12),
-              const Text('Match events (optional picks): +0.5 correct, −0.5 wrong'),
+              const Text('Match events (optional picks): +1 correct, −1 wrong'),
             ],
           ),
         ),
