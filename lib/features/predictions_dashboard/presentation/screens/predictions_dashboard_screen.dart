@@ -30,10 +30,11 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
 
   List<DashboardPredictionModel> _rows = [];
   bool _loading = true;
-  String _filterLeagueId = '39';
+  String _filterLeagueId = 'ALL';
   String? _jokerFixtureLabel;
 
   static const _leagueFilters = <(String, String)>[
+    ('ALL', 'All Leagues'),
     ('39', 'Premier League'),
     ('140', 'La Liga'),
     ('135', 'Serie A'),
@@ -101,7 +102,7 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
   }
 
   Iterable<DashboardPredictionModel> get _filtered {
-    if (_filterLeagueId == null) return _rows;
+    if (_filterLeagueId == 'ALL') return _rows;
     return _rows.where((e) => e.leagueId == _filterLeagueId);
   }
 
@@ -136,7 +137,8 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
     final exact = _service.countExactScores(_rows);
     final weeklyPts = _service.weeklyPoints(_rows);
 
-    final leaderboard = ref.watch(leaderboardProvider(int.parse(_filterLeagueId))).valueOrNull ?? [];
+    final leaderboardId = _filterLeagueId == 'ALL' ? 0 : int.parse(_filterLeagueId);
+    final leaderboard = ref.watch(leaderboardProvider(leaderboardId)).valueOrNull ?? [];
     final currentUser = ref.watch(authStateProvider).value;
     int? currentRank;
     if (currentUser != null) {
@@ -201,7 +203,7 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
                                       ),
                                     )
                                     .toList(),
-                                onChanged: (v) => setState(() => _filterLeagueId = v ?? '39'),
+                                onChanged: (v) => setState(() => _filterLeagueId = v ?? 'ALL'),
                               ),
                             ),
                           ),
