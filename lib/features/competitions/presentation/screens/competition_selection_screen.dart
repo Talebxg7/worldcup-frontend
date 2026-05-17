@@ -49,6 +49,7 @@ class _CompetitionSelectionScreenState extends State<CompetitionSelectionScreen>
             leagueId: item['api_league_id'],
             emoji: item['emoji'] ?? '⚽',
             isEnabled: item['is_enabled'] ?? true,
+            upcomingCount: item['upcoming_count'] ?? 0,
           ));
         }
         setState(() {
@@ -164,7 +165,7 @@ class _CompetitionSelectionScreenState extends State<CompetitionSelectionScreen>
                   return CompetitionCard(
                     competition: comp,
                     gradientColors: _gradientFor(comp.leagueId),
-                    upcomingCount: 0,
+                    upcomingCount: comp.upcomingCount,
                     isLoadingCount: false,
                     onTap: () {
                       final onSelect = widget.onSelect;

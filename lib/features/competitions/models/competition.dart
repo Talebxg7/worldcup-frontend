@@ -5,6 +5,7 @@ class Competition {
   final String emoji;
   final bool isEnabled;
   final String? imagePath;
+  final int upcomingCount;
 
   const Competition({
     required this.name,
@@ -13,6 +14,7 @@ class Competition {
     required this.emoji,
     required this.isEnabled,
     this.imagePath,
+    this.upcomingCount = 0,
   });
 
   String get leagueLogoUrl =>
