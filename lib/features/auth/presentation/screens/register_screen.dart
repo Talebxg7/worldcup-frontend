@@ -310,7 +310,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 SizedBox(
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: (_isLoading || !_agreedToTerms) ? null : _register,
+                    onPressed: _isLoading ? null : _register,
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -354,7 +354,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 SizedBox(
                   height: 52,
                   child: OutlinedButton.icon(
-                    onPressed: (_isLoading || !_agreedToTerms) ? null : _googleLogin,
+                    onPressed: _isLoading ? null : _googleLogin,
                     style: OutlinedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
