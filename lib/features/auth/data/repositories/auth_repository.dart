@@ -53,9 +53,9 @@ class AuthRepository {
   Future<UserModel> googleSignIn() async {
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn(
-        scopes: ['email', 'profile'],
-        clientId: kIsWeb ? '604323730083-db8buapk2e3s42kdmj7v3cvaah7vsqpq.apps.googleusercontent.com' : null,
-        serverClientId: kIsWeb ? null : '604323730083-db8buapk2e3s42kdmj7v3cvaah7vsqpq.apps.googleusercontent.com',
+        scopes: ['email', 'profile', 'openid'],
+        clientId: '604323730083-db8buapk2e3s42kdmj7v3cvaah7vsqpq.apps.googleusercontent.com',
+        serverClientId: '604323730083-db8buapk2e3s42kdmj7v3cvaah7vsqpq.apps.googleusercontent.com',
       );
       
       final GoogleSignInAccount? account = await googleSignIn.signIn();
@@ -64,12 +64,13 @@ class AuthRepository {
       }
 
       final GoogleSignInAuthentication auth = await account.authentication;
-      if (auth.idToken == null) {
-        throw Exception('Failed to get Google ID token');
+      if (auth.idToken == null && auth.accessToken == null) {
+        throw Exception('Failed to get authentication tokens from Google');
       }
 
       final response = await _api.post('/auth/google', data: {
         'idToken': auth.idToken,
+        'accessToken': auth.accessToken,
       });
 
       final data = response.data as Map<String, dynamic>;
