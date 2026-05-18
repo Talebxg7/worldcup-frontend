@@ -453,13 +453,38 @@ class _RoomScreenState extends State<RoomScreen> {
                                                   ),
                                                 );
                                               },
-                                              child: Text(
-                                                '(${p.username})', 
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold, 
-                                                  color: Theme.of(context).colorScheme.primary,
-                                                  decoration: TextDecoration.underline,
-                                                )
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  CircleAvatar(
+                                                    radius: 12,
+                                                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                                                    backgroundImage: p.avatarUrl != null
+                                                        ? (p.avatarUrl!.startsWith('data:image')
+                                                            ? MemoryImage(base64Decode(p.avatarUrl!.split(',').last)) as ImageProvider
+                                                            : NetworkImage(p.avatarUrl!))
+                                                        : null,
+                                                    child: p.avatarUrl == null
+                                                        ? Text(
+                                                            p.username.isNotEmpty ? p.username[0].toUpperCase() : '?',
+                                                            style: TextStyle(
+                                                              fontSize: 10,
+                                                              color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                                              fontWeight: FontWeight.bold,
+                                                            ),
+                                                          )
+                                                        : null,
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    '(${p.username})', 
+                                                    style: TextStyle(
+                                                      fontWeight: FontWeight.bold, 
+                                                      color: Theme.of(context).colorScheme.primary,
+                                                      decoration: TextDecoration.underline,
+                                                    )
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                             const SizedBox(width: 8),

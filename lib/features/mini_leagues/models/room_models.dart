@@ -91,6 +91,7 @@ class RoomLeaderboardRowModel {
 class RoomPredictionPeekModel {
   final int userId;
   final String username;
+  final String? avatarUrl;
   final int matchId;
   final String homeTeam;
   final String awayTeam;
@@ -111,6 +112,7 @@ class RoomPredictionPeekModel {
   const RoomPredictionPeekModel({
     required this.userId,
     required this.username,
+    this.avatarUrl,
     required this.matchId,
     required this.homeTeam,
     required this.awayTeam,
@@ -133,6 +135,7 @@ class RoomPredictionPeekModel {
     return RoomPredictionPeekModel(
       userId: (json['user_id'] as num?)?.toInt() ?? 0,
       username: (json['username'] as String?) ?? '',
+      avatarUrl: json['avatar_url'] as String?,
       matchId: (json['match_id'] as num?)?.toInt() ?? 0,
       homeTeam: (json['home_team'] as String?) ?? '',
       awayTeam: (json['away_team'] as String?) ?? '',
