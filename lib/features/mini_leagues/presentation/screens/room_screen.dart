@@ -390,7 +390,7 @@ class _RoomScreenState extends State<RoomScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   if (first.homeTeamFlag != null) ...[
-                                    ClipOval(child: Image.network(first.homeTeamFlag!, width: 44, height: 44, fit: BoxFit.cover)),
+                                    ClipOval(child: Image.network(first.homeTeamFlag!, width: 30, height: 30, fit: BoxFit.cover)),
                                     const SizedBox(width: 12),
                                   ],
                                   Text(first.homeTeam, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
@@ -401,7 +401,7 @@ class _RoomScreenState extends State<RoomScreen> {
                                   Text(first.awayTeam, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                   if (first.awayTeamFlag != null) ...[
                                     const SizedBox(width: 12),
-                                    ClipOval(child: Image.network(first.awayTeamFlag!, width: 44, height: 44, fit: BoxFit.cover)),
+                                    ClipOval(child: Image.network(first.awayTeamFlag!, width: 30, height: 30, fit: BoxFit.cover)),
                                   ],
                                 ],
                               ),
