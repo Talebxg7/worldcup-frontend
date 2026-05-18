@@ -47,7 +47,7 @@ class LocalNotificationsService {
     );
     const details = NotificationDetails(android: androidDetails);
 
-    final deadline = kickoff.subtract(const Duration(hours: 2));
+    final deadline = kickoff.subtract(const Duration(hours: 4));
     final resultTime = kickoff.add(const Duration(hours: 2));
     final now = DateTime.now();
 
@@ -55,7 +55,7 @@ class LocalNotificationsService {
       await _plugin.zonedSchedule(
         fixtureId * 10 + 1,
         'Prediction closing soon',
-        '$homeTeam vs $awayTeam closes in 2 hours. Submit your prediction now.',
+        '$homeTeam vs $awayTeam going to start soon , predict if you didn\\'t !!',
         tz.TZDateTime.from(deadline, tz.local),
         details,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
