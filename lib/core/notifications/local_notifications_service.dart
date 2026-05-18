@@ -55,7 +55,7 @@ class LocalNotificationsService {
       await _plugin.zonedSchedule(
         fixtureId * 10 + 1,
         'Prediction closing soon',
-        '$homeTeam vs $awayTeam going to start soon , predict if you didn\\'t !!',
+        "$homeTeam vs $awayTeam going to start soon , predict if you didn't !!",
         tz.TZDateTime.from(deadline, tz.local),
         details,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
