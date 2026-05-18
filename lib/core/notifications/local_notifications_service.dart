@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -11,7 +12,7 @@ class LocalNotificationsService {
   bool _initialized = false;
 
   Future<void> init() async {
-    if (_initialized) return;
+    if (_initialized || kIsWeb) return;
     tz.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('Asia/Amman'));
 
@@ -35,6 +36,7 @@ class LocalNotificationsService {
     required String awayTeam,
     required DateTime kickoff,
   }) async {
+    if (kIsWeb) return;
     await init();
     const androidDetails = AndroidNotificationDetails(
       'match_alerts',
@@ -77,6 +79,7 @@ class LocalNotificationsService {
   }
 
   Future<void> cancelMatchReminders(int fixtureId) async {
+    if (kIsWeb) return;
     await init();
     await _plugin.cancel(fixtureId * 10 + 1);
     await _plugin.cancel(fixtureId * 10 + 2);
