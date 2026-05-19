@@ -418,8 +418,18 @@ Future<void> _showUsersManagementDialog(BuildContext context) async {
               itemBuilder: (context, i) {
                 final u = users[i];
                 return ListTile(
-                  title: Text(u['username']),
-                  subtitle: Text('Points: ${u['total_points']} | Premium: ${u['is_premium']}'),
+                  title: Row(
+                    children: [
+                      Text(u['username'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                      if (u['is_verified'] == true)
+                        const Padding(
+                          padding: EdgeInsets.only(left: 4),
+                          child: Icon(Icons.verified_rounded, size: 14, color: Colors.blue),
+                        ),
+                    ],
+                  ),
+                  subtitle: Text('${u['email']}\nPoints: ${u['total_points']} | Premium: ${u['is_premium']}'),
+                  isThreeLine: true,
                   trailing: IconButton(
                     icon: const Icon(Icons.edit_rounded, size: 18),
                     onPressed: () async {
