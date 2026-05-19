@@ -84,8 +84,9 @@ class ApiClient {
 class ApiException implements Exception {
   final String message;
   final int? statusCode;
+  final dynamic rawData;
 
-  ApiException({required this.message, this.statusCode});
+  ApiException({required this.message, this.statusCode, this.rawData});
 
   factory ApiException.fromDioError(DioException e) {
     switch (e.type) {
@@ -105,7 +106,11 @@ class ApiException implements Exception {
         } else {
           msg = 'Server error occurred.';
         }
-        return ApiException(message: msg, statusCode: e.response?.statusCode);
+        return ApiException(
+          message: msg, 
+          statusCode: e.response?.statusCode,
+          rawData: data,
+        );
       default:
         return ApiException(message: 'Something went wrong. Try again.');
     }

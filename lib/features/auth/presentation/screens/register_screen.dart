@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../providers/auth_provider.dart';
+import '../../data/repositories/auth_repository.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -51,6 +52,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       );
       if (!mounted) return;
       context.go('/home');
+    } on EmailVerificationRequiredException catch (e) {
+      if (!mounted) return;
+      context.go('/verify-email?email=${Uri.encodeComponent(e.email)}');
     } catch (e) {
       if (!mounted) return;
       setState(() => _errorMessage = e.toString());

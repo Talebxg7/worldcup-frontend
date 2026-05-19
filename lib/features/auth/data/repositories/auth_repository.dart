@@ -7,6 +7,14 @@ import '../../../../core/constants/app_constants.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart';
 
+class EmailVerificationRequiredException implements Exception {
+  final String email;
+  final String message;
+  EmailVerificationRequiredException(this.email, this.message);
+  @override
+  String toString() => message;
+}
+
 class AuthRepository {
   final ApiClient _api = ApiClient.instance;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
@@ -18,12 +26,20 @@ class AuthRepository {
         'password': password,
       });
       final data = response.data as Map<String, dynamic>;
+      
+      if (data['needsVerification'] == true) {
+        throw EmailVerificationRequiredException(data['email'] as String? ?? username, data['message'] as String? ?? 'Email verification required');
+      }
+
       final token = data['token'] as String;
       final user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
       await _storage.write(key: AppConstants.tokenKey, value: token);
       await _storage.write(key: AppConstants.userKey, value: jsonEncode(user.toJson()));
       return user;
-    } on ApiException {
+    } on ApiException catch (e) {
+      if (e.statusCode == 403 && e.rawData is Map && e.rawData['needsVerification'] == true) {
+        throw EmailVerificationRequiredException(e.rawData['email'] as String? ?? username, e.message);
+      }
       rethrow;
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
@@ -38,6 +54,10 @@ class AuthRepository {
         if (email != null && email.isNotEmpty) 'email': email,
       });
       final data = response.data as Map<String, dynamic>;
+      if (data['needsVerification'] == true) {
+        throw EmailVerificationRequiredException(data['email'] as String? ?? email ?? username, data['message'] as String? ?? 'Email verification required');
+      }
+
       final token = data['token'] as String;
       final user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
       await _storage.write(key: AppConstants.tokenKey, value: token);
@@ -166,6 +186,35 @@ class AuthRepository {
       });
       // Optionally re-fetch user to cache the new data
       await getCurrentUser();
+    } on ApiException {
+      rethrow;
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  Future<UserModel> verifyEmail(String email, String code) async {
+    try {
+      final response = await _api.post('/auth/verify-email', data: {
+        'email': email.trim(),
+        'code': code.trim(),
+      });
+      final data = response.data as Map<String, dynamic>;
+      final token = data['token'] as String;
+      final user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
+      await _storage.write(key: AppConstants.tokenKey, value: token);
+      await _storage.write(key: AppConstants.userKey, value: jsonEncode(user.toJson()));
+      return user;
+    } on ApiException {
+      rethrow;
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  Future<void> resendVerification(String email) async {
+    try {
+      await _api.post('/auth/resend-verification', data: {'email': email.trim()});
     } on ApiException {
       rethrow;
     } on DioException catch (e) {

@@ -5,6 +5,7 @@ import '../../features/auth/presentation/screens/splash_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
+import '../../features/auth/presentation/screens/verification_screen.dart';
 import '../../features/auth/presentation/screens/reset_password_screen.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/legal/presentation/screens/privacy_policy_screen.dart';
@@ -42,6 +43,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           state.matchedLocation == '/register' ||
           state.matchedLocation == '/forgot-password' ||
           state.matchedLocation == '/reset-password' ||
+          state.matchedLocation == '/verify-email' ||
           state.matchedLocation == '/privacy-policy' ||
           state.matchedLocation == '/terms-of-service' ||
           state.matchedLocation == '/splash';
@@ -51,7 +53,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           (state.matchedLocation == '/login' ||
               state.matchedLocation == '/register' ||
               state.matchedLocation == '/forgot-password' ||
-              state.matchedLocation == '/reset-password')) {
+              state.matchedLocation == '/reset-password' ||
+              state.matchedLocation == '/verify-email')) {
         return '/home';
       }
       return null;
@@ -61,6 +64,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/login', builder: (ctx, state) => const LoginScreen()),
       GoRoute(path: '/register', builder: (ctx, state) => const RegisterScreen()),
       GoRoute(path: '/forgot-password', builder: (ctx, state) => const ForgotPasswordScreen()),
+      GoRoute(
+        path: '/verify-email',
+        builder: (context, state) {
+          final email = state.uri.queryParameters['email'] ?? '';
+          return VerificationScreen(email: email);
+        },
+      ),
       GoRoute(
         path: '/reset-password',
         builder: (ctx, state) => ResetPasswordScreen(
