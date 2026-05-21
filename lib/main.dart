@@ -1,10 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/router/app_router.dart';
 import 'core/notifications/local_notifications_service.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
+import 'core/localization/locale_provider.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -38,6 +40,7 @@ class WorldCupApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeProvider);
+    final localeCode = ref.watch(localeProvider);
 
     return MaterialApp.router(
       title: 'World Cup 2026 Predictor',
@@ -46,6 +49,16 @@ class WorldCupApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       routerConfig: router,
+      locale: Locale(localeCode),
+      supportedLocales: const [
+        Locale('en', ''),
+        Locale('ar', ''),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
     );
   }
 }

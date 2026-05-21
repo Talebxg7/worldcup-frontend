@@ -13,6 +13,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/demo/demo_mode_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_provider.dart';
+import '../../../../core/localization/locale_provider.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../widgets/edit_profile_dialog.dart';
 
@@ -32,7 +34,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   String? _firebaseLinkError;
   bool _seedScheduled = false;
   bool? _notificationsEnabled;
-  String _languageCode = 'en';
 
   @override
   void initState() {
@@ -40,7 +41,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _ensureFirebaseUser();
       _loadNotificationPref();
-      _loadLanguagePref();
     });
   }
 
@@ -58,42 +58,28 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     if (mounted) setState(() => _notificationsEnabled = value);
   }
 
-  Future<void> _loadLanguagePref() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (!mounted) return;
-    setState(() {
-      _languageCode = prefs.getString(ProfilePage._languagePrefsKey) ?? 'en';
-    });
-  }
-
-  Future<void> _setLanguagePref(String code) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(ProfilePage._languagePrefsKey, code);
-    if (mounted) setState(() => _languageCode = code);
-  }
-
   Future<void> _chooseLanguage() async {
     final selected = await showDialog<String>(
       context: context,
       builder: (ctx) => SimpleDialog(
-        title: const Text('Select language'),
+        title: Text('Select language'.tr(ref)),
         children: [
           SimpleDialogOption(
             onPressed: () => Navigator.pop(ctx, 'en'),
-            child: const Text('English'),
+            child: Text('English'.tr(ref)),
           ),
           SimpleDialogOption(
             onPressed: () => Navigator.pop(ctx, 'ar'),
-            child: const Text('العربية'),
+            child: Text('العربية'.tr(ref)),
           ),
         ],
       ),
     );
     if (selected == null) return;
-    await _setLanguagePref(selected);
+    await ref.read(localeProvider.notifier).setLocale(selected);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Language saved')),
+      SnackBar(content: Text('Language saved'.tr(ref))),
     );
   }
 
@@ -165,13 +151,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Log out'),
-        content: const Text('Are you sure you want to log out?'),
+        title: Text('Log out'.tr(ref)),
+        content: Text('Are you sure you want to log out?'.tr(ref)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('Cancel'.tr(ref))),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Log out'),
+            child: Text('Log out'.tr(ref)),
           ),
         ],
       ),
@@ -183,16 +169,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete account'),
-        content: const Text(
-          'This removes your Firestore profile document and Firebase user when possible, then signs you out. This cannot be undone.',
+        title: Text('Delete account'.tr(ref)),
+        content: Text(
+          'This removes your Firestore profile document and Firebase user when possible, then signs you out. This cannot be undone.'.tr(ref),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('Cancel'.tr(ref))),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red.shade700),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete'),
+            child: Text('Delete'.tr(ref)),
           ),
         ],
       ),
@@ -556,8 +542,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         const Divider(height: 1),
                         SwitchListTile.adaptive(
                           secondary: const Icon(Icons.privacy_tip_rounded),
-                          title: const Text('Hide Username'),
-                          subtitle: const Text('Hide name on global leaderboard'),
+                          title: Text('Hide name'.tr(ref)),
+                          subtitle: Text('Hide name on global leaderboard'.tr(ref)),
                           value: apiUser?.hideUsername ?? false,
                           onChanged: (v) => _toggleHideUsername(
                             v,
@@ -571,16 +557,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                             isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
                             color: AppColors.primary,
                           ),
-                          title: const Text('Dark mode'),
-                          subtitle: Text(isDark ? 'Dark theme on' : 'Light theme on'),
+                          title: Text('Dark mode'.tr(ref)),
+                          subtitle: Text(isDark ? 'Dark theme on'.tr(ref) : 'Light theme on'.tr(ref)),
                           value: isDark,
                           onChanged: (_) => themeNotifier.toggleTheme(),
                         ),
                         const Divider(height: 1),
                         ListTile(
                           leading: const Icon(Icons.language_rounded),
-                          title: const Text('Language'),
-                          subtitle: Text(_languageCode == 'ar' ? 'العربية' : 'English'),
+                          title: Text('Language'.tr(ref)),
+                          subtitle: Text(ref.watch(localeProvider) == 'ar' ? 'العربية' : 'English'),
                           trailing: const Icon(Icons.chevron_right_rounded),
                           onTap: _chooseLanguage,
                         ),
@@ -601,21 +587,21 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                           onTap: () {
                             Clipboard.setData(const ClipboardData(text: 'predict.game433@gmail.com'));
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Email copied to clipboard')),
+                              SnackBar(content: Text('Email copied to clipboard'.tr(ref))),
                             );
                           },
                         ),
                         const Divider(height: 1),
                         ListTile(
                           leading: const Icon(Icons.shield_outlined),
-                          title: const Text('Privacy Policy'),
+                          title: Text('Privacy Policy'.tr(ref)),
                           trailing: const Icon(Icons.chevron_right_rounded),
                           onTap: () => context.push('/privacy-policy'),
                         ),
                         const Divider(height: 1),
                         ListTile(
                           leading: const Icon(Icons.description_outlined),
-                          title: const Text('Terms of Service'),
+                          title: Text('Terms of Service'.tr(ref)),
                           trailing: const Icon(Icons.chevron_right_rounded),
                           onTap: () => context.push('/terms-of-service'),
                         ),
@@ -629,8 +615,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       child: ListTile(
                         leading: const Icon(Icons.admin_panel_settings_rounded, color: AppColors.secondary),
-                        title: const Text('Admin panel', style: TextStyle(fontWeight: FontWeight.w700)),
-                        subtitle: const Text('Manage matches & results'),
+                        title: Text('Admin panel'.tr(ref), style: const TextStyle(fontWeight: FontWeight.w700)),
+                        subtitle: Text('Manage matches & results'.tr(ref)),
                         trailing: const Icon(Icons.chevron_right_rounded, size: 18),
                         onTap: () => context.push('/admin'),
                       ),
@@ -638,7 +624,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   ],
                   const SizedBox(height: 24),
                   Text(
-                    'Account',
+                    'Account'.tr(ref),
                     style: GoogleFonts.outfit(
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
@@ -649,7 +635,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   OutlinedButton.icon(
                     onPressed: _confirmLogout,
                     icon: const Icon(Icons.logout_rounded),
-                    label: const Text('Log out'),
+                    label: Text('Log out'.tr(ref)),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: theme.colorScheme.onSurface,
                       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -660,7 +646,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   OutlinedButton.icon(
                     onPressed: _confirmDeleteAccount,
                     icon: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
-                    label: const Text('Delete account', style: TextStyle(color: Colors.redAccent)),
+                    label: Text('Delete account'.tr(ref), style: const TextStyle(color: Colors.redAccent)),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       side: const BorderSide(color: Colors.redAccent),
@@ -669,7 +655,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    'Live updates from Firestore',
+                    'Live updates from Firestore'.tr(ref),
                     textAlign: TextAlign.center,
                     style: GoogleFonts.outfit(
                       fontSize: 12,
