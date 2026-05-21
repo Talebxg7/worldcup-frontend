@@ -49,14 +49,17 @@ class PublicProfileModel {
   }
 }
 
-typedef ProfileArgs = ({int userId, int? leagueId, int? roomId});
+final publicProfileProvider = FutureProvider.autoDispose.family<PublicProfileModel, String>((ref, argStr) async {
+  final parts = argStr.split('_');
+  final userId = int.parse(parts[0]);
+  final leagueId = parts[1] == 'null' ? null : int.tryParse(parts[1]);
+  final roomId = parts[2] == 'null' ? null : int.tryParse(parts[2]);
 
-final publicProfileProvider = FutureProvider.autoDispose.family<PublicProfileModel, ProfileArgs>((ref, args) async {
   final queryParams = <String, dynamic>{};
-  if (args.leagueId != null) queryParams['league_id'] = args.leagueId;
-  if (args.roomId != null) queryParams['room_id'] = args.roomId;
+  if (leagueId != null) queryParams['league_id'] = leagueId;
+  if (roomId != null) queryParams['room_id'] = roomId;
   
-  final res = await ApiClient.instance.get('/auth/profile/${args.userId}', params: queryParams);
+  final res = await ApiClient.instance.get('/auth/profile/$userId', params: queryParams);
   return PublicProfileModel.fromJson(Map<String, dynamic>.from(res.data as Map));
 });
 
@@ -76,8 +79,8 @@ class PublicProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final args = (userId: userId, leagueId: leagueId, roomId: roomId);
-    final profileAsync = ref.watch(publicProfileProvider(args));
+    final argStr = '${userId}_${leagueId ?? 'null'}_${roomId ?? 'null'}';
+    final profileAsync = ref.watch(publicProfileProvider(argStr));
 
     return Scaffold(
       appBar: AppBar(
