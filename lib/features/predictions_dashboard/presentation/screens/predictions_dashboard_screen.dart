@@ -410,7 +410,7 @@ class _JokerCard extends ConsumerWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        color: Theme.of(context).cardColor,
         border: Border.all(color: Colors.amber.withOpacity(0.35)),
       ),
       child: Column(
@@ -474,7 +474,7 @@ class _PredictionCard extends ConsumerWidget {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            color: Theme.of(context).cardColor,
             border: Border.all(color: Colors.white.withOpacity(0.06)),
           ),
           child: Column(

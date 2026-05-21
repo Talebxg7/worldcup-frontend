@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../features/auth/presentation/providers/auth_provider.dart';
-import '../../../profile/presentation/screens/public_profile_screen.dart';
 import '../../../../core/localization/app_localizations.dart';
 
 // Leaderboard entry model

@@ -8,7 +8,6 @@ import '../../../../core/network/api_client.dart';
 
 import '../../data/room_repository.dart';
 import '../../models/room_models.dart';
-import '../../../profile/presentation/screens/public_profile_screen.dart';
 import '../../../matches/presentation/screens/prediction_fixtures_screen.dart';
 
 class RoomScreen extends StatefulWidget {

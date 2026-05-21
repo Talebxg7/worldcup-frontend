@@ -57,7 +57,7 @@ final publicProfileProvider = FutureProvider.autoDispose.family<PublicProfileMod
   if (args.roomId != null) queryParams['room_id'] = args.roomId;
   
   final res = await ApiClient.instance.get('/auth/profile/${args.userId}', params: queryParams);
-  return PublicProfileModel.fromJson(res.data);
+  return PublicProfileModel.fromJson(Map<String, dynamic>.from(res.data as Map));
 });
 
 class PublicProfileScreen extends ConsumerWidget {
@@ -87,19 +87,22 @@ class PublicProfileScreen extends ConsumerWidget {
       body: profileAsync.when(
         data: (profile) => _buildProfile(context, profile),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.person_off, size: 64, color: Colors.grey),
-              const SizedBox(height: 16),
-              Text(
-                'Profile unavailable or hidden',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ],
-          ),
-        ),
+        error: (err, stack) {
+          debugPrint('Public Profile Screen Error: $err\n$stack');
+          return Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.person_off, size: 64, color: Colors.grey),
+                const SizedBox(height: 16),
+                Text(
+                  'Profile unavailable or hidden',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -147,7 +150,7 @@ class PublicProfileScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest,
+              color: theme.cardColor,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
