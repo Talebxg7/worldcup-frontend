@@ -5,22 +5,16 @@ import 'package:http/http.dart' as http;
 class FootballApiService {
   static const String baseUrl = 'https://v3.football.api-sports.io/';
 
-  static const String _apiKey = '408d9d10fc95b8c8b0c2f7c424b3bce9';
-
   static Map<String, String> _headers() {
     return {
-      'x-apisports-key': _apiKey,
       'content-type': 'application/json',
     };
   }
 
   static Uri _uri(String path, [Map<String, String>? query]) {
     final innerUrl = Uri.parse('$baseUrl$path').replace(queryParameters: query);
-    if (kIsWeb && !Uri.base.host.contains('localhost')) {
-      // Use our backend proxy to bypass CORS
-      return Uri.parse('https://whowillwin-api.onrender.com/api/proxy/football?url=${Uri.encodeComponent(innerUrl.toString())}');
-    }
-    return innerUrl;
+    // Always use our secure backend proxy to protect API keys from extraction
+    return Uri.parse('https://whowillwin-api.onrender.com/api/proxy/football?url=${Uri.encodeComponent(innerUrl.toString())}');
   }
 
   static Future<Map<String, dynamic>> _getJson(
