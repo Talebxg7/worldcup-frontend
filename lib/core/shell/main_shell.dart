@@ -18,14 +18,6 @@ class MainShell extends ConsumerWidget {
     if (location.startsWith('/mini-leagues')) return 2;
     if (location.startsWith('/leaderboard')) return 3;
     if (location.startsWith('/profile')) return 4;
-    if (location.startsWith('/public-profile')) {
-      final roomId = state.uri.queryParameters['roomId'];
-      if (roomId != null && roomId.isNotEmpty) {
-        return 2; // Highlight Mini Leagues
-      } else {
-        return 3; // Highlight Leaderboard
-      }
-    }
     return 0;
   }
 

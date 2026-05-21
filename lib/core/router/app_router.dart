@@ -123,24 +123,22 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/profile',
             pageBuilder: (ctx, state) => const NoTransitionPage(child: ProfilePage()),
           ),
-          GoRoute(
-            path: '/public-profile/:id',
-            pageBuilder: (ctx, state) {
-              final id = int.parse(state.pathParameters['id']!);
-              final name = state.uri.queryParameters['name'];
-              final leagueId = int.tryParse(state.uri.queryParameters['leagueId'] ?? '');
-              final roomId = int.tryParse(state.uri.queryParameters['roomId'] ?? '');
-              return NoTransitionPage(
-                child: PublicProfileScreen(
-                  userId: id,
-                  fallbackUsername: name,
-                  leagueId: leagueId,
-                  roomId: roomId,
-                ),
-              );
-            },
-          ),
         ],
+      ),
+      GoRoute(
+        path: '/public-profile/:id',
+        builder: (ctx, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          final name = state.uri.queryParameters['name'];
+          final leagueId = int.tryParse(state.uri.queryParameters['leagueId'] ?? '');
+          final roomId = int.tryParse(state.uri.queryParameters['roomId'] ?? '');
+          return PublicProfileScreen(
+            userId: id,
+            fallbackUsername: name,
+            leagueId: leagueId,
+            roomId: roomId,
+          );
+        },
       ),
       GoRoute(
         path: '/match/:id',
