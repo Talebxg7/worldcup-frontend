@@ -60,9 +60,16 @@ class _CreateLeagueDialogState extends State<CreateLeagueDialog> {
   }
 
   Future<void> _onCreate() async {
-    if (leagueNameController.text.trim().isEmpty) {
+    final name = leagueNameController.text.trim();
+    if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter a league name')),
+      );
+      return;
+    }
+    if (name.length < 3) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('League name must be at least 3 letters long')),
       );
       return;
     }
@@ -71,7 +78,7 @@ class _CreateLeagueDialogState extends State<CreateLeagueDialog> {
     if (!mounted) return;
     Navigator.of(context).pop<CreateLeagueInput>(
       CreateLeagueInput(
-        leagueName: leagueNameController.text.trim(),
+        leagueName: name,
         competition: selectedCompetition,
         maxMembers: _defaultMaxMembers,
         paymentProvider: _paymentProvider,
@@ -110,6 +117,30 @@ class _CreateLeagueDialogState extends State<CreateLeagueDialog> {
                 decoration: const InputDecoration(
                   labelText: 'League name',
                   hintText: 'e.g. Office predictions',
+                ),
+              ),
+              const SizedBox(height: 6),
+              Padding(
+                padding: const EdgeInsets.only(left: 4),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline_rounded,
+                      size: 14,
+                      color: Colors.blueAccent.shade100,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        'League name should be at least 3 letters',
+                        style: GoogleFonts.outfit(
+                          fontSize: 11,
+                          color: AppColors.darkTextSecondary,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 16),
