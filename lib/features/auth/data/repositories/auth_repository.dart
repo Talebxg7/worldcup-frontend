@@ -221,4 +221,14 @@ class AuthRepository {
       throw ApiException.fromDioError(e);
     }
   }
+
+  Future<void> seenAnnouncement() async {
+    try {
+      await _api.post('/auth/seen-announcement');
+    } on ApiException {
+      rethrow;
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
 }

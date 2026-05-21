@@ -13,6 +13,7 @@ class UserModel {
   final bool hideUsername;
   final int leaguesJoined;
   final DateTime createdAt;
+  final DateTime? lastSeenAnnouncement;
 
   const UserModel({
     required this.id,
@@ -29,6 +30,7 @@ class UserModel {
     this.hideUsername = false,
     this.leaguesJoined = 0,
     required this.createdAt,
+    this.lastSeenAnnouncement,
   });
 
   static int _toInt(dynamic value, {int fallback = 0}) {
@@ -60,6 +62,9 @@ class UserModel {
       hideUsername: json['hide_username'] as bool? ?? false,
       leaguesJoined: _toInt(json['leagues_joined']),
       createdAt: DateTime.parse(json['created_at'] as String? ?? DateTime.now().toIso8601String()),
+      lastSeenAnnouncement: json['last_seen_announcement'] != null
+          ? DateTime.parse(json['last_seen_announcement'] as String)
+          : null,
     );
   }
 
@@ -79,6 +84,7 @@ class UserModel {
       'hide_username': hideUsername,
       'leagues_joined': leaguesJoined,
       'created_at': createdAt.toIso8601String(),
+      'last_seen_announcement': lastSeenAnnouncement?.toIso8601String(),
     };
   }
 
@@ -97,6 +103,7 @@ class UserModel {
     bool? hideUsername,
     int? leaguesJoined,
     DateTime? createdAt,
+    DateTime? lastSeenAnnouncement,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -113,6 +120,7 @@ class UserModel {
       hideUsername: hideUsername ?? this.hideUsername,
       leaguesJoined: leaguesJoined ?? this.leaguesJoined,
       createdAt: createdAt ?? this.createdAt,
+      lastSeenAnnouncement: lastSeenAnnouncement ?? this.lastSeenAnnouncement,
     );
   }
 }

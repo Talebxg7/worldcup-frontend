@@ -33,8 +33,8 @@ class PublicProfileModel {
       avatarUrl: json['avatar_url'],
       country: json['country'] ?? '',
       totalPoints: _parseNum(json['total_points'])?.toDouble() ?? 0.0,
-      totalPredictions: (json['total_predictions'] as num?)?.toInt() ?? 0,
-      rank: (json['rank'] as num?)?.toInt() ?? 0,
+      totalPredictions: _parseNum(json['total_predictions'])?.toInt() ?? 0,
+      rank: _parseNum(json['rank'])?.toInt() ?? 0,
       seasonPoints: _parseNum(json['season_points'])?.toDouble() ?? 0.0,
       contextLabel: json['context_label'] ?? 'Global',
     );

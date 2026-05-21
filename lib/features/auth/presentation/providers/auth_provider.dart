@@ -70,4 +70,24 @@ class AuthNotifier extends AsyncNotifier<UserModel?> {
       rethrow;
     }
   }
+
+  Future<void> markAnnouncementAsSeen() async {
+    try {
+      await _repo.seenAnnouncement();
+      final currentUser = state.value;
+      if (currentUser != null) {
+        state = AsyncData(currentUser.copyWith(
+          lastSeenAnnouncement: DateTime.now(),
+        ));
+      }
+    } catch (e) {
+      final currentUser = state.value;
+      if (currentUser != null) {
+        state = AsyncData(currentUser.copyWith(
+          lastSeenAnnouncement: DateTime.now(),
+        ));
+      }
+      rethrow;
+    }
+  }
 }

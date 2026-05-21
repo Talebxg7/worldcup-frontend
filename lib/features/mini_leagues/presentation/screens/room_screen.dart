@@ -437,14 +437,8 @@ class _RoomScreenState extends State<RoomScreen> {
                                           children: [
                                             GestureDetector(
                                               onTap: () {
-                                                Navigator.of(context).push(
-                                                  MaterialPageRoute(
-                                                    builder: (_) => PublicProfileScreen(
-                                                      userId: p.userId,
-                                                      fallbackUsername: p.username,
-                                                      roomId: widget.roomId,
-                                                    ),
-                                                  ),
+                                                context.push(
+                                                  '/public-profile/${p.userId}?name=${Uri.encodeComponent(p.username)}&roomId=${widget.roomId}',
                                                 );
                                               },
                                               child: Row(

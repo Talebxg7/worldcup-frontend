@@ -11,12 +11,21 @@ class MainShell extends ConsumerWidget {
   const MainShell({super.key, required this.child});
 
   int _currentIndex(BuildContext context) {
-    final location = GoRouterState.of(context).matchedLocation;
+    final state = GoRouterState.of(context);
+    final location = state.matchedLocation;
     if (location.startsWith('/home')) return 0;
     if (location.startsWith('/predictions')) return 1;
     if (location.startsWith('/mini-leagues')) return 2;
     if (location.startsWith('/leaderboard')) return 3;
     if (location.startsWith('/profile')) return 4;
+    if (location.startsWith('/public-profile')) {
+      final roomId = state.uri.queryParameters['roomId'];
+      if (roomId != null && roomId.isNotEmpty) {
+        return 2; // Highlight Mini Leagues
+      } else {
+        return 3; // Highlight Leaderboard
+      }
+    }
     return 0;
   }
 

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/network/api_client.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../models/competition.dart';
 import '../widgets/competition_card.dart';
 
@@ -76,37 +76,60 @@ class _CompetitionSelectionScreenState extends ConsumerState<CompetitionSelectio
       final body = res.data['body'] as String;
       final createdAt = res.data['created_at'] as String;
       
-      final prefs = await SharedPreferences.getInstance();
-      final lastSeen = prefs.getString('last_announcement');
-      
-      if (lastSeen != createdAt) {
-        if (!mounted) return;
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (ctx) => AlertDialog(
-            title: Row(
-              children: [
-                const Icon(Icons.campaign, color: Colors.purple),
-                const SizedBox(width: 8),
-                Expanded(child: Text(title)),
-              ],
-            ),
-            content: Text(body),
-            actions: [
-              ElevatedButton(
-                onPressed: () async {
-                  await prefs.setString('last_announcement', createdAt);
-                  if (ctx.mounted) Navigator.pop(ctx);
-                },
-                child: Text('Close'.tr(ref)),
-              ),
+      final userState = ref.read(authStateProvider).value;
+      if (userState == null) return;
+
+      final announcementTime = DateTime.parse(createdAt);
+      final now = DateTime.now();
+
+      // Skip announcement if it is older than 7 days
+      if (now.difference(announcementTime).inDays > 7) {
+        return;
+      }
+
+      // Check user's seen status
+      final lastSeen = userState.lastSeenAnnouncement;
+      if (lastSeen != null) {
+        if (announcementTime.isBefore(lastSeen) || announcementTime.isAtSameMomentAs(lastSeen)) {
+          return;
+        }
+      } else {
+        // Fallback for new users: skip announcements created before registration
+        if (announcementTime.isBefore(userState.createdAt)) {
+          return;
+        }
+      }
+
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          title: Row(
+            children: [
+              const Icon(Icons.campaign, color: Colors.purple),
+              const SizedBox(width: 8),
+              Expanded(child: Text(title)),
             ],
           ),
-        );
-      }
+          content: Text(body),
+          actions: [
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  await ref.read(authStateProvider.notifier).markAnnouncementAsSeen();
+                } catch (e) {
+                  debugPrint('Failed to save announcement seen status: $e');
+                }
+                if (ctx.mounted) Navigator.pop(ctx);
+              },
+              child: Text('Close'.tr(ref)),
+            ),
+          ],
+        ),
+      );
     } catch (e) {
-      debugPrint('Failed to fetch announcement: $e');
+      debugPrint('Failed to fetch/process announcement: $e');
     }
   }
 
