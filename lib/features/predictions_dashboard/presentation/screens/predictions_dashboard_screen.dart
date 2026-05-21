@@ -11,6 +11,7 @@ import '../../models/dashboard_prediction_model.dart';
 import '../../services/prediction_dashboard_service.dart';
 import '../../../leaderboard/presentation/screens/leaderboard_screen.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../../core/localization/app_localizations.dart';
 
 /// Bottom-nav **Predictions** hub: summary, weekly joker, weekly progress, league filter, tabs.
 class PredictionsDashboardScreen extends ConsumerStatefulWidget {
@@ -118,14 +119,14 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
     }
   }
 
-  String _winnerLabel(DashboardPredictionModel p) {
+  String _winnerLabel(DashboardPredictionModel p, WidgetRef ref) {
     switch (p.predictedWinner) {
       case 'HOME':
         return p.homeTeam;
       case 'AWAY':
         return p.awayTeam;
       default:
-        return 'Draw';
+        return 'Draw'.tr(ref);
     }
   }
 
@@ -148,7 +149,7 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Predictions'),
+        title: Text('Predictions'.tr(ref)),
         centerTitle: true,
         actions: [
           IconButton(
@@ -186,9 +187,9 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                           child: InputDecorator(
-                            decoration: const InputDecoration(
-                              labelText: 'Competition',
-                              border: OutlineInputBorder(),
+                            decoration: InputDecoration(
+                              labelText: 'Competition'.tr(ref),
+                              border: const OutlineInputBorder(),
                               isDense: true,
                             ),
                             child: DropdownButtonHideUnderline(
@@ -199,7 +200,7 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
                                     .map(
                                       (e) => DropdownMenuItem<String>(
                                         value: e.$1,
-                                        child: Text(e.$2),
+                                        child: Text(e.$2.tr(ref)),
                                       ),
                                     )
                                     .toList(),
@@ -216,10 +217,10 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
                   color: Theme.of(context).colorScheme.surface,
                   child: TabBar(
                     controller: _tabs,
-                    tabs: const [
-                      Tab(text: 'Upcoming'),
-                      Tab(text: 'Live'),
-                      Tab(text: 'Finished'),
+                    tabs: [
+                      Tab(text: 'Upcoming'.tr(ref)),
+                      Tab(text: 'Live'.tr(ref)),
+                      Tab(text: 'Finished'.tr(ref)),
                     ],
                   ),
                 ),
@@ -232,10 +233,10 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
                         return Center(
                           child: Text(
                             tabIndex == 0
-                                ? 'No upcoming predictions.'
+                                ? 'No upcoming predictions.'.tr(ref)
                                 : tabIndex == 1
-                                    ? 'No live predictions.'
-                                    : 'No finished predictions yet.',
+                                    ? 'No live predictions.'.tr(ref)
+                                    : 'No finished predictions yet.'.tr(ref),
                           ),
                         );
                       }
@@ -253,7 +254,7 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
                               child: _PredictionCard(
                                 p: p,
                                 dateFormat: df,
-                                winnerLabel: _winnerLabel(p),
+                                winnerLabel: _winnerLabel(p, ref),
                                 tabIndex: tabIndex,
                                 onTap: () async {
                                   await Navigator.of(context).push(
@@ -309,7 +310,7 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
   }
 }
 
-class _SummaryCard extends StatelessWidget {
+class _SummaryCard extends ConsumerWidget {
   final int total;
   final int correctWinners;
   final int exactScores;
@@ -325,7 +326,7 @@ class _SummaryCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -339,25 +340,25 @@ class _SummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Prediction summary',
-            style: TextStyle(
+          Text(
+            'Prediction summary'.tr(ref),
+            style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w900,
               fontSize: 16,
             ),
           ),
           const SizedBox(height: 12),
-          _sumRow('Total predictions', '$total'),
-          _sumRow('Correct winners', '$correctWinners'),
-          _sumRow('Exact scores', '$exactScores'),
-          _sumRow('Weekly points', '+$weeklyPoints', highlight: true),
+          _sumRow('Total predictions'.tr(ref), '$total'),
+          _sumRow('Correct winners'.tr(ref), '$correctWinners'),
+          _sumRow('Exact Scores'.tr(ref), '$exactScores'),
+          _sumRow('Weekly points'.tr(ref), '+$weeklyPoints', highlight: true),
           if (rank != null) ...[
             const SizedBox(height: 6),
             Row(
               children: [
                 Text(
-                  'Global Rank:',
+                  'Global Rank:'.tr(ref),
                   style: TextStyle(color: Colors.white.withOpacity(0.75), fontSize: 13),
                 ),
                 const SizedBox(width: 6),
@@ -396,13 +397,13 @@ class _SummaryCard extends StatelessWidget {
   }
 }
 
-class _JokerCard extends StatelessWidget {
+class _JokerCard extends ConsumerWidget {
   final String? usedLabel;
 
   const _JokerCard({required this.usedLabel});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final used = (usedLabel ?? '').isNotEmpty;
     return Container(
       width: double.infinity,
@@ -419,17 +420,17 @@ class _JokerCard extends StatelessWidget {
             children: [
               Icon(Icons.stars_rounded, color: Colors.amber.shade400),
               const SizedBox(width: 8),
-              const Text(
-                'Weekly Joker status',
-                style: TextStyle(fontWeight: FontWeight.w900),
+              Text(
+                'Weekly Joker status'.tr(ref),
+                style: const TextStyle(fontWeight: FontWeight.w900),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
             used
-                ? 'Joker used this week:\n$usedLabel'
-                : 'Joker available this week',
+                ? 'Joker used this week:\n'.tr(ref) + '$usedLabel'
+                : 'Joker available this week'.tr(ref),
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],
@@ -439,7 +440,7 @@ class _JokerCard extends StatelessWidget {
 }
 
 
-class _PredictionCard extends StatelessWidget {
+class _PredictionCard extends ConsumerWidget {
   final DashboardPredictionModel p;
   final DateFormat dateFormat;
   final String winnerLabel;
@@ -457,7 +458,7 @@ class _PredictionCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final statusColor = switch (p.matchStatus) {
       'LIVE' => Colors.redAccent,
       'FINISHED' => Colors.blueGrey,
@@ -483,7 +484,7 @@ class _PredictionCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      p.leagueName ?? 'League ${p.leagueId}',
+                      (p.leagueName ?? 'League ${p.leagueId}').tr(ref),
                       style: TextStyle(
                         fontSize: 11,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -498,7 +499,7 @@ class _PredictionCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      p.matchStatus,
+                      p.matchStatus.tr(ref),
                       style: TextStyle(
                         color: statusColor,
                         fontWeight: FontWeight.w900,
@@ -515,7 +516,7 @@ class _PredictionCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
-                        '${p.pointsEarned! > 0 ? '+' : ''}${p.pointsEarned} pts',
+                        '${p.pointsEarned! > 0 ? '+' : ''}${p.pointsEarned} ${'pts'.tr(ref)}',
                         style: TextStyle(
                           color: p.pointsEarned! > 0 ? Colors.greenAccent : (p.pointsEarned! < 0 ? Colors.redAccent : Colors.grey.shade300),
                           fontWeight: FontWeight.w900,
@@ -544,14 +545,14 @@ class _PredictionCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Prediction: ${p.homeScore}–${p.awayScore}',
+                'Prediction'.tr(ref) + ': ${p.homeScore}–${p.awayScore}',
                 style: const TextStyle(fontWeight: FontWeight.w800),
               ),
-              Text('Winner: $winnerLabel${p.jokerUsed ? '  ·  Joker' : ''}'),
+              Text('Winner'.tr(ref) + ': $winnerLabel${p.jokerUsed ? '  ·  ' + 'Joker'.tr(ref) : ''}'),
               if (p.matchStatus == 'LIVE' || p.matchStatus == 'FINISHED') ...[
                 const SizedBox(height: 6),
                 Text(
-                  '${p.matchStatus == 'FINISHED' ? 'Final Score' : 'Current Score'}: ${p.actualHomeGoals ?? '—'} – ${p.actualAwayGoals ?? '—'}',
+                  '${p.matchStatus == 'FINISHED' ? 'Final Score'.tr(ref) : 'Current Score'.tr(ref)}: ${p.actualHomeGoals ?? '—'} – ${p.actualAwayGoals ?? '—'}',
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
                     color: Theme.of(context).colorScheme.primary,
@@ -561,11 +562,11 @@ class _PredictionCard extends StatelessWidget {
               if (tabIndex == 2) ...[
                 const SizedBox(height: 6),
                 Text(
-                  'Final: ${p.actualHomeGoals ?? '—'}–${p.actualAwayGoals ?? '—'}',
+                  'Final'.tr(ref) + ': ${p.actualHomeGoals ?? '—'}–${p.actualAwayGoals ?? '—'}',
                   style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 Text(
-                  'Points earned: ${p.pointsEarned != null ? '+${p.pointsEarned}' : '—'}',
+                  'Points earned'.tr(ref) + ': ${p.pointsEarned != null ? '+${p.pointsEarned}' : '—'}',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.w800,
@@ -578,7 +579,7 @@ class _PredictionCard extends StatelessWidget {
                   alignment: Alignment.centerRight,
                   child: OutlinedButton(
                     onPressed: onEdit,
-                    child: Text(onEdit == null ? 'Edit locked' : 'Edit prediction'),
+                    child: Text(onEdit == null ? 'Edit locked'.tr(ref) : 'Edit prediction'.tr(ref)),
                   ),
                 ),
               ],

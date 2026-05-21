@@ -8,6 +8,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../features/auth/presentation/providers/auth_provider.dart';
 import '../../../profile/presentation/screens/public_profile_screen.dart';
+import '../../../../core/localization/app_localizations.dart';
 
 // Leaderboard entry model
 class LeaderboardEntry {
@@ -172,16 +173,16 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text(
-                              'Leaderboard',
-                              style: TextStyle(
+                            Text(
+                              'Leaderboard'.tr(ref),
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 24,
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
                             Text(
-                              _leagues.firstWhere((e) => e['id'] == _selectedLeagueId)['name'] as String,
+                              (_leagues.firstWhere((e) => e['id'] == _selectedLeagueId)['name'] as String).tr(ref),
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.8),
                                 fontSize: 13,
@@ -221,7 +222,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
                     final name = l['name'] as String;
                     final selected = _selectedLeagueId == id;
                     return ChoiceChip(
-                      label: Text(name),
+                      label: Text(name.tr(ref)),
                       selected: selected,
                       onSelected: (val) {
                         if (val) setState(() => _selectedLeagueId = id);
@@ -251,24 +252,24 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
               children: [
                 const Icon(Icons.error_outline, size: 60, color: Colors.red),
                 const SizedBox(height: 12),
-                Text('Failed to load', style: Theme.of(context).textTheme.titleMedium),
+                Text('Failed to load'.tr(ref), style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: () => ref.refresh(leaderboardProvider(_selectedLeagueId)),
-                  child: const Text('Retry'),
+                  child: Text('Retry'.tr(ref)),
                 ),
               ],
             ),
           ),
           data: (entries) {
             if (entries.isEmpty) {
-              return const Center(
+              return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.leaderboard_rounded, size: 80, color: Color(0xFFD1D5DB)),
-                    SizedBox(height: 16),
-                    Text('No rankings yet'),
+                    const Icon(Icons.leaderboard_rounded, size: 80, color: Color(0xFFD1D5DB)),
+                    const SizedBox(height: 16),
+                    Text('No rankings yet'.tr(ref)),
                   ],
                 ),
               );
@@ -370,7 +371,7 @@ String _formatPoints(num pts) {
   return pts % 1 == 0 ? pts.toInt().toString() : pts.toStringAsFixed(2);
 }
 
-class _PodiumItem extends StatelessWidget {
+class _PodiumItem extends ConsumerWidget {
   final LeaderboardEntry entry;
   final double height;
   final Color bgColor;
@@ -388,7 +389,7 @@ class _PodiumItem extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
       onTap: () {
         final lid = leagueId == 0 ? '' : '&leagueId=$leagueId';
@@ -427,7 +428,7 @@ class _PodiumItem extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            '${_formatPoints(entry.totalPoints)} pts',
+            '${_formatPoints(entry.totalPoints)} ${'pts'.tr(ref)}',
             style: TextStyle(
               color: AppColors.accent,
               fontSize: 13,
@@ -460,7 +461,7 @@ class _PodiumItem extends StatelessWidget {
   }
 }
 
-class _LeaderboardRow extends StatelessWidget {
+class _LeaderboardRow extends ConsumerWidget {
   final LeaderboardEntry entry;
   final bool isCurrentUser;
   final int index;
@@ -474,7 +475,7 @@ class _LeaderboardRow extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return InkWell(
       onTap: () {
         final lid = leagueId == 0 ? '' : '&leagueId=$leagueId';
@@ -557,8 +558,8 @@ class _LeaderboardRow extends StatelessWidget {
                             color: AppColors.primary,
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          child: const Text('YOU',
-                              style: TextStyle(
+                          child: Text('YOU'.tr(ref),
+                              style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 9,
                                   fontWeight: FontWeight.w800)),
@@ -567,7 +568,7 @@ class _LeaderboardRow extends StatelessWidget {
                     ],
                   ),
                   Text(
-                    '${entry.exactScores}🎯 ${entry.correctResults}✅ · ${entry.totalPredictions} predictions',
+                    '${entry.exactScores}🎯 ${entry.correctResults}✅ · ${entry.totalPredictions} ${'predictions'.tr(ref)}',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],

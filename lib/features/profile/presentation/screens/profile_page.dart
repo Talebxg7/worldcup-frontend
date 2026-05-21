@@ -342,7 +342,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
     if (_linkingFirebase) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Profile')),
+        appBar: AppBar(title: Text('Profile'.tr(ref))),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -350,7 +350,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final fbUser = FirebaseAuth.instance.currentUser;
     if (fbUser == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Profile')),
+        appBar: AppBar(title: Text('Profile'.tr(ref))),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -360,7 +360,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 Icon(Icons.cloud_off_rounded, size: 56, color: theme.colorScheme.error),
                 const SizedBox(height: 16),
                 Text(
-                  _firebaseLinkError ?? 'Sign in to view your cloud profile.',
+                  _firebaseLinkError ?? 'Sign in to view your cloud profile.'.tr(ref),
                   textAlign: TextAlign.center,
                   style: GoogleFonts.outfit(fontSize: 15),
                 ),
@@ -372,7 +372,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     });
                     _ensureFirebaseUser();
                   },
-                  child: const Text('Retry'),
+                  child: Text('Retry'.tr(ref)),
                 ),
               ],
             ),
@@ -385,7 +385,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: Text('Profile'.tr(ref)),
         centerTitle: true,
       ),
       body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
@@ -466,7 +466,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    'Stats',
+                    'Stats'.tr(ref),
                     style: GoogleFonts.outfit(
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
@@ -487,25 +487,25 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                           _StatCard(
                             icon: Icons.emoji_events_rounded,
                             value: '$totalPoints',
-                            label: 'Total Points',
+                            label: 'Total Points'.tr(ref),
                             color: AppColors.accent,
                           ),
                           _StatCard(
                             icon: Icons.edit_note_rounded,
                             value: '$totalPredictions',
-                            label: 'Predictions Made',
+                            label: 'Predictions Made'.tr(ref),
                             color: AppColors.secondary,
                           ),
                           _StatCard(
                             icon: Icons.gps_fixed_rounded,
                             value: '$exactScores',
-                            label: 'Exact Scores',
+                            label: 'Exact Scores'.tr(ref),
                             color: AppColors.exactScore,
                           ),
                           _StatCard(
                             icon: Icons.sports_soccer_rounded,
                             value: '$correctWinners',
-                            label: 'Correct Winners',
+                            label: 'Correct Winners'.tr(ref),
                             color: AppColors.correctResult,
                           ),
                         ],
@@ -519,7 +519,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    'Account settings',
+                    'Account settings'.tr(ref),
                     style: GoogleFonts.outfit(
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
@@ -534,8 +534,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       children: [
                         SwitchListTile.adaptive(
                           secondary: const Icon(Icons.notifications_active_rounded),
-                          title: const Text('Notifications'),
-                          subtitle: const Text('Match reminders & updates'),
+                          title: Text('Notifications'.tr(ref)),
+                          subtitle: Text('Match reminders & updates'.tr(ref)),
                           value: _notificationsEnabled ?? true,
                           onChanged: (v) => _setNotificationPref(v),
                         ),
@@ -573,14 +573,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         const Divider(height: 1),
                         ListTile(
                           leading: const Icon(Icons.help_outline_rounded),
-                          title: const Text('Help & Support'),
+                          title: Text('Help & Support'.tr(ref)),
                           subtitle: const Text('predict.game433@gmail.com'),
                           trailing: IconButton(
                             icon: const Icon(Icons.copy_rounded, size: 20),
                             onPressed: () {
                               Clipboard.setData(const ClipboardData(text: 'predict.game433@gmail.com'));
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Email copied to clipboard')),
+                                SnackBar(content: Text('Email copied to clipboard'.tr(ref))),
                               );
                             },
                           ),
@@ -672,7 +672,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 }
 
-class _UserHeaderSection extends StatefulWidget {
+class _UserHeaderSection extends ConsumerStatefulWidget {
   const _UserHeaderSection({
     required this.profileImageUrl,
     required this.username,
@@ -692,10 +692,10 @@ class _UserHeaderSection extends StatefulWidget {
   final VoidCallback onAvatarTap;
 
   @override
-  State<_UserHeaderSection> createState() => _UserHeaderSectionState();
+  ConsumerState<_UserHeaderSection> createState() => _UserHeaderSectionState();
 }
 
-class _UserHeaderSectionState extends State<_UserHeaderSection> {
+class _UserHeaderSectionState extends ConsumerState<_UserHeaderSection> {
   bool _obscureEmail = false;
 
   @override
@@ -821,7 +821,7 @@ class _UserHeaderSectionState extends State<_UserHeaderSection> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Accuracy: ${widget.accuracyLabel}',
+              'Accuracy'.tr(ref) + ': ${widget.accuracyLabel}',
               style: GoogleFonts.outfit(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -835,7 +835,7 @@ class _UserHeaderSectionState extends State<_UserHeaderSection> {
               child: FilledButton.icon(
                 onPressed: widget.onEditProfile,
                 icon: const Icon(Icons.edit_rounded, size: 20),
-                label: const Text('Edit profile'),
+                label: Text('Edit profile'.tr(ref)),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primaryLight,
                   side: const BorderSide(color: AppColors.primary, width: 1.5),
@@ -906,7 +906,7 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-class _LeaguesSummaryCard extends StatelessWidget {
+class _LeaguesSummaryCard extends ConsumerWidget {
   const _LeaguesSummaryCard({
     required this.leaguesJoined,
     required this.onTap,
@@ -916,7 +916,7 @@ class _LeaguesSummaryCard extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -949,7 +949,7 @@ class _LeaguesSummaryCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Mini leagues',
+                        'Mini leagues'.tr(ref),
                         style: GoogleFonts.outfit(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -958,7 +958,7 @@ class _LeaguesSummaryCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '$leaguesJoined leagues joined',
+                        '$leaguesJoined ' + 'leagues joined'.tr(ref),
                         style: GoogleFonts.outfit(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,

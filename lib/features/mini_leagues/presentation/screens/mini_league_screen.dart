@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../../core/localization/app_localizations.dart';
 
 import '../../data/payment_repository.dart';
 import '../../data/room_repository.dart';
@@ -132,23 +133,23 @@ class _MiniLeagueScreenState extends ConsumerState<MiniLeagueScreen>
       final code = await showDialog<String?>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Join league'),
+          title: Text('Join league'.tr(ref)),
           content: TextField(
             controller: controller,
             textCapitalization: TextCapitalization.characters,
-            decoration: const InputDecoration(
-              labelText: 'Invite code',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: 'Invite code'.tr(ref),
+              border: const OutlineInputBorder(),
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, null),
-              child: const Text('Cancel'),
+              child: Text('Cancel'.tr(ref)),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(ctx, controller.text),
-              child: const Text('Join'),
+              child: Text('Join'.tr(ref)),
             ),
           ],
         ),
@@ -184,15 +185,15 @@ class _MiniLeagueScreenState extends ConsumerState<MiniLeagueScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mini Leagues'),
-        centerTitle: true,
-        bottom: TabBar(
-          controller: _tabs,
-          tabs: const [
-            Tab(text: 'My Leagues'),
-            Tab(text: 'Join League'),
-          ],
-        ),
+          title: Text('Mini Leagues'.tr(ref)),
+          centerTitle: true,
+          bottom: TabBar(
+            controller: _tabs,
+            tabs: [
+              Tab(text: 'My Leagues'.tr(ref)),
+              Tab(text: 'Join League'.tr(ref)),
+            ],
+          ),
         actions: [
           IconButton(
             tooltip: 'Refresh',
@@ -204,7 +205,7 @@ class _MiniLeagueScreenState extends ConsumerState<MiniLeagueScreen>
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _createLeagueDialog,
         icon: const Icon(Icons.add_rounded, color: Colors.white),
-        label: const Text('Create', style: TextStyle(color: Colors.white)),
+        label: Text('Create'.tr(ref), style: const TextStyle(color: Colors.white)),
       ),
       body: TabBarView(
         controller: _tabs,
@@ -220,8 +221,8 @@ class _MiniLeagueScreenState extends ConsumerState<MiniLeagueScreen>
               }
               final rooms = snap.data ?? [];
               if (rooms.isEmpty) {
-                return const Center(
-                  child: Text('No leagues yet. Create one!'),
+                return Center(
+                  child: Text('No leagues yet. Create one!'.tr(ref)),
                 );
               }
 
@@ -237,7 +238,7 @@ class _MiniLeagueScreenState extends ConsumerState<MiniLeagueScreen>
                       child: ListTile(
                         title: Text(r.name),
                         subtitle: Text(
-                          '${r.leagueName} · ${r.membersCount}/${r.maxMembers} members · ${r.joinCode}',
+                          '${r.leagueName.tr(ref)} · ${r.membersCount}/${r.maxMembers} ${'members'.tr(ref)} · ${r.joinCode}',
                         ),
                         trailing: const Icon(Icons.chevron_right_rounded),
                         onTap: () => context.push('/room/${r.id}'),
@@ -256,16 +257,16 @@ class _MiniLeagueScreenState extends ConsumerState<MiniLeagueScreen>
                 children: [
                   const Icon(Icons.group_add_rounded, size: 72, color: Color(0xFF9CA3AF)),
                   const SizedBox(height: 14),
-                  const Text(
-                    'Join a league with an invite code',
+                  Text(
+                    'Join a league with an invite code'.tr(ref),
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+                    style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
                   ),
                   const SizedBox(height: 12),
                   ElevatedButton.icon(
                     onPressed: _joinLeagueDialog,
                     icon: const Icon(Icons.key_rounded, color: Colors.white),
-                    label: const Text('Enter invite code', style: TextStyle(color: Colors.white)),
+                    label: Text('Enter invite code'.tr(ref), style: const TextStyle(color: Colors.white)),
                   ),
                 ],
               ),

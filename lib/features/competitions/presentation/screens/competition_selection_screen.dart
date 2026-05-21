@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/config/football_config.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/network/api_client.dart';
-import '../../../../services/football_api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/competition.dart';
 import '../widgets/competition_card.dart';
-import '../../../matches/presentation/screens/prediction_fixtures_screen.dart';
-import '../../../matches/presentation/screens/live_screen.dart';
-import '../../../matches/presentation/screens/standings_screen.dart';
 
-class CompetitionSelectionScreen extends StatefulWidget {
+class CompetitionSelectionScreen extends ConsumerStatefulWidget {
   final String title;
   final void Function(BuildContext context, Competition competition)? onSelect;
   final bool showTopActions;
@@ -23,11 +20,11 @@ class CompetitionSelectionScreen extends StatefulWidget {
   });
 
   @override
-  State<CompetitionSelectionScreen> createState() =>
+  ConsumerState<CompetitionSelectionScreen> createState() =>
       _CompetitionSelectionScreenState();
 }
 
-class _CompetitionSelectionScreenState extends State<CompetitionSelectionScreen> {
+class _CompetitionSelectionScreenState extends ConsumerState<CompetitionSelectionScreen> {
   List<Competition>? _competitions;
 
   @override
@@ -102,7 +99,7 @@ class _CompetitionSelectionScreenState extends State<CompetitionSelectionScreen>
                   await prefs.setString('last_announcement', createdAt);
                   if (ctx.mounted) Navigator.pop(ctx);
                 },
-                child: const Text('Close'),
+                child: Text('Close'.tr(ref)),
               ),
             ],
           ),
@@ -117,17 +114,17 @@ class _CompetitionSelectionScreenState extends State<CompetitionSelectionScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(widget.title.tr(ref)),
         centerTitle: true,
         actions: [
           if (widget.showTopActions) ...[
             IconButton(
-              tooltip: 'Live',
+              tooltip: 'Live'.tr(ref),
               onPressed: () => context.go('/home/live'),
               icon: const Icon(Icons.sports_soccer_rounded),
             ),
             IconButton(
-              tooltip: 'Standings',
+              tooltip: 'Standings'.tr(ref),
               onPressed: () => context.go('/home/standings'),
               icon: const Icon(Icons.leaderboard_rounded),
             ),

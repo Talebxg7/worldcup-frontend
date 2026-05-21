@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/app_colors.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
+import '../localization/app_localizations.dart';
 
 class MainShell extends ConsumerWidget {
   final Widget child;
@@ -70,7 +71,7 @@ class MainShell extends ConsumerWidget {
                 ),
                 child: const Icon(Icons.sports_soccer_rounded),
               ),
-              label: 'Matches',
+              label: 'Matches'.tr(ref),
             ),
             BottomNavigationBarItem(
               icon: AnimatedContainer(
@@ -82,7 +83,7 @@ class MainShell extends ConsumerWidget {
                 ),
                 child: const Icon(Icons.edit_note_rounded),
               ),
-              label: 'Predictions',
+              label: 'Predictions'.tr(ref),
             ),
             BottomNavigationBarItem(
               icon: AnimatedContainer(
@@ -94,7 +95,7 @@ class MainShell extends ConsumerWidget {
                 ),
                 child: const Icon(Icons.groups_rounded),
               ),
-              label: 'Mini Leagues',
+              label: 'Mini Leagues'.tr(ref),
             ),
             BottomNavigationBarItem(
               icon: AnimatedContainer(
@@ -106,7 +107,7 @@ class MainShell extends ConsumerWidget {
                 ),
                 child: const Icon(Icons.leaderboard_rounded),
               ),
-              label: 'Leaderboard',
+              label: 'Leaderboard'.tr(ref),
             ),
             BottomNavigationBarItem(
               icon: AnimatedContainer(
@@ -118,7 +119,7 @@ class MainShell extends ConsumerWidget {
                 ),
                 child: const Icon(Icons.person_rounded),
               ),
-              label: 'Profile',
+              label: 'Profile'.tr(ref),
             ),
           ],
         ),
@@ -128,7 +129,7 @@ class MainShell extends ConsumerWidget {
               onPressed: () => context.push('/admin'),
               backgroundColor: AppColors.secondary,
               icon: const Icon(Icons.admin_panel_settings_rounded, color: Colors.white),
-              label: const Text('Admin', style: TextStyle(color: Colors.white)),
+              label: Text('Admin'.tr(ref), style: const TextStyle(color: Colors.white)),
             )
           : null,
     );

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:io';
+import '../../../../core/localization/app_localizations.dart';
 import '../../models/competition.dart';
 
-class CompetitionCard extends StatelessWidget {
+class CompetitionCard extends ConsumerWidget {
   final Competition competition;
   final int? upcomingCount;
   final bool isLoadingCount;
@@ -38,14 +40,14 @@ class CompetitionCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final disabled = !competition.isEnabled;
     final backgroundAsset = _leagueBackgroundById[competition.leagueId];
     final badgeText = isLoadingCount
-        ? 'Loading...'
+        ? 'Loading...'.tr(ref)
         : upcomingCount == null
             ? '—'
-            : '$upcomingCount upcoming';
+            : '$upcomingCount ' + 'upcoming'.tr(ref);
 
     return Material(
       color: Colors.transparent,
@@ -120,8 +122,8 @@ class CompetitionCard extends StatelessWidget {
                       ],
                     ),
                     const Spacer(),
-                    Text(
-                      competition.name,
+                     Text(
+                      competition.name.tr(ref),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -132,7 +134,7 @@ class CompetitionCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      competition.subtitle,
+                      competition.subtitle.tr(ref),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -163,9 +165,9 @@ class CompetitionCard extends StatelessWidget {
                           color: Colors.white.withOpacity(0.18),
                           borderRadius: BorderRadius.circular(999),
                         ),
-                        child: const Text(
-                          'Coming soon',
-                          style: TextStyle(
+                        child: Text(
+                          'Coming soon'.tr(ref),
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 11,
                             fontWeight: FontWeight.w800,

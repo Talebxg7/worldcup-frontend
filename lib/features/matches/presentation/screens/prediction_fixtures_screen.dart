@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/config/football_config.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/notifications/local_notifications_service.dart';
 import '../../../../services/football_api_service.dart';
 import '../../../fixture_predictions/presentation/screens/prediction_screen.dart';
+import '../../../../core/localization/app_localizations.dart';
 
-class PredictionFixturesScreen extends StatefulWidget {
+class PredictionFixturesScreen extends ConsumerStatefulWidget {
   final int leagueId;
   final String leagueName;
   final int? roomId;
@@ -19,10 +21,10 @@ class PredictionFixturesScreen extends StatefulWidget {
   });
 
   @override
-  State<PredictionFixturesScreen> createState() => _PredictionFixturesScreenState();
+  ConsumerState<PredictionFixturesScreen> createState() => _PredictionFixturesScreenState();
 }
 
-class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
+class _PredictionFixturesScreenState extends ConsumerState<PredictionFixturesScreen> {
   late Future<List<FixtureModel>> _future;
   _FixturesFilter _filter = _FixturesFilter.allUpcoming;
   final Set<int> _activeAlerts = {};
@@ -51,7 +53,7 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
     final df = DateFormat('EEE, MMM d • HH:mm');
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.leagueName),
+        title: Text(widget.leagueName.tr(ref)),
         centerTitle: true,
         actions: [
           IconButton(
@@ -79,12 +81,12 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snap.hasError) {
-            return Center(child: Text('Error: ${snap.error}'));
+            return Center(child: Text('Error'.tr(ref) + ': ${snap.error}'));
           }
           final fixtures = snap.data ?? [];
           final filtered = _applyFilter(fixtures);
           if (fixtures.isEmpty) {
-            return const Center(child: Text('No upcoming fixtures.'));
+            return Center(child: Text('No upcoming fixtures.'.tr(ref)));
           }
 
           return RefreshIndicator(
@@ -112,17 +114,17 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
                             spacing: 8,
                             children: [
                               ChoiceChip(
-                                label: Text('All upcoming', style: chipTextStyle),
+                                label: Text('All upcoming'.tr(ref), style: chipTextStyle),
                                 selected: _filter == _FixturesFilter.allUpcoming,
                                 onSelected: (_) => setState(() => _filter = _FixturesFilter.allUpcoming),
                               ),
                               ChoiceChip(
-                                label: Text('Today', style: chipTextStyle),
+                                label: Text('Today'.tr(ref), style: chipTextStyle),
                                 selected: _filter == _FixturesFilter.today,
                                 onSelected: (_) => setState(() => _filter = _FixturesFilter.today),
                               ),
                               ChoiceChip(
-                                label: Text('Tomorrow', style: chipTextStyle),
+                                label: Text('Tomorrow'.tr(ref), style: chipTextStyle),
                                 selected: _filter == _FixturesFilter.tomorrow,
                                 onSelected: (_) => setState(() => _filter = _FixturesFilter.tomorrow),
                               ),
@@ -138,7 +140,7 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
                             spacing: 8,
                             children: [
                               ChoiceChip(
-                                label: Text('Latest', style: _filter == _FixturesFilter.latestResults ? resultsLabelStyle : resultsUnselectedStyle),
+                                label: Text('Latest'.tr(ref), style: _filter == _FixturesFilter.latestResults ? resultsLabelStyle : resultsUnselectedStyle),
                                 selected: _filter == _FixturesFilter.latestResults,
                                 onSelected: (_) => setState(() => _filter = _FixturesFilter.latestResults),
                                 selectedColor: resultsSelectedColor,
@@ -146,7 +148,7 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
                                 backgroundColor: isDark ? Colors.transparent : Colors.blue.withOpacity(0.05),
                               ),
                               ChoiceChip(
-                                label: Text('Results Today', style: _filter == _FixturesFilter.resultsToday ? resultsLabelStyle : resultsUnselectedStyle),
+                                label: Text('Results Today'.tr(ref), style: _filter == _FixturesFilter.resultsToday ? resultsLabelStyle : resultsUnselectedStyle),
                                 selected: _filter == _FixturesFilter.resultsToday,
                                 onSelected: (_) => setState(() => _filter = _FixturesFilter.resultsToday),
                                 selectedColor: resultsSelectedColor,
@@ -154,7 +156,7 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
                                 backgroundColor: isDark ? Colors.transparent : Colors.blue.withOpacity(0.05),
                               ),
                               ChoiceChip(
-                                label: Text('Yesterday', style: _filter == _FixturesFilter.yesterday ? resultsLabelStyle : resultsUnselectedStyle),
+                                label: Text('Yesterday'.tr(ref), style: _filter == _FixturesFilter.yesterday ? resultsLabelStyle : resultsUnselectedStyle),
                                 selected: _filter == _FixturesFilter.yesterday,
                                 onSelected: (_) => setState(() => _filter = _FixturesFilter.yesterday),
                                 selectedColor: resultsSelectedColor,
@@ -162,7 +164,7 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
                                 backgroundColor: isDark ? Colors.transparent : Colors.blue.withOpacity(0.05),
                               ),
                               ChoiceChip(
-                                label: Text('Before Yesterday', style: _filter == _FixturesFilter.beforeYesterday ? resultsLabelStyle : resultsUnselectedStyle),
+                                label: Text('Before Yesterday'.tr(ref), style: _filter == _FixturesFilter.beforeYesterday ? resultsLabelStyle : resultsUnselectedStyle),
                                 selected: _filter == _FixturesFilter.beforeYesterday,
                                 onSelected: (_) => setState(() => _filter = _FixturesFilter.beforeYesterday),
                                 selectedColor: resultsSelectedColor,
@@ -177,10 +179,10 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
                   );
                 }
                 if (filtered.isEmpty) {
-                  return const Card(
+                  return Card(
                     child: Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Text('No fixtures for this filter.'),
+                      padding: const EdgeInsets.all(16),
+                      child: Text('No fixtures for this filter.'.tr(ref)),
                     ),
                   );
                 }
@@ -216,8 +218,8 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
                               Expanded(
                                 child: Text(
                                   f.homeGoals != null 
-                                      ? '  |  Score: ${f.homeGoals} - ${f.awayGoals} ${['1H', '2H', 'HT', 'LIVE'].contains(f.status) ? '(Live)' : '(FT)'}'
-                                      : '  |  Waiting for result...',
+                                      ? '  |  ' + 'Score'.tr(ref) + ': ${f.homeGoals} - ${f.awayGoals} ${['1H', '2H', 'HT', 'LIVE'].contains(f.status) ? '(Live)'.tr(ref) : '(FT)'.tr(ref)}'
+                                      : '  |  ' + 'Waiting for result...'.tr(ref),
                                   style: TextStyle(
                                     fontWeight: FontWeight.w800, 
                                     color: f.homeGoals != null ? Colors.green : Colors.orangeAccent,
@@ -241,7 +243,7 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
                                           setState(() => _activeAlerts.remove(f.id));
                                           if (!mounted) return;
                                           ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text('Match alert canceled')),
+                                            SnackBar(content: Text('Match alert canceled'.tr(ref))),
                                           );
                                         } else {
                                           await LocalNotificationsService.instance.scheduleMatchReminders(
@@ -253,7 +255,7 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
                                           setState(() => _activeAlerts.add(f.id));
                                           if (!mounted) return;
                                           ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text('Match alert set')),
+                                            SnackBar(content: Text('Match alert set'.tr(ref))),
                                           );
                                         }
                                       },
@@ -264,7 +266,7 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
                                   color: _activeAlerts.contains(f.id) ? Colors.greenAccent : null,
                                 ),
                                 label: Text(
-                                  _activeAlerts.contains(f.id) ? 'Alerted' : 'Alert',
+                                  _activeAlerts.contains(f.id) ? 'Alerted'.tr(ref) : 'Alert'.tr(ref),
                                   style: TextStyle(
                                     color: _activeAlerts.contains(f.id) ? Colors.greenAccent : null,
                                   ),
@@ -302,16 +304,16 @@ class _PredictionFixturesScreenState extends State<PredictionFixturesScreen> {
                                         );
                                       }
                                     : null,
-                                child: const Text('Predict'),
+                                child: Text('Predict'.tr(ref)),
                               ),
                             ],
                           ),
                         if (!isEffectivelyFinished && !canPredict && (f.status == 'NS' || f.status == 'TBD'))
-                          const Padding(
-                            padding: EdgeInsets.only(top: 8),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
                             child: Text(
-                              'Predictions are closed for this match',
-                              style: TextStyle(fontSize: 12, color: Colors.redAccent),
+                              'Predictions are closed for this match'.tr(ref),
+                              style: const TextStyle(fontSize: 12, color: Colors.redAccent),
                             ),
                           ),
                       ],
