@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -116,7 +117,9 @@ class PublicProfileScreen extends ConsumerWidget {
           CircleAvatar(
             radius: 56,
             backgroundImage: profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty
-                ? NetworkImage(profile.avatarUrl!)
+                ? (profile.avatarUrl!.startsWith('data:image')
+                    ? MemoryImage(base64Decode(profile.avatarUrl!.split(',').last)) as ImageProvider
+                    : NetworkImage(profile.avatarUrl!))
                 : null,
             child: profile.avatarUrl == null || profile.avatarUrl!.isEmpty
                 ? const Icon(Icons.person, size: 56)
