@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:dio/dio.dart';
+import '../../../../core/network/api_client.dart';
 
 import '../../data/room_repository.dart';
 import '../../models/room_models.dart';
@@ -88,17 +90,27 @@ class _RoomScreenState extends State<RoomScreen> {
                           dense: true,
                           title: Text(m.username),
                           subtitle: Text('User #${m.userId}${isHost ? ' (Host)' : ''}'),
-                          trailing: isHost
+                           trailing: isHost
                               ? null
                               : TextButton(
                                   onPressed: () async {
-                                    await _repo.kickMember(
-                                      roomId: details.room.id,
-                                      userId: m.userId,
-                                    );
-                                    if (!ctx.mounted) return;
-                                    Navigator.pop(ctx);
-                                    await _refresh();
+                                    try {
+                                      await _repo.kickMember(
+                                        roomId: details.room.id,
+                                        userId: m.userId,
+                                      );
+                                      if (!ctx.mounted) return;
+                                      Navigator.pop(ctx);
+                                      await _refresh();
+                                    } catch (e) {
+                                      final errorMsg = e is DioException
+                                          ? ApiException.fromDioError(e).message
+                                          : e.toString();
+                                      if (!context.mounted) return;
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Failed to kick member: $errorMsg')),
+                                      );
+                                    }
                                   },
                                   child: const Text('Kick'),
                                 ),
@@ -116,13 +128,23 @@ class _RoomScreenState extends State<RoomScreen> {
               ),
               FilledButton(
                 onPressed: () async {
-                  await _repo.updateMaxMembers(
-                    roomId: details.room.id,
-                    maxMembers: maxMembers,
-                  );
-                  if (!ctx.mounted) return;
-                  Navigator.pop(ctx);
-                  await _refresh();
+                  try {
+                    await _repo.updateMaxMembers(
+                      roomId: details.room.id,
+                      maxMembers: maxMembers,
+                    );
+                    if (!ctx.mounted) return;
+                    Navigator.pop(ctx);
+                    await _refresh();
+                  } catch (e) {
+                    final errorMsg = e is DioException
+                        ? ApiException.fromDioError(e).message
+                        : e.toString();
+                    if (!ctx.mounted) return;
+                    ScaffoldMessenger.of(ctx).showSnackBar(
+                      SnackBar(content: Text('Failed to update: $errorMsg')),
+                    );
+                  }
                 },
                 child: const Text('Save'),
               ),
@@ -160,7 +182,12 @@ class _RoomScreenState extends State<RoomScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to leave room')));
+        final errorMsg = e is DioException
+            ? ApiException.fromDioError(e).message
+            : e.toString();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to leave room: $errorMsg')),
+        );
       }
     }
   }

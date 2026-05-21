@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:dio/dio.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/network/api_client.dart';
 
 import '../../data/payment_repository.dart';
 import '../../data/room_repository.dart';
@@ -121,8 +123,11 @@ class _MiniLeagueScreenState extends ConsumerState<MiniLeagueScreen>
       context.push('/room/${room.id}');
     } catch (e) {
       if (!mounted) return;
+      final errorMsg = e is DioException
+          ? ApiException.fromDioError(e).message
+          : e.toString();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Create failed: $e')),
+        SnackBar(content: Text('Create failed: $errorMsg')),
       );
     }
   }
@@ -138,28 +143,25 @@ class _MiniLeagueScreenState extends ConsumerState<MiniLeagueScreen>
             controller: controller,
             textCapitalization: TextCapitalization.characters,
             decoration: InputDecoration(
-              labelText: 'Invite code'.tr(ref),
-              border: const OutlineInputBorder(),
+              labelText: 'League Code'.tr(ref),
+              hintText: 'e.g. 4M88N3',
             ),
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(ctx, null),
+              onPressed: () => Navigator.of(ctx).pop(),
               child: Text('Cancel'.tr(ref)),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.pop(ctx, controller.text),
+              onPressed: () => Navigator.of(ctx).pop(controller.text),
               child: Text('Join'.tr(ref)),
             ),
           ],
         ),
       );
-      if (code == null) return;
-      if (code.trim().isEmpty) return;
+      if (code == null || code.trim().isEmpty) return;
 
-      final room = await _roomRepo.joinRoom(
-        joinCode: code.trim(),
-      );
+      final room = await _roomRepo.joinRoom(joinCode: code);
       // Increment in Firebase
       final uid = FirebaseAuth.instance.currentUser?.uid;
       if (uid != null) {
@@ -173,8 +175,11 @@ class _MiniLeagueScreenState extends ConsumerState<MiniLeagueScreen>
       context.push('/room/${room.id}');
     } catch (e) {
       if (!mounted) return;
+      final errorMsg = e is DioException
+          ? ApiException.fromDioError(e).message
+          : e.toString();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Join failed: $e')),
+        SnackBar(content: Text('Join failed: $errorMsg')),
       );
     } finally {
       controller.dispose();
