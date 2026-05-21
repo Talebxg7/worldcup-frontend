@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../features/auth/presentation/providers/auth_provider.dart';
@@ -365,6 +366,10 @@ class _Podium extends StatelessWidget {
   }
 }
 
+String _formatPoints(num pts) {
+  return pts % 1 == 0 ? pts.toInt().toString() : pts.toStringAsFixed(2);
+}
+
 class _PodiumItem extends StatelessWidget {
   final LeaderboardEntry entry;
   final double height;
@@ -386,15 +391,8 @@ class _PodiumItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => PublicProfileScreen(
-              userId: entry.userId,
-              fallbackUsername: entry.username,
-              leagueId: leagueId == 0 ? null : leagueId,
-            ),
-          ),
-        );
+        final lid = leagueId == 0 ? '' : '&leagueId=$leagueId';
+        context.push('/public-profile/${entry.userId}?name=${Uri.encodeComponent(entry.username)}$lid');
       },
       child: Transform.translate(
         offset: Offset(0, offset),
@@ -429,7 +427,7 @@ class _PodiumItem extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            '${entry.totalPoints} pts',
+            '${_formatPoints(entry.totalPoints)} pts',
             style: TextStyle(
               color: AppColors.accent,
               fontSize: 13,
@@ -479,15 +477,8 @@ class _LeaderboardRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => PublicProfileScreen(
-              userId: entry.userId,
-              fallbackUsername: entry.username,
-              leagueId: leagueId == 0 ? null : leagueId,
-            ),
-          ),
-        );
+        final lid = leagueId == 0 ? '' : '&leagueId=$leagueId';
+        context.push('/public-profile/${entry.userId}?name=${Uri.encodeComponent(entry.username)}$lid');
       },
       borderRadius: BorderRadius.circular(14),
       child: Container(
@@ -591,7 +582,7 @@ class _LeaderboardRow extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                '${entry.totalPoints}',
+                _formatPoints(entry.totalPoints),
                 style: const TextStyle(
                   color: AppColors.accentDark,
                   fontWeight: FontWeight.w900,
@@ -610,3 +601,4 @@ class _LeaderboardRow extends StatelessWidget {
         ).fadeIn(duration: 250.ms, delay: Duration(milliseconds: index * 40));
   }
 }
+

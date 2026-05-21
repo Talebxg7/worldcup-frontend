@@ -399,70 +399,238 @@ Future<void> _showGrantPremiumDialog(BuildContext context) async {
   );
 }
 
+const List<Map<String, dynamic>> _leaguesForPoints = [
+  {'id': 0, 'name': 'Global / General'},
+  {'id': 39, 'name': 'Premier League'},
+  {'id': 140, 'name': 'La Liga'},
+  {'id': 135, 'name': 'Serie A'},
+  {'id': 78, 'name': 'Bundesliga'},
+  {'id': 61, 'name': 'Ligue 1'},
+  {'id': 2, 'name': 'Champions League'},
+  {'id': 3, 'name': 'Europa League'},
+  {'id': 6, 'name': 'AFCON'},
+  {'id': 9, 'name': 'Copa America'},
+  {'id': 1, 'name': 'World Cup'},
+  {'id': 307, 'name': 'Saudi Pro League'},
+  {'id': 269, 'name': 'Qatar Stars League'},
+  {'id': 387, 'name': 'Jordanian Pro League'},
+  {'id': 200, 'name': 'Botola Pro'},
+  {'id': 542, 'name': 'Iraqi League'},
+];
+
 Future<void> _showUsersManagementDialog(BuildContext context) async {
+  final searchCtrl = TextEditingController();
+
   showDialog(
     context: context,
-    builder: (ctx) => AlertDialog(
-      title: const Text('Manage Users'),
-      content: SizedBox(
-        width: double.maxFinite,
-        height: 300,
-        child: FutureBuilder(
-          future: ApiClient.instance.get('/admin/users'),
-          builder: (context, snap) {
-            if (snap.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
-            if (snap.hasError) return Center(child: Text('Error: ${snap.error}'));
-            final users = snap.data?.data as List? ?? [];
-            return ListView.builder(
-              itemCount: users.length,
-              itemBuilder: (context, i) {
-                final u = users[i];
-                return ListTile(
-                  title: Row(
-                    children: [
-                      Text(u['username'], style: const TextStyle(fontWeight: FontWeight.bold)),
-                      if (u['is_verified'] == true)
-                        const Padding(
-                          padding: EdgeInsets.only(left: 4),
-                          child: Icon(Icons.verified_rounded, size: 14, color: Colors.blue),
-                        ),
-                    ],
-                  ),
-                  subtitle: Text('${u['email']}\nPoints: ${u['total_points']} | Premium: ${u['is_premium']}'),
-                  isThreeLine: true,
-                  trailing: IconButton(
-                    icon: const Icon(Icons.edit_rounded, size: 18),
-                    onPressed: () async {
-                      final ctrl = TextEditingController(text: u['total_points'].toString());
-                      final newPoints = await showDialog<String>(
-                        context: context,
-                        builder: (c) => AlertDialog(
-                          title: Text('Edit ${u['username']} Points'),
-                          content: TextField(controller: ctrl, keyboardType: TextInputType.number),
-                          actions: [
-                            TextButton(onPressed: () => Navigator.pop(c), child: const Text('Cancel')),
-                            ElevatedButton(onPressed: () => Navigator.pop(c, ctrl.text), child: const Text('Save')),
-                          ],
-                        ),
-                      );
-                      if (newPoints != null && int.tryParse(newPoints) != null) {
-                        try {
-                          await ApiClient.instance.put('/admin/users/${u['id']}/points', data: {'points': int.parse(newPoints)});
-                          if (!context.mounted) return;
-                          Navigator.pop(ctx);
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Points updated!')));
-                        } catch (_) {}
-                      }
+    builder: (ctx) {
+      return StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            title: const Text('Manage Users'),
+            content: SizedBox(
+              width: double.maxFinite,
+              height: 400,
+              child: Column(
+                children: [
+                  TextField(
+                    controller: searchCtrl,
+                    decoration: InputDecoration(
+                      hintText: 'Search by username or email...',
+                      prefixIcon: const Icon(Icons.search_rounded),
+                      suffixIcon: searchCtrl.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear_rounded),
+                              onPressed: () {
+                                searchCtrl.clear();
+                                setDialogState(() {});
+                              },
+                            )
+                          : null,
+                      border: const OutlineInputBorder(),
+                    ),
+                    onChanged: (val) {
+                      setDialogState(() {});
                     },
                   ),
-                );
-              },
-            );
-          },
-        ),
-      ),
-      actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Close'))],
-    ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: FutureBuilder(
+                      future: ApiClient.instance.get(
+                        '/admin/users',
+                        params: searchCtrl.text.trim().isNotEmpty
+                            ? {'search': searchCtrl.text.trim()}
+                            : null,
+                      ),
+                      builder: (context, snap) {
+                        if (snap.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        if (snap.hasError) {
+                          return Center(child: Text('Error: ${snap.error}'));
+                        }
+                        final users = snap.data?.data as List? ?? [];
+                        if (users.isEmpty) {
+                          return const Center(child: Text('No users found'));
+                        }
+                        return ListView.builder(
+                          itemCount: users.length,
+                          itemBuilder: (context, i) {
+                            final u = users[i];
+                            
+                            // Clean up decimal point display if it is a round number
+                            final ptsRaw = u['total_points'];
+                            final ptsDouble = double.tryParse(ptsRaw?.toString() ?? '0') ?? 0.0;
+                            final ptsString = ptsDouble % 1 == 0 
+                                ? ptsDouble.toInt().toString() 
+                                : ptsDouble.toStringAsFixed(2);
+
+                            return ListTile(
+                              title: Row(
+                                children: [
+                                  Text(u['username'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  if (u['is_verified'] == true)
+                                    const Padding(
+                                      padding: EdgeInsets.only(left: 4),
+                                      child: Icon(Icons.verified_rounded, size: 14, color: Colors.blue),
+                                    ),
+                                ],
+                              ),
+                              subtitle: Text('${u['email']}\nPoints: $ptsString | Premium: ${u['is_premium']}'),
+                              isThreeLine: true,
+                              trailing: IconButton(
+                                icon: const Icon(Icons.push_pin_rounded, size: 18),
+                                color: AppColors.primary,
+                                tooltip: 'Award/Adjust Points',
+                                onPressed: () async {
+                                  int selectedLeagueId = 0; // Default to Global
+                                  final pointsCtrl = TextEditingController();
+                                  final reasonCtrl = TextEditingController();
+
+                                  await showDialog(
+                                    context: context,
+                                    builder: (c) {
+                                      return StatefulBuilder(
+                                        builder: (context, setSubState) {
+                                          return AlertDialog(
+                                            title: Text('Adjust Points for ${u['username']}'),
+                                            content: SingleChildScrollView(
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Text(
+                                                    'Select which league to award/deduct points for:',
+                                                    style: TextStyle(fontSize: 13, color: Colors.grey),
+                                                  ),
+                                                  const SizedBox(height: 12),
+                                                  DropdownButtonFormField<int>(
+                                                    value: selectedLeagueId,
+                                                    decoration: const InputDecoration(
+                                                      labelText: 'League',
+                                                      border: OutlineInputBorder(),
+                                                    ),
+                                                    items: _leaguesForPoints.map((l) {
+                                                      return DropdownMenuItem<int>(
+                                                        value: l['id'] as int,
+                                                        child: Text(l['name'] as String),
+                                                      );
+                                                    }).toList(),
+                                                    onChanged: (val) {
+                                                      if (val != null) {
+                                                        setSubState(() => selectedLeagueId = val);
+                                                      }
+                                                    },
+                                                  ),
+                                                  const SizedBox(height: 16),
+                                                  TextField(
+                                                    controller: pointsCtrl,
+                                                    keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
+                                                    decoration: const InputDecoration(
+                                                      labelText: 'Points to Add (use minus to deduct)',
+                                                      hintText: 'e.g., 5 or -2',
+                                                      border: OutlineInputBorder(),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 16),
+                                                  TextField(
+                                                    controller: reasonCtrl,
+                                                    decoration: const InputDecoration(
+                                                      labelText: 'Reason (Optional)',
+                                                      hintText: 'e.g., Bonus points, correction',
+                                                      border: OutlineInputBorder(),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () => Navigator.pop(c),
+                                                child: const Text('Cancel'),
+                                              ),
+                                              ElevatedButton(
+                                                onPressed: () async {
+                                                  final pointsText = pointsCtrl.text.trim();
+                                                  if (pointsText.isEmpty) return;
+
+                                                  final parsedPoints = double.tryParse(pointsText);
+                                                  if (parsedPoints == null) {
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      const SnackBar(content: Text('Please enter a valid number')),
+                                                    );
+                                                    return;
+                                                  }
+
+                                                  try {
+                                                    await ApiClient.instance.put(
+                                                      '/admin/users/${u['id']}/points',
+                                                      data: {
+                                                        'points': parsedPoints,
+                                                        'league_id': selectedLeagueId,
+                                                        'reason': reasonCtrl.text.trim(),
+                                                      },
+                                                    );
+                                                    if (!context.mounted) return;
+                                                    Navigator.pop(c); // Close point adjust dialog
+                                                    Navigator.pop(ctx); // Close manage users dialog
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      SnackBar(content: Text('Points updated successfully for ${u['username']}!')),
+                                                    );
+                                                  } catch (e) {
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      SnackBar(content: Text('Failed to adjust points: $e')),
+                                                    );
+                                                  }
+                                                },
+                                                child: const Text('Save'),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Close'),
+              ),
+            ],
+          );
+        },
+      );
+    },
   );
 }
 

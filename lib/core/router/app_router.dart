@@ -19,6 +19,7 @@ import '../../features/matches/presentation/screens/live_screen.dart';
 import '../../features/predictions_dashboard/presentation/screens/predictions_dashboard_screen.dart';
 import '../../features/leaderboard/presentation/screens/leaderboard_screen.dart';
 import '../../features/profile/presentation/screens/profile_page.dart';
+import '../../features/profile/presentation/screens/public_profile_screen.dart';
 import '../../features/admin/presentation/screens/admin_screen.dart';
 import '../../features/admin/presentation/screens/add_match_screen.dart';
 import '../../features/admin/presentation/screens/enter_result_screen.dart';
@@ -121,6 +122,21 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/profile',
             pageBuilder: (ctx, state) => const NoTransitionPage(child: ProfilePage()),
+          ),
+          GoRoute(
+            path: '/public-profile/:id',
+            builder: (ctx, state) {
+              final id = int.parse(state.pathParameters['id']!);
+              final name = state.uri.queryParameters['name'];
+              final leagueId = int.tryParse(state.uri.queryParameters['leagueId'] ?? '');
+              final roomId = int.tryParse(state.uri.queryParameters['roomId'] ?? '');
+              return PublicProfileScreen(
+                userId: id,
+                fallbackUsername: name,
+                leagueId: leagueId,
+                roomId: roomId,
+              );
+            },
           ),
         ],
       ),

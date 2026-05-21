@@ -310,14 +310,8 @@ class _RoomScreenState extends State<RoomScreen> {
                         ...data.leaderboard.map(
                           (r) => ListTile(
                             onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => PublicProfileScreen(
-                                    userId: r.userId,
-                                    fallbackUsername: r.username,
-                                    roomId: widget.roomId,
-                                  ),
-                                ),
+                              context.push(
+                                '/public-profile/${r.userId}?name=${Uri.encodeComponent(r.username)}&roomId=${widget.roomId}',
                               );
                             },
                             dense: true,
