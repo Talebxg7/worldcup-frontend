@@ -104,26 +104,30 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     }
   }
 
-  Future<void> _seedUserDocumentIfMissing(String uid) async {
+  Future<void> _seedOrSyncUserDocument(String uid) async {
     try {
       final snap = await FirebaseFirestore.instance.collection('users').doc(uid).get();
-      if (snap.exists) return;
-
       final apiUser = ref.read(authStateProvider).value;
-      await FirebaseFirestore.instance.collection('users').doc(uid).set({
-        'username': apiUser?.username ?? 'Player',
-        'email': apiUser?.email ?? '',
-        'profileImageUrl': apiUser?.avatarUrl ?? '',
-        'country': kProfileCountryOptions.first,
+      
+      final Map<String, dynamic> data = {
         'totalPoints': apiUser?.totalPoints ?? 0,
         'totalPredictions': apiUser?.totalPredictions ?? 0,
         'exactScores': apiUser?.exactScores ?? 0,
         'correctWinners': apiUser?.correctResults ?? 0,
-        'leaguesJoined': 0,
-        'createdAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      };
+
+      if (!snap.exists) {
+        data['username'] = apiUser?.username ?? 'Player';
+        data['email'] = apiUser?.email ?? '';
+        data['profileImageUrl'] = apiUser?.avatarUrl ?? '';
+        data['country'] = kProfileCountryOptions.first;
+        data['leaguesJoined'] = 0;
+        data['createdAt'] = FieldValue.serverTimestamp();
+      }
+
+      await FirebaseFirestore.instance.collection('users').doc(uid).set(data, SetOptions(merge: true));
     } catch (e) {
-      print('Failed to seed user document: $e');
+      print('Failed to seed or sync user document: $e');
     }
   }
 
@@ -133,9 +137,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     return int.tryParse('$v') ?? 0;
   }
 
-  String _accuracyPercent(Map<String, dynamic> data) {
-    final tp = _readInt(data['totalPredictions']);
-    final cw = _readInt(data['correctWinners']);
+  String _accuracyPercent(int tp, int cw) {
     if (tp <= 0) return '0%';
     return '${(cw / tp * 100).clamp(0, 100).toStringAsFixed(0)}%';
   }
@@ -413,15 +415,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (!doc.exists) {
-            if (!_seedScheduled) {
-              _seedScheduled = true;
-              WidgetsBinding.instance.addPostFrameCallback((_) async {
-                await _seedUserDocumentIfMissing(uid);
-                if (mounted) setState(() {});
-              });
-            }
-            // Do not block UI with a loader. Just show default data until seeded.
+          if (!_seedScheduled) {
+            _seedScheduled = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              await _seedOrSyncUserDocument(uid);
+              if (mounted) setState(() {});
+            });
           }
 
           final data = doc.data() ?? {};
@@ -431,12 +430,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           final email = (data['email'] as String?) ?? '';
           final profileImageUrl = (data['profileImageUrl'] as String?) ?? '';
           final country = (data['country'] as String?) ?? '';
-          final totalPoints = _readInt(data['totalPoints']);
-          final totalPredictions = _readInt(data['totalPredictions']);
-          final exactScores = _readInt(data['exactScores']);
-          final correctWinners = _readInt(data['correctWinners']);
+          final totalPoints = apiUser != null ? apiUser.totalPoints.toInt() : _readInt(data['totalPoints']);
+          final totalPredictions = apiUser != null ? apiUser.totalPredictions : _readInt(data['totalPredictions']);
+          final exactScores = apiUser != null ? apiUser.exactScores : _readInt(data['exactScores']);
+          final correctWinners = apiUser != null ? apiUser.correctResults : _readInt(data['correctWinners']);
           final leaguesJoined = apiUser?.leaguesJoined ?? 0;
-          final accuracy = _accuracyPercent(data);
+          final accuracy = _accuracyPercent(totalPredictions, correctWinners);
 
           final crossAxisCount = MediaQuery.sizeOf(context).width >= 720 ? 4 : 2;
 
