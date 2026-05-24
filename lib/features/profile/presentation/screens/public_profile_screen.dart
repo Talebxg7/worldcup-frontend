@@ -11,6 +11,7 @@ class PublicProfileModel {
   final String country;
   final double totalPoints;
   final int totalPredictions;
+  final int globalTotalPredictions;
   final int rank;
   final double seasonPoints;
   final String contextLabel;
@@ -22,6 +23,7 @@ class PublicProfileModel {
     required this.country,
     required this.totalPoints,
     required this.totalPredictions,
+    required this.globalTotalPredictions,
     required this.rank,
     required this.seasonPoints,
     this.contextLabel = 'Global',
@@ -35,6 +37,7 @@ class PublicProfileModel {
       country: json['country'] ?? '',
       totalPoints: _parseNum(json['total_points'])?.toDouble() ?? 0.0,
       totalPredictions: _parseNum(json['total_predictions'])?.toInt() ?? 0,
+      globalTotalPredictions: _parseNum(json['global_total_predictions'])?.toInt() ?? 0,
       rank: _parseNum(json['rank'])?.toInt() ?? 0,
       seasonPoints: _parseNum(json['season_points'])?.toDouble() ?? 0.0,
       contextLabel: json['context_label'] ?? 'Global',
@@ -184,6 +187,13 @@ class PublicProfileScreen extends ConsumerWidget {
                   iconColor: Colors.purpleAccent,
                   label: 'Total Predictions',
                   value: fmt.format(profile.totalPredictions),
+                ),
+                const Divider(height: 24),
+                _StatRow(
+                  icon: Icons.explore_rounded,
+                  iconColor: Colors.orangeAccent,
+                  label: 'Total Predictions (All Leagues)',
+                  value: fmt.format(profile.globalTotalPredictions),
                 ),
               ],
             ),
