@@ -139697,10 +139697,9 @@ o=new A.be(Date.now(),0,!1)
 n=a.gqe()
 m=null
 if(B.ajh.p(0,p))m="FINISHED"
+else if(n.eO(o.e1(-144e8)))m="FINISHED"
 else if(B.MO.p(0,p)||J.d(p,"INPLAY"))m="LIVE"
 else if(n.q9(o))m="UPCOMING"
-else if(J.d(p,"NS")||J.d(p,"TBD"))if(n.eO(o.e1(-144e8)))m="FINISHED"
-else m="LIVE"
 else m="LIVE"
 k=m
 l=k==null?l:k
