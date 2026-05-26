@@ -31,21 +31,16 @@ class PredictionDashboardService {
       String matchStatus;
       if (_finishedStatuses.contains(st)) {
         matchStatus = 'FINISHED';
+      } else if (kickoff.isBefore(now.subtract(const Duration(hours: 4)))) {
+        // If kickoff was more than 4 hours ago, the match must be finished physically.
+        // This avoids matches getting stuck as 'LIVE' or 'UPCOMING' on the client.
+        matchStatus = 'FINISHED';
       } else if (_liveStatuses.contains(st) || st == 'INPLAY') {
         matchStatus = 'LIVE';
       } else if (kickoff.isAfter(now)) {
         matchStatus = 'UPCOMING';
       } else {
-        // Kickoff passed but not FT
-        if (st == 'NS' || st == 'TBD') {
-           if (kickoff.isBefore(now.subtract(const Duration(hours: 4)))) {
-               matchStatus = 'FINISHED';
-           } else {
-               matchStatus = 'LIVE';
-           }
-        } else {
-           matchStatus = 'LIVE';
-        }
+        matchStatus = 'LIVE';
       }
 
       return row.copyWith(
