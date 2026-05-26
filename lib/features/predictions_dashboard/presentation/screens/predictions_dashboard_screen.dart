@@ -102,6 +102,56 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
     }
   }
 
+  void _showFilterDialog() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        final theme = Theme.of(context);
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Filter by Competition'.tr(ref),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _leagueFilters.length,
+                  itemBuilder: (context, i) {
+                    final e = _leagueFilters[i];
+                    final isSelected = _filterLeagueId == e.$1;
+                    return ListTile(
+                      title: Text(e.$2.tr(ref)),
+                      trailing: isSelected
+                          ? Icon(Icons.check_circle, color: theme.colorScheme.primary)
+                          : null,
+                      onTap: () {
+                        setState(() => _filterLeagueId = e.$1);
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Iterable<DashboardPredictionModel> get _filtered {
     if (_filterLeagueId == 'ALL') return _rows;
     return _rows.where((e) => e.leagueId == _filterLeagueId);
@@ -154,6 +204,10 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
         title: Text('Predictions'.tr(ref)),
         centerTitle: true,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_list_rounded),
+            onPressed: _showFilterDialog,
+          ),
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             onPressed: _load,
