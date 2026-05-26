@@ -5,7 +5,6 @@ import '../../../../core/network/api_client.dart';
 import '../../data/models/user_model.dart';
 import '../../../../core/constants/app_constants.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter/foundation.dart';
 
 class EmailVerificationRequiredException implements Exception {
   final String email;
@@ -27,8 +26,15 @@ class AuthRepository {
       });
       final data = response.data as Map<String, dynamic>;
       
-      if (data['needsVerification'] == true) {
-        throw EmailVerificationRequiredException(data['email'] as String? ?? username, data['message'] as String? ?? 'Email verification required');
+      final needsVerification = data['needsVerification'] == true ||
+          data['needsVerification']?.toString() == 'true' ||
+          data['token'] == null;
+
+      if (needsVerification) {
+        throw EmailVerificationRequiredException(
+          data['email'] as String? ?? username,
+          data['message'] as String? ?? 'Email verification required',
+        );
       }
 
       final token = data['token'] as String;
@@ -36,13 +42,15 @@ class AuthRepository {
       await _storage.write(key: AppConstants.tokenKey, value: token);
       await _storage.write(key: AppConstants.userKey, value: jsonEncode(user.toJson()));
       return user;
-    } on ApiException catch (e) {
-      if (e.statusCode == 403 && e.rawData is Map && e.rawData['needsVerification'] == true) {
-        throw EmailVerificationRequiredException(e.rawData['email'] as String? ?? username, e.message);
+    } on DioException catch (e) {
+      final apiException = ApiException.fromDioError(e);
+      _handleVerificationError(apiException, username);
+      throw apiException;
+    } catch (e) {
+      if (e is ApiException) {
+        _handleVerificationError(e, username);
       }
       rethrow;
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e);
     }
   }
 
@@ -54,8 +62,17 @@ class AuthRepository {
         if (email != null && email.isNotEmpty) 'email': email,
       });
       final data = response.data as Map<String, dynamic>;
-      if (data['needsVerification'] == true) {
-        throw EmailVerificationRequiredException(data['email'] as String? ?? email ?? username, data['message'] as String? ?? 'Email verification required');
+      
+      final needsVerification = data['needsVerification'] == true ||
+          data['needsVerification']?.toString() == 'true' ||
+          data['token'] == null ||
+          (data['message']?.toString().toLowerCase().contains('verify') ?? false);
+
+      if (needsVerification) {
+        throw EmailVerificationRequiredException(
+          data['email'] as String? ?? email ?? username,
+          data['message'] as String? ?? 'Email verification required',
+        );
       }
 
       final token = data['token'] as String;
@@ -63,10 +80,34 @@ class AuthRepository {
       await _storage.write(key: AppConstants.tokenKey, value: token);
       await _storage.write(key: AppConstants.userKey, value: jsonEncode(user.toJson()));
       return user;
-    } on ApiException {
-      rethrow;
     } on DioException catch (e) {
-      throw ApiException.fromDioError(e);
+      final apiException = ApiException.fromDioError(e);
+      _handleVerificationError(apiException, email ?? username);
+      throw apiException;
+    } catch (e) {
+      if (e is ApiException) {
+        _handleVerificationError(e, email ?? username);
+      }
+      rethrow;
+    }
+  }
+
+  void _handleVerificationError(ApiException e, String usernameOrEmail) {
+    final messageLower = e.message.toLowerCase();
+    final isVerify = e.statusCode == 403 || 
+        messageLower.contains('verify') || 
+        messageLower.contains('verified') ||
+        (e.rawData is Map && (e.rawData['needsVerification'] == true || e.rawData['needsVerification']?.toString() == 'true'));
+    
+    if (isVerify) {
+      String emailAddress = usernameOrEmail;
+      if (e.rawData is Map && e.rawData['email'] != null) {
+        emailAddress = e.rawData['email'] as String;
+      }
+      throw EmailVerificationRequiredException(
+        emailAddress,
+        e.message,
+      );
     }
   }
 
@@ -74,8 +115,7 @@ class AuthRepository {
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn(
         scopes: ['email', 'profile', 'openid'],
-        clientId: '604323730083-db8buapk2e3s42kdmj7v3cvaah7vsqpq.apps.googleusercontent.com',
-        serverClientId: '604323730083-db8buapk2e3s42kdmj7v3cvaah7vsqpq.apps.googleusercontent.com',
+        serverClientId: '1083510169013-6c5k7sk31kcdhja230qgasis4o3umkib.apps.googleusercontent.com',
       );
       
       final GoogleSignInAccount? account = await googleSignIn.signIn();
@@ -112,6 +152,16 @@ class AuthRepository {
   Future<void> logout() async {
     await _storage.delete(key: AppConstants.tokenKey);
     await _storage.delete(key: AppConstants.userKey);
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile', 'openid'],
+        serverClientId: '1083510169013-6c5k7sk31kcdhja230qgasis4o3umkib.apps.googleusercontent.com',
+      );
+      await googleSignIn.signOut();
+      await googleSignIn.disconnect();
+    } catch (e) {
+      // Ignore Google Sign-Out failures during general logout
+    }
   }
 
   Future<void> forgotPassword(String email) async {

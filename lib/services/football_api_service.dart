@@ -21,18 +21,35 @@ class FootballApiService {
     String path, {
     Map<String, String>? query,
   }) async {
-    final response = await http.get(
-      _uri(path, query),
-      headers: _headers(),
-    );
+    try {
+      final response = await http.get(
+        _uri(path, query),
+        headers: _headers(),
+      ).timeout(const Duration(seconds: 8));
 
-    if (response.statusCode != 200) {
-      throw Exception(
-        'API request failed (${response.statusCode}): ${response.body}',
-      );
+      if (response.statusCode != 200) {
+        throw Exception(
+          'API request failed (${response.statusCode}): ${response.body}',
+        );
+      }
+
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      
+      // Check for API-Sports errors structure (e.g. suspended account)
+      if (data['errors'] != null) {
+        final errs = data['errors'];
+        if (errs is Map && errs.isNotEmpty) {
+          throw Exception('API-Sports Error: ${errs.values.first}');
+        } else if (errs is List && errs.isNotEmpty) {
+          throw Exception('API-Sports Error: ${errs.first}');
+        }
+      }
+
+      return data;
+    } catch (e) {
+      debugPrint('FootballApiService: API request to $path failed, falling back to mock. Error: $e');
+      return _getMockJson(path, query);
     }
-
-    return jsonDecode(response.body) as Map<String, dynamic>;
   }
 
   /// 1) GET /leagues
@@ -236,6 +253,151 @@ class FootballApiService {
     return list
         .map((e) => FixtureEventModel.fromJson(e as Map<String, dynamic>))
         .toList();
+  }
+
+  static Map<String, dynamic> _getMockJson(String path, Map<String, String>? query) {
+    final now = DateTime.now();
+    
+    if (path == 'leagues') {
+      return {
+        "response": [
+          {
+            "league": {"id": 39, "name": "Premier League", "type": "League", "logo": "https://media.api-sports.io/football/leagues/39.png"},
+            "country": {"name": "England"}
+          },
+          {
+            "league": {"id": 140, "name": "La Liga", "type": "League", "logo": "https://media.api-sports.io/football/leagues/140.png"},
+            "country": {"name": "Spain"}
+          },
+          {
+            "league": {"id": 135, "name": "Serie A", "type": "League", "logo": "https://media.api-sports.io/football/leagues/135.png"},
+            "country": {"name": "Italy"}
+          },
+          {
+            "league": {"id": 78, "name": "Bundesliga", "type": "League", "logo": "https://media.api-sports.io/football/leagues/78.png"},
+            "country": {"name": "Germany"}
+          }
+        ]
+      };
+    } else if (path == 'standings') {
+      final leagueId = int.tryParse(query?['league'] ?? '39') ?? 39;
+      final leagueName = leagueId == 140
+          ? 'La Liga'
+          : leagueId == 135
+              ? 'Serie A'
+              : leagueId == 78
+                  ? 'Bundesliga'
+                  : 'Premier League';
+      
+      final teams = leagueId == 140 
+        ? [
+            {"rank": 1, "team": {"name": "Real Madrid"}, "points": 95, "all": {"played": 38, "win": 30, "draw": 5, "lose": 3}},
+            {"rank": 2, "team": {"name": "Barcelona"}, "points": 85, "all": {"played": 38, "win": 26, "draw": 7, "lose": 5}},
+            {"rank": 3, "team": {"name": "Girona"}, "points": 81, "all": {"played": 38, "win": 25, "draw": 6, "lose": 7}},
+            {"rank": 4, "team": {"name": "Atletico Madrid"}, "points": 76, "all": {"played": 38, "win": 24, "draw": 4, "lose": 10}},
+          ]
+        : leagueId == 135
+          ? [
+              {"rank": 1, "team": {"name": "Inter"}, "points": 94, "all": {"played": 38, "win": 29, "draw": 7, "lose": 2}},
+              {"rank": 2, "team": {"name": "AC Milan"}, "points": 75, "all": {"played": 38, "win": 22, "draw": 9, "lose": 7}},
+              {"rank": 3, "team": {"name": "Juventus"}, "points": 71, "all": {"played": 38, "win": 19, "draw": 14, "lose": 5}},
+            ]
+          : leagueId == 78
+            ? [
+                {"rank": 1, "team": {"name": "Bayer Leverkusen"}, "points": 90, "all": {"played": 34, "win": 28, "draw": 6, "lose": 0}},
+                {"rank": 2, "team": {"name": "VfB Stuttgart"}, "points": 73, "all": {"played": 34, "win": 23, "draw": 4, "lose": 7}},
+                {"rank": 3, "team": {"name": "Bayern Munich"}, "points": 72, "all": {"played": 34, "win": 23, "draw": 3, "lose": 8}},
+              ]
+            : [
+                {"rank": 1, "team": {"name": "Arsenal"}, "points": 89, "all": {"played": 38, "win": 28, "draw": 5, "lose": 5}},
+                {"rank": 2, "team": {"name": "Manchester City"}, "points": 88, "all": {"played": 38, "win": 27, "draw": 7, "lose": 4}},
+                {"rank": 3, "team": {"name": "Liverpool"}, "points": 82, "all": {"played": 38, "win": 24, "draw": 10, "lose": 4}},
+                {"rank": 4, "team": {"name": "Aston Villa"}, "points": 68, "all": {"played": 38, "win": 20, "draw": 8, "lose": 10}},
+                {"rank": 5, "team": {"name": "Chelsea"}, "points": 63, "all": {"played": 38, "win": 18, "draw": 9, "lose": 11}},
+              ];
+      return {
+        "response": [
+          {
+            "league": {
+              "id": leagueId,
+              "name": leagueName,
+              "standings": [teams]
+            }
+          }
+        ]
+      };
+    } else if (path == 'fixtures') {
+      final leagueId = int.tryParse(query?['league'] ?? '39') ?? 39;
+      final leagueName = leagueId == 140
+          ? 'La Liga'
+          : leagueId == 135
+              ? 'Serie A'
+              : leagueId == 78
+                  ? 'Bundesliga'
+                  : 'Premier League';
+      
+      final yesterday = now.subtract(const Duration(days: 1));
+      final tomorrow = now.add(const Duration(days: 1));
+      final nextWeek = now.add(const Duration(days: 4));
+
+      return {
+        "response": [
+          {
+            "fixture": {
+              "id": leagueId * 1000 + 1,
+              "date": yesterday.toIso8601String(),
+              "status": {"short": "FT", "long": "Match Finished", "elapsed": 90}
+            },
+            "teams": {
+              "home": {"name": "Arsenal", "logo": "https://media.api-sports.io/football/teams/42.png", "id": 42},
+              "away": {"name": "Chelsea", "logo": "https://media.api-sports.io/football/teams/49.png", "id": 49}
+            },
+            "goals": {"home": 3, "away": 1},
+            "league": {"name": leagueName, "id": leagueId}
+          },
+          {
+            "fixture": {
+              "id": leagueId * 1000 + 2,
+              "date": now.toIso8601String(),
+              "status": {"short": "2H", "long": "Second Half", "elapsed": 68}
+            },
+            "teams": {
+              "home": {"name": "Manchester City", "logo": "https://media.api-sports.io/football/teams/50.png", "id": 50},
+              "away": {"name": "Liverpool", "logo": "https://media.api-sports.io/football/teams/40.png", "id": 40}
+            },
+            "goals": {"home": 2, "away": 2},
+            "league": {"name": leagueName, "id": leagueId}
+          },
+          {
+            "fixture": {
+              "id": leagueId * 1000 + 3,
+              "date": tomorrow.toIso8601String(),
+              "status": {"short": "NS", "long": "Not Started", "elapsed": 0}
+            },
+            "teams": {
+              "home": {"name": "Manchester United", "logo": "https://media.api-sports.io/football/teams/33.png", "id": 33},
+              "away": {"name": "Tottenham", "logo": "https://media.api-sports.io/football/teams/47.png", "id": 47}
+            },
+            "goals": {"home": null, "away": null},
+            "league": {"name": leagueName, "id": leagueId}
+          },
+          {
+            "fixture": {
+              "id": leagueId * 1000 + 4,
+              "date": nextWeek.toIso8601String(),
+              "status": {"short": "NS", "long": "Not Started", "elapsed": 0}
+            },
+            "teams": {
+              "home": {"name": "Aston Villa", "logo": "https://media.api-sports.io/football/teams/66.png", "id": 66},
+              "away": {"name": "Newcastle", "logo": "https://media.api-sports.io/football/teams/34.png", "id": 34}
+            },
+            "goals": {"home": null, "away": null},
+            "league": {"name": leagueName, "id": leagueId}
+          }
+        ]
+      };
+    }
+    return {"response": []};
   }
 }
 

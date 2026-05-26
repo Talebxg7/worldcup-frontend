@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../features/auth/presentation/providers/auth_provider.dart';
+import '../../../../features/auth/data/models/user_model.dart';
 import '../../../../core/localization/app_localizations.dart';
 
 // Leaderboard entry model
@@ -59,8 +60,8 @@ final leaderboardProvider = FutureProvider.family<List<LeaderboardEntry>, int>((
       .map((e) => LeaderboardEntry.fromJson(e.value as Map<String, dynamic>, e.key + 1))
       .toList();
 
-  final currentUser = ref.read(authStateProvider).value;
-  if (currentUser != null && !entries.any((e) => e.userId == currentUser.id)) {
+  final currentUser = ref.watch(authStateProvider).value;
+  if (currentUser != null && !currentUser.hideUsername && !entries.any((e) => e.userId == currentUser.id)) {
     entries.add(
       LeaderboardEntry(
         rank: entries.length + 1,
@@ -278,6 +279,15 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
               onRefresh: _refresh,
               child: CustomScrollView(
                 slivers: [
+                  // Hidden User Premium Privacy Card at the very top
+                  if (currentUser != null && currentUser.hideUsername)
+                    SliverToBoxAdapter(
+                      child: _HiddenUserTopCard(currentUser: currentUser)
+                          .animate()
+                          .slideY(begin: -0.1, duration: 400.ms)
+                          .fadeIn(duration: 350.ms),
+                    ),
+
                   // Top 3 podium
                   if (entries.length >= 3)
                     SliverToBoxAdapter(
@@ -599,6 +609,152 @@ class _LeaderboardRow extends ConsumerWidget {
           duration: 300.ms,
           delay: Duration(milliseconds: index * 40),
         ).fadeIn(duration: 250.ms, delay: Duration(milliseconds: index * 40));
+  }
+}
+
+class _HiddenUserTopCard extends ConsumerWidget {
+  final UserModel currentUser;
+
+  const _HiddenUserTopCard({required this.currentUser});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? [const Color(0xFF1E1B4B), const Color(0xFF0F172A)] // Deep royal indigo to dark slate
+              : [const Color(0xFFEEF2F6), const Color(0xFFE2E8F0)],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: const Color(0xFFF59E0B).withOpacity(0.4), // Golden subtle glow
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFF59E0B).withOpacity(0.08),
+            blurRadius: 10,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              // Avatar
+              CircleAvatar(
+                radius: 22,
+                backgroundColor: AppColors.primary.withOpacity(0.2),
+                backgroundImage: currentUser.avatarUrl != null
+                    ? (currentUser.avatarUrl!.startsWith('data:image')
+                        ? MemoryImage(base64Decode(currentUser.avatarUrl!.split(',').last)) as ImageProvider
+                        : NetworkImage(currentUser.avatarUrl!))
+                    : null,
+                child: currentUser.avatarUrl == null
+                    ? Text(
+                        currentUser.username.isNotEmpty ? currentUser.username[0].toUpperCase() : '?',
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 16,
+                        ),
+                      )
+                    : null,
+              ),
+              const SizedBox(width: 12),
+              
+              // Username & Hidden note
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      currentUser.username,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '( your username is hidden )'.tr(ref),
+                      style: TextStyle(
+                        color: Colors.amber.shade500,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // Points & Rank
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.accent.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '${_formatPoints(currentUser.totalPoints)} pts',
+                      style: const TextStyle(
+                        color: AppColors.accentDark,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Rank: (-)',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          const Divider(color: Colors.white10, height: 1),
+          const SizedBox(height: 8),
+          
+          // Instruction Note
+          Row(
+            children: [
+              const Icon(Icons.info_outline_rounded, color: Colors.orangeAccent, size: 16),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Unhide your username to see your Global rank'.tr(ref),
+                  style: TextStyle(
+                    color: isDark ? Colors.white70 : Colors.black54,
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
 

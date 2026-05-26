@@ -12,7 +12,28 @@
           "package_name": "com.worldcup.worldcup_predictor"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1083510169013-fsmi3acahkmjo9cq4o0amqun75tqccuv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.worldcup.worldcup_predictor",
+            "certificate_hash": "a60e19e7094152505aac59de4db532a3c8169cef"
+          }
+        },
+        {
+          "client_id": "1083510169013-vvt2tsbdf12q01ha1evd9pgsjn7magua.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.worldcup.worldcup_predictor",
+            "certificate_hash": "bdb47ffafe78a5264fe62152f04b093eb4d986c6"
+          }
+        },
+        {
+          "client_id": "1083510169013-6c5k7sk31kcdhja230qgasis4o3umkib.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDvzcjyW5bSJA4PiqGyqNFCNN3xqv4A2xQ"
@@ -20,7 +41,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1083510169013-6c5k7sk31kcdhja230qgasis4o3umkib.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

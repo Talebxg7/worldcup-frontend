@@ -24,7 +24,6 @@ class LocalNotificationsService {
         AndroidFlutterLocalNotificationsPlugin>();
     if (androidPlugin != null) {
       await androidPlugin.requestNotificationsPermission();
-      await androidPlugin.requestExactAlarmsPermission();
     }
 
     _initialized = true;
