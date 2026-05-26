@@ -24,12 +24,7 @@ class PredictionDashboardService {
 
   Future<DashboardPredictionModel> enrichOne(DashboardPredictionModel row) async {
     try {
-      final id = int.tryParse(row.fixtureId);
-      if (id == null) return row;
-      final f = await FootballApiService.getFixtureById(id);
-      if (f == null) return row;
-
-      final st = (f.status ?? '').toUpperCase();
+      final st = row.matchStatus.toUpperCase();
       final now = DateTime.now();
       final kickoff = row.kickoff;
 
@@ -53,33 +48,8 @@ class PredictionDashboardService {
         }
       }
 
-      final ah = f.homeGoals;
-      final aw = f.awayGoals;
-      int? points;
-      if (matchStatus == 'FINISHED' && ah != null && aw != null) {
-        points = _computePoints(row, ah, aw);
-      }
-
-      return DashboardPredictionModel(
-        fixtureId: row.fixtureId,
-        leagueId: row.leagueId,
-        leagueName: row.leagueName,
-        homeTeam: row.homeTeam,
-        awayTeam: row.awayTeam,
-        homeLogo: row.homeLogo,
-        awayLogo: row.awayLogo,
-        homeTeamId: row.homeTeamId,
-        awayTeamId: row.awayTeamId,
-        kickoffIso: row.kickoffIso,
-        homeScore: row.homeScore,
-        awayScore: row.awayScore,
-        predictedWinner: row.predictedWinner,
-        jokerUsed: row.jokerUsed,
+      return row.copyWith(
         matchStatus: matchStatus,
-        pointsEarned: matchStatus == 'FINISHED' ? points : null,
-        actualHomeGoals: ah,
-        actualAwayGoals: aw,
-        savedAtIso: row.savedAtIso,
       );
     } catch (_) {
       return row;
@@ -141,18 +111,22 @@ class PredictionDashboardService {
   }
 
   int weeklyPoints(List<DashboardPredictionModel> rows) {
-    final start = _weekStart(DateTime.now());
+    final now = DateTime.now();
+    final start = _weekStart(now);
+    final end = start.add(const Duration(days: 7));
     var sum = 0;
     for (final p in rows) {
-      if (p.savedAt.isBefore(start)) continue;
+      if (p.kickoff.isBefore(start) || p.kickoff.isAfter(end)) continue;
       sum += p.pointsEarned ?? 0;
     }
     return sum;
   }
 
   int weeklyPredictedCount(List<DashboardPredictionModel> rows) {
-    final start = _weekStart(DateTime.now());
-    return rows.where((p) => !p.savedAt.isBefore(start)).length;
+    final now = DateTime.now();
+    final start = _weekStart(now);
+    final end = start.add(const Duration(days: 7));
+    return rows.where((p) => !p.kickoff.isBefore(start) && !p.kickoff.isAfter(end)).length;
   }
 
   DateTime _weekStart(DateTime d) {
