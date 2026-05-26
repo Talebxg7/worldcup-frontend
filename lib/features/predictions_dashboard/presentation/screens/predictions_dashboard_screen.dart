@@ -115,7 +115,9 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
       case 1:
         return f.where((p) => p.matchStatus == 'LIVE').toList();
       default:
-        return f.where((p) => p.matchStatus == 'FINISHED').toList();
+        final finished = f.where((p) => p.matchStatus == 'FINISHED').toList();
+        finished.sort((a, b) => b.kickoff.compareTo(a.kickoff)); // Descending chronological order: newest finished matches first
+        return finished;
     }
   }
 
@@ -175,6 +177,7 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
                             exactScores: exact,
                             weeklyPoints: weeklyPts,
                             rank: currentRank,
+                            hideUsername: currentUser?.hideUsername ?? false,
                           ),
                         ),
                         Padding(
@@ -316,6 +319,7 @@ class _SummaryCard extends ConsumerWidget {
   final int exactScores;
   final int weeklyPoints;
   final int? rank;
+  final bool hideUsername;
 
   const _SummaryCard({
     required this.total,
@@ -323,6 +327,7 @@ class _SummaryCard extends ConsumerWidget {
     required this.exactScores,
     required this.weeklyPoints,
     this.rank,
+    this.hideUsername = false,
   });
 
   @override
@@ -353,7 +358,45 @@ class _SummaryCard extends ConsumerWidget {
           _sumRow('Correct winners'.tr(ref), '$correctWinners'),
           _sumRow('Exact Scores'.tr(ref), '$exactScores'),
           _sumRow('Weekly points'.tr(ref), '+$weeklyPoints', highlight: true),
-          if (rank != null) ...[
+          if (hideUsername) ...[
+            const SizedBox(height: 8),
+            const Divider(color: Colors.white12, height: 1),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Text(
+                  'Global Rank:'.tr(ref),
+                  style: TextStyle(color: Colors.white.withOpacity(0.75), fontSize: 13),
+                ),
+                const SizedBox(width: 6),
+                const Text(
+                  '(-)',
+                  style: TextStyle(
+                    color: Colors.amberAccent,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(Icons.info_outline_rounded, color: Colors.orangeAccent, size: 14),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'Unhide your username to see your Global rank'.tr(ref),
+                    style: const TextStyle(
+                      color: Colors.orangeAccent,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ] else if (rank != null) ...[
             const SizedBox(height: 6),
             Row(
               children: [
