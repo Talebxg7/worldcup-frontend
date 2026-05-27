@@ -732,28 +732,30 @@ class _WorldCupHubScreenState extends ConsumerState<WorldCupHubScreen> {
                                           fontStyle: FontStyle.italic,
                                         ),
                                       )
-                                    : Wrap(
-                                        spacing: 8,
-                                        runSpacing: 4,
+                                    : Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: qs.map((countryName) {
                                           final country = getCountryByName(countryName);
-                                          return Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Text(
-                                                country?.flag ?? '',
-                                                style: const TextStyle(fontSize: 16),
-                                              ),
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                countryName.tr(ref),
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.bold,
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 2),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text(
+                                                  country?.flag ?? '',
+                                                  style: const TextStyle(fontSize: 16),
                                                 ),
-                                              ),
-                                            ],
+                                                const SizedBox(width: 6),
+                                                Text(
+                                                  countryName.tr(ref),
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           );
                                         }).toList(),
                                       ),
@@ -1408,28 +1410,30 @@ class _WorldCupEventsHubScreenState extends ConsumerState<WorldCupEventsHubScree
                                           fontStyle: FontStyle.italic,
                                         ),
                                       )
-                                    : Wrap(
-                                        spacing: 8,
-                                        runSpacing: 4,
+                                    : Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: qs.map((countryName) {
                                           final country = getCountryByName(countryName);
-                                          return Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Text(
-                                                country?.flag ?? '',
-                                                style: const TextStyle(fontSize: 16),
-                                              ),
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                countryName.tr(ref),
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.bold,
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 2),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text(
+                                                  country?.flag ?? '',
+                                                  style: const TextStyle(fontSize: 16),
                                                 ),
-                                              ),
-                                            ],
+                                                const SizedBox(width: 6),
+                                                Text(
+                                                  countryName.tr(ref),
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           );
                                         }).toList(),
                                       ),
