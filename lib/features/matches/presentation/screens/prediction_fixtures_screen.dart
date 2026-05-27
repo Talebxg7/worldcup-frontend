@@ -7,6 +7,7 @@ import '../../../../core/notifications/local_notifications_service.dart';
 import '../../../../services/football_api_service.dart';
 import '../../../fixture_predictions/presentation/screens/prediction_screen.dart';
 import '../../../../core/localization/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 
 class PredictionFixturesScreen extends ConsumerStatefulWidget {
   final int leagueId;
@@ -56,6 +57,14 @@ class _PredictionFixturesScreenState extends ConsumerState<PredictionFixturesScr
         title: Text(widget.leagueName.tr(ref)),
         centerTitle: true,
         actions: [
+          if (widget.leagueId == 1)
+            IconButton(
+              tooltip: 'World Cup Prediction Challenges'.tr(ref),
+              icon: const Icon(Icons.emoji_events_rounded, color: Color(0xFFFFD700), size: 26),
+              onPressed: () {
+                context.go('/worldcup');
+              },
+            ),
           IconButton(
             onPressed: _refresh,
             icon: const Icon(Icons.refresh_rounded),

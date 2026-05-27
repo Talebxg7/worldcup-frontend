@@ -43,6 +43,9 @@ class MainShell extends ConsumerWidget {
         child: BottomNavigationBar(
           currentIndex: currentIndex,
           onTap: (index) {
+            while (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
             switch (index) {
               case 0:
                 context.go('/home');
@@ -82,7 +85,7 @@ class MainShell extends ConsumerWidget {
                   color: currentIndex == 1 ? AppColors.primary.withOpacity(0.12) : Colors.transparent,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Icon(Icons.edit_note_rounded),
+                child: const Icon(Icons.assignment_rounded),
               ),
               label: 'Predictions'.tr(ref),
             ),
@@ -94,7 +97,7 @@ class MainShell extends ConsumerWidget {
                   color: currentIndex == 2 ? AppColors.primary.withOpacity(0.12) : Colors.transparent,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Icon(Icons.groups_rounded),
+                child: const Icon(Icons.people_rounded),
               ),
               label: 'Mini Leagues'.tr(ref),
             ),
@@ -106,7 +109,7 @@ class MainShell extends ConsumerWidget {
                   color: currentIndex == 3 ? AppColors.primary.withOpacity(0.12) : Colors.transparent,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Icon(Icons.leaderboard_rounded),
+                child: const Icon(Icons.bar_chart_rounded),
               ),
               label: 'Leaderboard'.tr(ref),
             ),

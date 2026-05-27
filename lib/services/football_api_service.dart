@@ -447,6 +447,7 @@ class FixtureModel {
   final String? statusLong;
   final int? minute;
   final String? leagueName;
+  final int? leagueId;
   final String? venueName;
   final String? venueCity;
   final int? homeTeamId;
@@ -469,6 +470,7 @@ class FixtureModel {
     this.statusLong,
     this.minute,
     this.leagueName,
+    this.leagueId,
     this.venueName,
     this.venueCity,
     this.homeLogo,
@@ -496,6 +498,7 @@ class FixtureModel {
       statusLong: statusObj['long'] as String?,
       minute: (statusObj['elapsed'] as num?)?.toInt(),
       leagueName: league['name'] as String?,
+      leagueId: (league['id'] as num?)?.toInt(),
       venueName: venue['name'] as String?,
       venueCity: venue['city'] as String?,
       homeTeamId: (home['id'] as num?)?.toInt(),
