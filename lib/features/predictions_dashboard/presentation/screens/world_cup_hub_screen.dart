@@ -732,29 +732,28 @@ class _WorldCupHubScreenState extends ConsumerState<WorldCupHubScreen> {
                                           fontStyle: FontStyle.italic,
                                         ),
                                       )
-                                    : Row(
+                                    : Wrap(
+                                        spacing: 8,
+                                        runSpacing: 4,
                                         children: qs.map((countryName) {
                                           final country = getCountryByName(countryName);
-                                          return Padding(
-                                            padding: const EdgeInsets.only(right: 12),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Text(
-                                                  country?.flag ?? '',
-                                                  style: const TextStyle(fontSize: 16),
+                                          return Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                country?.flag ?? '',
+                                                style: const TextStyle(fontSize: 16),
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                countryName.tr(ref),
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.bold,
                                                 ),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                  countryName.tr(ref),
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 13,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           );
                                         }).toList(),
                                       ),
