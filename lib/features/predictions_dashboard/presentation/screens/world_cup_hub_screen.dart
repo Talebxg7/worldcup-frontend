@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../services/football_api_service.dart';
+import '../../data/dashboard_prediction_repository.dart';
+import '../../services/prediction_dashboard_service.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../models/dashboard_prediction_model.dart';
 import '../../models/world_cup_countries.dart';
@@ -12,8 +15,7 @@ import '../../../fixture_predictions/presentation/screens/prediction_screen.dart
 
 /// 🏆 Dedicated World Cup 2026 Hub Screen
 class WorldCupHubScreen extends ConsumerStatefulWidget {
-  final List<DashboardPredictionModel> allPredictions;
-  const WorldCupHubScreen({super.key, required this.allPredictions});
+  const WorldCupHubScreen({super.key});
 
   @override
   ConsumerState<WorldCupHubScreen> createState() => _WorldCupHubScreenState();
@@ -22,6 +24,9 @@ class WorldCupHubScreen extends ConsumerStatefulWidget {
 class _WorldCupHubScreenState extends ConsumerState<WorldCupHubScreen> {
   late Timer _countdownTimer;
   Duration _timeLeft = const Duration();
+  bool _loadingFixtures = true;
+  List<FixtureModel> _wcFixtures = [];
+  Map<int, DashboardPredictionModel> _savedPredictions = {};
 
   static final DateTime _wcStartDate = DateTime.parse('2026-06-11T19:00:00Z');
 
@@ -29,6 +34,44 @@ class _WorldCupHubScreenState extends ConsumerState<WorldCupHubScreen> {
   void initState() {
     super.initState();
     _startCountdown();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    if (!mounted) return;
+    setState(() => _loadingFixtures = true);
+    try {
+      final fixtures = await FootballApiService.getFixtures(league: 1, season: 2026);
+      fixtures.sort((a, b) => (a.date ?? DateTime.now()).compareTo(b.date ?? DateTime.now()));
+
+      final repo = DashboardPredictionRepository();
+      final raw = await repo.loadAll();
+      final service = PredictionDashboardService();
+      final enriched = await service.enrichAll(raw);
+
+      final Map<int, DashboardPredictionModel> predictionMap = {};
+      for (var p in enriched) {
+        if (p.leagueId == '1') {
+          final fxId = int.tryParse(p.fixtureId);
+          if (fxId != null) {
+            predictionMap[fxId] = p;
+          }
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _wcFixtures = fixtures;
+          _savedPredictions = predictionMap;
+          _loadingFixtures = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading World Cup Hub data: $e');
+      if (mounted) {
+        setState(() => _loadingFixtures = false);
+      }
+    }
   }
 
   @override
@@ -54,12 +97,6 @@ class _WorldCupHubScreenState extends ConsumerState<WorldCupHubScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Filter World Cup fixtures (league ID = 1)
-    final wcFixtures = widget.allPredictions
-        .where((e) => e.leagueId == '1')
-        .toList();
-    wcFixtures.sort((a, b) => a.kickoff.compareTo(b.kickoff));
-
     final days = _timeLeft.inDays;
     final hours = _timeLeft.inHours % 24;
     final mins = _timeLeft.inMinutes % 60;
@@ -259,19 +296,26 @@ class _WorldCupHubScreenState extends ConsumerState<WorldCupHubScreen> {
                             ),
                           ),
                           const Spacer(),
-                          Text(
-                            '${wcFixtures.length} Matches'.tr(ref),
-                            style: const TextStyle(
-                              color: Colors.white54,
-                              fontSize: 13,
+                          if (!_loadingFixtures)
+                            Text(
+                              '${_wcFixtures.length} Matches'.tr(ref),
+                              style: const TextStyle(
+                                color: Colors.white54,
+                                fontSize: 13,
+                              ),
                             ),
-                          ),
                         ],
                       ),
                       const SizedBox(height: 12),
 
-                      // Empty State or List
-                      if (wcFixtures.isEmpty)
+                      // Loading, Empty State, or List
+                      if (_loadingFixtures)
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 60),
+                          alignment: Alignment.center,
+                          child: const CircularProgressIndicator(color: Color(0xFFFFD700)),
+                        )
+                      else if (_wcFixtures.isEmpty)
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 40),
                           alignment: Alignment.center,
@@ -284,10 +328,34 @@ class _WorldCupHubScreenState extends ConsumerState<WorldCupHubScreen> {
                         ListView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          itemCount: wcFixtures.length,
+                          itemCount: _wcFixtures.length,
                           itemBuilder: (context, i) {
-                            final p = wcFixtures[i];
-                            return _WcMatchCard(p: p, df: DateFormat('EEE, MMM d • HH:mm'));
+                            final f = _wcFixtures[i];
+                            final pred = _savedPredictions[f.id];
+                            return _WcMatchCard(
+                              f: f,
+                              prediction: pred,
+                              df: DateFormat('EEE, MMM d • HH:mm'),
+                              onTap: () async {
+                                await Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => PredictionScreen(
+                                      fixtureId: f.id,
+                                      kickoffTime: f.date ?? DateTime.now(),
+                                      homeTeam: f.homeTeam,
+                                      awayTeam: f.awayTeam,
+                                      homeLogo: f.homeLogo ?? '',
+                                      awayLogo: f.awayLogo ?? '',
+                                      homeTeamId: f.homeTeamId,
+                                      awayTeamId: f.awayTeamId,
+                                      leagueId: 1,
+                                      leagueName: 'World Cup',
+                                    ),
+                                  ),
+                                );
+                                _loadData(); // Auto reload predictions when returning!
+                              },
+                            );
                           },
                         ),
                     ],
@@ -351,43 +419,43 @@ class _CountdownDivider extends StatelessWidget {
 }
 
 class _WcMatchCard extends StatelessWidget {
-  final DashboardPredictionModel p;
+  final FixtureModel f;
+  final DashboardPredictionModel? prediction;
   final DateFormat df;
+  final VoidCallback onTap;
 
-  const _WcMatchCard({required this.p, required this.df});
+  const _WcMatchCard({
+    required this.f,
+    required this.prediction,
+    required this.df,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final hasPrediction = prediction != null;
+    final matchTime = f.date ?? DateTime.now();
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F4C3A).withOpacity(0.35),
+        color: hasPrediction 
+            ? const Color(0xFF0F4C3A).withOpacity(0.35) 
+            : const Color(0xFFFFD700).withOpacity(0.04),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white10),
+        border: Border.all(
+          color: hasPrediction 
+              ? Colors.white10 
+              : const Color(0xFFFFD700).withOpacity(0.3),
+          width: hasPrediction ? 1.0 : 1.2,
+        ),
       ),
       child: Material(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => PredictionScreen(
-                  fixtureId: int.parse(p.fixtureId),
-                  kickoffTime: p.kickoff,
-                  homeTeam: p.homeTeam,
-                  awayTeam: p.awayTeam,
-                  homeLogo: p.homeLogo ?? '',
-                  awayLogo: p.awayLogo ?? '',
-                  homeTeamId: p.homeTeamId,
-                  awayTeamId: p.awayTeamId,
-                  leagueId: int.tryParse(p.leagueId) ?? 1,
-                  leagueName: p.leagueName ?? 'World Cup',
-                ),
-              ),
-            );
-          },
+          onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -396,18 +464,22 @@ class _WcMatchCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      df.format(p.kickoff.toLocal()),
+                      df.format(matchTime.toLocal()),
                       style: const TextStyle(color: Colors.white54, fontSize: 12),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: Colors.white12,
+                        color: hasPrediction ? Colors.white12 : const Color(0xFFFFD700).withOpacity(0.12),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        p.matchStatus,
-                        style: const TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold),
+                        hasPrediction ? (f.status ?? 'NS') : 'TAP TO PREDICT',
+                        style: TextStyle(
+                          color: hasPrediction ? Colors.white70 : const Color(0xFFFFD700),
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -418,14 +490,14 @@ class _WcMatchCard extends StatelessWidget {
                     Expanded(
                       child: Row(
                         children: [
-                          if (p.homeLogo != null && p.homeLogo!.isNotEmpty)
-                            Image.network(p.homeLogo!, width: 26, height: 26, errorBuilder: (_, __, ___) => const Icon(Icons.flag_rounded, color: Colors.white70))
+                          if (f.homeLogo != null && f.homeLogo!.isNotEmpty)
+                            Image.network(f.homeLogo!, width: 26, height: 26, errorBuilder: (_, __, ___) => const Icon(Icons.flag_rounded, color: Colors.white70))
                           else
                             const Icon(Icons.flag_rounded, color: Colors.white70),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              p.homeTeam,
+                              f.homeTeam,
                               style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -444,7 +516,7 @@ class _WcMatchCard extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              p.awayTeam,
+                              f.awayTeam,
                               style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -452,8 +524,8 @@ class _WcMatchCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 10),
-                          if (p.awayLogo != null && p.awayLogo!.isNotEmpty)
-                            Image.network(p.awayLogo!, width: 26, height: 26, errorBuilder: (_, __, ___) => const Icon(Icons.flag_rounded, color: Colors.white70))
+                          if (f.awayLogo != null && f.awayLogo!.isNotEmpty)
+                            Image.network(f.awayLogo!, width: 26, height: 26, errorBuilder: (_, __, ___) => const Icon(Icons.flag_rounded, color: Colors.white70))
                           else
                             const Icon(Icons.flag_rounded, color: Colors.white70),
                         ],
@@ -465,14 +537,23 @@ class _WcMatchCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      'Your Prediction: ',
-                      style: TextStyle(color: Colors.white54, fontSize: 12),
-                    ),
-                    Text(
-                      '${p.homeScore} – ${p.awayScore}',
-                      style: const TextStyle(color: Color(0xFFFFD700), fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
+                    if (hasPrediction) ...[
+                      const Text(
+                        'Your Prediction: ',
+                        style: TextStyle(color: Colors.white54, fontSize: 12),
+                      ),
+                      Text(
+                        '${prediction!.homeScore} – ${prediction!.awayScore}',
+                        style: const TextStyle(color: Color(0xFFFFD700), fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                    ] else ...[
+                      const Icon(Icons.edit_note_rounded, color: Color(0xFFFFD700), size: 16),
+                      const SizedBox(width: 6),
+                      const Text(
+                        'Tap to Predict Match (+Points)',
+                        style: TextStyle(color: Color(0xFFFFD700), fontSize: 13, fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ],
                 ),
               ],

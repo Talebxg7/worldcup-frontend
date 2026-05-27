@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,9 +13,16 @@ import '../../services/prediction_dashboard_service.dart';
 import '../../../leaderboard/presentation/screens/leaderboard_screen.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../core/localization/app_localizations.dart';
-import 'world_cup_hub_screen.dart';
 
-/// Bottom-nav **Predictions** hub: summary, weekly joker, weekly progress, league filter, tabs.
+enum DateFilterMode {
+  all,
+  lastWeek,
+  yesterday,
+  today,
+  custom,
+}
+
+/// Bottom-nav **Predictions** hub: summary, weekly joker, weekly progress, date/period filter, tabs.
 class PredictionsDashboardScreen extends ConsumerStatefulWidget {
   const PredictionsDashboardScreen({super.key});
 
@@ -32,25 +40,9 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
 
   List<DashboardPredictionModel> _rows = [];
   bool _loading = true;
-  String _filterLeagueId = 'ALL';
+  DateFilterMode _dateFilter = DateFilterMode.all;
+  DateTime? _customFilterDate;
   String? _jokerFixtureLabel;
-
-  static const _leagueFilters = <(String, String)>[
-    ('ALL', 'All Leagues'),
-    ('39', 'Premier League'),
-    ('140', 'La Liga'),
-    ('135', 'Serie A'),
-    ('78', 'Bundesliga'),
-    ('61', 'Ligue 1'),
-    ('2', 'Champions League'),
-    ('3', 'Europa League'),
-    ('6', 'AFCON'),
-    ('9', 'Copa America'),
-    ('1', 'World Cup'),
-    ('307', 'Saudi Pro League'),
-    ('269', 'Qatar Stars League'),
-    ('387', 'Jordanian Pro League'),
-  ];
 
   @override
   void initState() {
@@ -103,6 +95,65 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
     }
   }
 
+  bool _matchesDateFilter(DateTime kickoff) {
+    final now = DateTime.now();
+    final localKickoff = kickoff.toLocal();
+    final todayStart = DateTime(now.year, now.month, now.day);
+    final todayEnd = todayStart.add(const Duration(days: 1)).subtract(const Duration(microseconds: 1));
+
+    switch (_dateFilter) {
+      case DateFilterMode.all:
+        return true;
+      case DateFilterMode.today:
+        return localKickoff.year == now.year &&
+            localKickoff.month == now.month &&
+            localKickoff.day == now.day;
+      case DateFilterMode.yesterday:
+        final yesterday = now.subtract(const Duration(days: 1));
+        return localKickoff.year == yesterday.year &&
+            localKickoff.month == yesterday.month &&
+            localKickoff.day == yesterday.day;
+      case DateFilterMode.lastWeek:
+        final sevenDaysAgo = todayStart.subtract(const Duration(days: 7));
+        return localKickoff.isAfter(sevenDaysAgo) && localKickoff.isBefore(todayEnd);
+      case DateFilterMode.custom:
+        if (_customFilterDate == null) return true;
+        return localKickoff.year == _customFilterDate!.year &&
+            localKickoff.month == _customFilterDate!.month &&
+            localKickoff.day == _customFilterDate!.day;
+    }
+  }
+
+  Future<void> _selectCustomDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _customFilterDate ?? now,
+      firstDate: DateTime(now.year - 5),
+      lastDate: DateTime(now.year + 5),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.dark(
+              primary: const Color(0xFFFFD700), // Gold accent
+              onPrimary: const Color(0xFF093122), // Deep green background contrast
+              surface: const Color(0xFF0F4C3A),
+              onSurface: Colors.white,
+            ),
+            dialogBackgroundColor: const Color(0xFF061E15),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        _dateFilter = DateFilterMode.custom;
+        _customFilterDate = picked;
+      });
+    }
+  }
+
   void _showFilterDialog() {
     showModalBottomSheet(
       context: context,
@@ -118,7 +169,7 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Filter by Competition'.tr(ref),
+                'Filter by Date'.tr(ref),
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -127,23 +178,67 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
               ),
               const SizedBox(height: 16),
               Flexible(
-                child: ListView.builder(
+                child: ListView(
                   shrinkWrap: true,
-                  itemCount: _leagueFilters.length,
-                  itemBuilder: (context, i) {
-                    final e = _leagueFilters[i];
-                    final isSelected = _filterLeagueId == e.$1;
-                    return ListTile(
-                      title: Text(e.$2.tr(ref)),
-                      trailing: isSelected
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.history_rounded),
+                      title: Text('All Time'.tr(ref)),
+                      trailing: _dateFilter == DateFilterMode.all
                           ? Icon(Icons.check_circle, color: theme.colorScheme.primary)
                           : null,
                       onTap: () {
-                        setState(() => _filterLeagueId = e.$1);
+                        setState(() => _dateFilter = DateFilterMode.all);
                         Navigator.pop(context);
                       },
-                    );
-                  },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.date_range_rounded),
+                      title: Text('Last Week'.tr(ref)),
+                      trailing: _dateFilter == DateFilterMode.lastWeek
+                          ? Icon(Icons.check_circle, color: theme.colorScheme.primary)
+                          : null,
+                      onTap: () {
+                        setState(() => _dateFilter = DateFilterMode.lastWeek);
+                        Navigator.pop(context);
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.event_busy_rounded),
+                      title: Text('Yesterday'.tr(ref)),
+                      trailing: _dateFilter == DateFilterMode.yesterday
+                          ? Icon(Icons.check_circle, color: theme.colorScheme.primary)
+                          : null,
+                      onTap: () {
+                        setState(() => _dateFilter = DateFilterMode.yesterday);
+                        Navigator.pop(context);
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.today_rounded),
+                      title: Text('Today'.tr(ref)),
+                      trailing: _dateFilter == DateFilterMode.today
+                          ? Icon(Icons.check_circle, color: theme.colorScheme.primary)
+                          : null,
+                      onTap: () {
+                        setState(() => _dateFilter = DateFilterMode.today);
+                        Navigator.pop(context);
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.calendar_month_rounded),
+                      title: Text(_dateFilter == DateFilterMode.custom && _customFilterDate != null
+                          ? 'Custom: ${DateFormat('yyyy-MM-dd').format(_customFilterDate!)}'
+                          : 'Select Custom Date...'.tr(ref)),
+                      trailing: _dateFilter == DateFilterMode.custom
+                          ? Icon(Icons.check_circle, color: theme.colorScheme.primary)
+                          : null,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _selectCustomDate();
+                      },
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -154,8 +249,7 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
   }
 
   Iterable<DashboardPredictionModel> get _filtered {
-    if (_filterLeagueId == 'ALL') return _rows;
-    return _rows.where((e) => e.leagueId == _filterLeagueId);
+    return _rows.where((e) => _matchesDateFilter(e.kickoff));
   }
 
   List<DashboardPredictionModel> _forTab(int index) {
@@ -191,7 +285,7 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
     final exact = _service.countExactScores(_rows);
     final weeklyPts = _service.weeklyPoints(_rows);
 
-    final leaderboardId = _filterLeagueId == 'ALL' ? 0 : int.parse(_filterLeagueId);
+    final leaderboardId = 0;
     final leaderboard = ref.watch(leaderboardProvider(leaderboardId)).valueOrNull ?? [];
     final currentUser = ref.watch(authStateProvider).value;
     int? currentRank;
@@ -260,11 +354,7 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(20),
                                 onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => WorldCupHubScreen(allPredictions: _rows),
-                                    ),
-                                  );
+                                  context.go('/worldcup');
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.all(16),
@@ -322,23 +412,49 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                           child: InputDecorator(
                             decoration: InputDecoration(
-                              labelText: 'Competition'.tr(ref),
+                              labelText: 'Filter Predictions'.tr(ref),
                               border: const OutlineInputBorder(),
                               isDense: true,
                             ),
                             child: DropdownButtonHideUnderline(
                               child: DropdownButton<String>(
                                 isExpanded: true,
-                                value: _filterLeagueId,
-                                items: _leagueFilters
-                                    .map(
-                                      (e) => DropdownMenuItem<String>(
-                                        value: e.$1,
-                                        child: Text(e.$2.tr(ref)),
-                                      ),
-                                    )
-                                    .toList(),
-                                onChanged: (v) => setState(() => _filterLeagueId = v ?? 'ALL'),
+                                value: _dateFilter == DateFilterMode.custom
+                                    ? 'CUSTOM'
+                                    : _dateFilter.name,
+                                items: [
+                                  DropdownMenuItem(
+                                    value: 'all',
+                                    child: Text('All Time'.tr(ref)),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'lastWeek',
+                                    child: Text('Last Week'.tr(ref)),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'yesterday',
+                                    child: Text('Yesterday'.tr(ref)),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'today',
+                                    child: Text('Today'.tr(ref)),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'CUSTOM',
+                                    child: Text(_customFilterDate != null
+                                        ? 'Custom: ${DateFormat('MMM d, yyyy').format(_customFilterDate!)}'
+                                        : 'Custom Calendar...'.tr(ref)),
+                                  ),
+                                ],
+                                onChanged: (v) {
+                                  if (v == 'CUSTOM') {
+                                    _selectCustomDate();
+                                  } else if (v != null) {
+                                    setState(() {
+                                      _dateFilter = DateFilterMode.values.firstWhere((e) => e.name == v);
+                                    });
+                                  }
+                                },
                               ),
                             ),
                           ),

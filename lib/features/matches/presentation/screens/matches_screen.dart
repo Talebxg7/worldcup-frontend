@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/config/football_config.dart';
 import '../../../../services/football_api_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -129,35 +130,8 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> {
                 borderRadius: BorderRadius.circular(20),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(20),
-                  onTap: () async {
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (ctx) => const Center(child: CircularProgressIndicator(color: Color(0xFFFFD700))),
-                    );
-                    try {
-                      final repo = DashboardPredictionRepository();
-                      final raw = await repo.loadAll();
-                      final service = PredictionDashboardService();
-                      final enriched = await service.enrichAll(raw);
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => WorldCupHubScreen(allPredictions: enriched),
-                          ),
-                        );
-                      }
-                    } catch (e) {
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const WorldCupHubScreen(allPredictions: []),
-                          ),
-                        );
-                      }
-                    }
+                  onTap: () {
+                    context.go('/worldcup');
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(16),
