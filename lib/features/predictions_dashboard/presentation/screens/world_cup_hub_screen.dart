@@ -1057,26 +1057,6 @@ class _WcMatchCard extends ConsumerWidget {
                           ),
                           Row(
                             children: [
-                              if (!hasPrediction) ...[
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF22C55E).withOpacity(0.18),
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: const Color(0xFF22C55E).withOpacity(0.35)),
-                                  ),
-                                  child: const Text(
-                                    '+3 pts',
-                                    style: TextStyle(
-                                      color: Color(0xFF22C55E),
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.w900,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                              ],
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                 decoration: BoxDecoration(
@@ -1212,7 +1192,7 @@ class _WcMatchCard extends ConsumerWidget {
                             const Icon(Icons.edit_note_rounded, color: Color(0xFFFFD700), size: 16),
                             const SizedBox(width: 6),
                             Text(
-                              'Tap to Predict Match (+Points)'.tr(ref),
+                              'Tap to Predict Match'.tr(ref),
                               style: const TextStyle(color: Color(0xFFFFD700), fontSize: 13, fontWeight: FontWeight.bold),
                             ),
                           ],
