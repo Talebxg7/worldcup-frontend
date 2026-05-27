@@ -43,7 +43,7 @@ class _LiveScreenState extends State<LiveScreen> {
   }
 
   Future<_LiveData> _load() async {
-    final season = FootballConfig.currentSeason();
+    final season = widget.leagueId == 1 ? 2026 : FootballConfig.currentSeason();
     final live = await FootballApiService.getFixtures(
       live: 'all',
     );

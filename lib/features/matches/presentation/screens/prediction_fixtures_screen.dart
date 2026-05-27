@@ -34,7 +34,7 @@ class _PredictionFixturesScreenState extends ConsumerState<PredictionFixturesScr
     super.initState();
     _future = FootballApiService.getFixtures(
       league: widget.leagueId,
-      season: FootballConfig.currentSeason(),
+      season: widget.leagueId == 1 ? 2026 : FootballConfig.currentSeason(),
     );
   }
 
@@ -42,7 +42,7 @@ class _PredictionFixturesScreenState extends ConsumerState<PredictionFixturesScr
     setState(() {
       _future = FootballApiService.getFixtures(
         league: widget.leagueId,
-        season: FootballConfig.currentSeason(),
+        season: widget.leagueId == 1 ? 2026 : FootballConfig.currentSeason(),
       );
     });
     await _future;

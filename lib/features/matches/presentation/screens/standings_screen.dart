@@ -35,7 +35,7 @@ class _StandingsScreenState extends State<StandingsScreen> {
     super.initState();
     _future = FootballApiService.getStandings(
       league: _selectedLeagueId,
-      season: FootballConfig.currentSeason(),
+      season: _selectedLeagueId == 1 ? 2026 : FootballConfig.currentSeason(),
     );
   }
 
@@ -43,7 +43,7 @@ class _StandingsScreenState extends State<StandingsScreen> {
     setState(() {
       _future = FootballApiService.getStandings(
         league: _selectedLeagueId,
-        season: FootballConfig.currentSeason(),
+        season: _selectedLeagueId == 1 ? 2026 : FootballConfig.currentSeason(),
       );
     });
     await _future;
