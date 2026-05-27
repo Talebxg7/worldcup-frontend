@@ -42,6 +42,7 @@ class CompetitionCard extends ConsumerWidget {
     307: 'assets/images/saudi_league.png',
     305: 'assets/images/qatar_league.jpg',
     387: 'assets/images/jordan_league_bg.jpg',
+    200: 'assets/images/botola_pro.jpg',
     542: 'assets/images/iraqi_league.jpg',
   };
 
@@ -121,32 +122,43 @@ class CompetitionCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           competition.emoji,
                           style: const TextStyle(fontSize: 18),
                         ),
-                        const Spacer(),
-                        Flexible(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 4,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.25),
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: (upcomingCount != null && upcomingCount! > 0)
+                                  ? const Color(0xFF00FF66).withOpacity(0.5)
+                                  : Colors.white.withOpacity(0.12),
+                              width: 1.2,
                             ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.22),
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Text(
-                              badgeText,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.95),
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (upcomingCount != null && upcomingCount! > 0) ...[
+                                const PulsingGreenDot(),
+                                const SizedBox(width: 6),
+                              ],
+                              Text(
+                                badgeText,
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.95),
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w900,
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
                       ],
@@ -345,4 +357,54 @@ String _abbreviate(String name) {
     return cleanName.substring(0, 3).toUpperCase();
   }
   return cleanName.toUpperCase();
+}
+
+class PulsingGreenDot extends StatefulWidget {
+  const PulsingGreenDot({super.key});
+
+  @override
+  State<PulsingGreenDot> createState() => _PulsingGreenDotState();
+}
+
+class _PulsingGreenDotState extends State<PulsingGreenDot> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: const Color(0xFF00FF66).withOpacity(0.95),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF00FF66).withOpacity(0.8 * _controller.value),
+                blurRadius: 10 * _controller.value,
+                spreadRadius: 4.0 * _controller.value,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }

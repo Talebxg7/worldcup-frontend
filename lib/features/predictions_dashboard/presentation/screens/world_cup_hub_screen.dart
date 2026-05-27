@@ -31,6 +31,7 @@ class _WorldCupHubScreenState extends ConsumerState<WorldCupHubScreen> {
   List<FixtureModel> _wcFixtures = [];
   Map<int, DashboardPredictionModel> _savedPredictions = {};
   String _selectedGroup = 'All';
+  WorldCupPredictionsResponse? _wcPredictions;
 
   static final DateTime _wcStartDate = DateTime.parse('2026-06-11T19:00:00Z');
 
@@ -63,10 +64,20 @@ class _WorldCupHubScreenState extends ConsumerState<WorldCupHubScreen> {
         }
       }
 
+      // Load WC Winner and Group Predictions
+      final wcRepo = WorldCupPredictionRepository();
+      WorldCupPredictionsResponse? wcPredictions;
+      try {
+        wcPredictions = await wcRepo.loadWorldCupPredictions();
+      } catch (e) {
+        debugPrint('Error loading WC Winner/Groups predictions in Hub: $e');
+      }
+
       if (mounted) {
         setState(() {
           _wcFixtures = fixtures;
           _savedPredictions = predictionMap;
+          _wcPredictions = wcPredictions;
           _loadingFixtures = false;
         });
       }
@@ -430,6 +441,68 @@ class _WorldCupHubScreenState extends ConsumerState<WorldCupHubScreen> {
                             ),
                           ),
                         ),
+                        const SizedBox(height: 12),
+                        GestureDetector(
+                          onTap: () {
+                            _showPredictionsSummaryDialog(context);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0F4C3A).withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: const Color(0xFFFFD700).withOpacity(0.4),
+                                width: 1.2,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.12),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFFD700).withOpacity(0.12),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.assignment_turned_in_rounded, color: Color(0xFFFFD700), size: 22),
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'MY WORLD CUP PICKS'.tr(ref),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 1.1,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        'View your Champion & Group qualifiers'.tr(ref),
+                                        style: const TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFFFFD700), size: 16),
+                              ],
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: 24),
                         Row(
                           children: [
@@ -517,6 +590,187 @@ class _WorldCupHubScreenState extends ConsumerState<WorldCupHubScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showPredictionsSummaryDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        final winner = _wcPredictions?.winner?.predictedWinner;
+        final groups = _wcPredictions?.groups ?? [];
+        final winnerCountry = winner != null ? getCountryByName(winner) : null;
+
+        return Dialog(
+          backgroundColor: const Color(0xFF061E15),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: const BorderSide(color: Color(0xFFFFD700), width: 1.5),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.assignment_turned_in_rounded, color: Color(0xFFFFD700), size: 24),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'MY WORLD CUP PICKS'.tr(ref),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, color: Colors.white60),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
+                ),
+                const Divider(color: Colors.white24, height: 16),
+                const SizedBox(height: 8),
+                Text(
+                  'WORLD CUP CHAMPION'.tr(ref),
+                  style: const TextStyle(
+                    color: Color(0xFFFFD700),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F4C3A).withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white10),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        winnerCountry != null ? winnerCountry.flag : '🏆',
+                        style: const TextStyle(fontSize: 24),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        winner != null ? winner.tr(ref) : 'No champion predicted yet'.tr(ref),
+                        style: TextStyle(
+                          color: winner != null ? Colors.white : Colors.white38,
+                          fontSize: 15,
+                          fontWeight: winner != null ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'GROUP QUALIFIERS'.tr(ref),
+                  style: const TextStyle(
+                    color: Color(0xFFFFD700),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.4,
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'].map((letter) {
+                        final gp = groups.firstWhere(
+                          (g) => g.groupLetter == letter,
+                          orElse: () => WorldCupGroupPredictionModel(groupLetter: letter, predictedQualifiers: []),
+                        );
+                        final qs = gp.predictedQualifiers;
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.03),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.white.withOpacity(0.05)),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFD700).withOpacity(0.12),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  'Group $letter'.tr(ref),
+                                  style: const TextStyle(
+                                    color: Color(0xFFFFD700),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: qs.isEmpty
+                                    ? Text(
+                                        'Not predicted yet'.tr(ref),
+                                        style: const TextStyle(
+                                          color: Colors.white24,
+                                          fontSize: 13,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                      )
+                                    : Row(
+                                        children: qs.map((countryName) {
+                                          final country = getCountryByName(countryName);
+                                          return Padding(
+                                            padding: const EdgeInsets.only(right: 12),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text(
+                                                  country?.flag ?? '',
+                                                  style: const TextStyle(fontSize: 16),
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  countryName.tr(ref),
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -1016,6 +1270,186 @@ class _WorldCupEventsHubScreenState extends ConsumerState<WorldCupEventsHubScree
     }
   }
 
+  void _showMyPicksSummary(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        final winner = _data?.winner?.predictedWinner;
+        final groups = _data?.groups ?? [];
+        final winnerCountry = winner != null ? getCountryByName(winner) : null;
+
+        return Dialog(
+          backgroundColor: const Color(0xFF061E15),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: const BorderSide(color: Color(0xFFFFD700), width: 1.5),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.assignment_turned_in_rounded, color: Color(0xFFFFD700), size: 24),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'MY WORLD CUP PICKS'.tr(ref),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, color: Colors.white60),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
+                ),
+                const Divider(color: Colors.white24, height: 16),
+                const SizedBox(height: 8),
+                Text(
+                  'WORLD CUP CHAMPION'.tr(ref),
+                  style: const TextStyle(
+                    color: Color(0xFFFFD700),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F4C3A).withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white10),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        winnerCountry != null ? winnerCountry.flag : '🏆',
+                        style: const TextStyle(fontSize: 24),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        winner != null ? winner.tr(ref) : 'No champion predicted yet'.tr(ref),
+                        style: TextStyle(
+                          color: winner != null ? Colors.white : Colors.white38,
+                          fontSize: 15,
+                          fontWeight: winner != null ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'GROUP QUALIFIERS'.tr(ref),
+                  style: const TextStyle(
+                    color: Color(0xFFFFD700),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.4,
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'].map((letter) {
+                        final gp = groups.firstWhere(
+                          (g) => g.groupLetter == letter,
+                          orElse: () => WorldCupGroupPredictionModel(groupLetter: letter, predictedQualifiers: []),
+                        );
+                        final qs = gp.predictedQualifiers;
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.03),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.white.withOpacity(0.05)),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFD700).withOpacity(0.12),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  'Group $letter'.tr(ref),
+                                  style: const TextStyle(
+                                    color: Color(0xFFFFD700),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: qs.isEmpty
+                                    ? Text(
+                                        'Not predicted yet'.tr(ref),
+                                        style: const TextStyle(
+                                          color: Colors.white24,
+                                          fontSize: 13,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                      )
+                                    : Wrap(
+                                        spacing: 8,
+                                        runSpacing: 4,
+                                        children: qs.map((countryName) {
+                                          final country = getCountryByName(countryName);
+                                          return Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                country?.flag ?? '',
+                                                style: const TextStyle(fontSize: 16),
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                countryName.tr(ref),
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        }).toList(),
+                                      ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1024,6 +1458,13 @@ class _WorldCupEventsHubScreenState extends ConsumerState<WorldCupEventsHubScree
         title: Text('Prediction Events'.tr(ref)),
         backgroundColor: const Color(0xFF093122),
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.assignment_turned_in_rounded, color: Color(0xFFFFD700)),
+            tooltip: 'My Picks'.tr(ref),
+            onPressed: () => _showMyPicksSummary(context),
+          ),
+        ],
         bottom: TabBar(
           controller: _tabs,
           tabs: [
@@ -1032,6 +1473,18 @@ class _WorldCupEventsHubScreenState extends ConsumerState<WorldCupEventsHubScree
           ],
         ),
       ),
+      floatingActionButton: _loading
+          ? null
+          : FloatingActionButton.extended(
+              backgroundColor: const Color(0xFFFFD700),
+              foregroundColor: const Color(0xFF061E15),
+              icon: const Icon(Icons.assignment_turned_in_rounded),
+              label: Text(
+                'My Picks'.tr(ref),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              onPressed: () => _showMyPicksSummary(context),
+            ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : TabBarView(
