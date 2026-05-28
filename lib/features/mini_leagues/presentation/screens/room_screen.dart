@@ -1,24 +1,27 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 
 import '../../data/room_repository.dart';
 import '../../models/room_models.dart';
 import '../../../matches/presentation/screens/prediction_fixtures_screen.dart';
 
-class RoomScreen extends StatefulWidget {
+class RoomScreen extends ConsumerStatefulWidget {
   final int roomId;
   const RoomScreen({super.key, required this.roomId});
 
   @override
-  State<RoomScreen> createState() => _RoomScreenState();
+  ConsumerState<RoomScreen> createState() => _RoomScreenState();
 }
 
-class _RoomScreenState extends State<RoomScreen> {
+class _RoomScreenState extends ConsumerState<RoomScreen> {
   final _repo = RoomRepository();
   late Future<_RoomBundle> _future;
 
@@ -315,65 +318,51 @@ class _RoomScreenState extends State<RoomScreen> {
                   style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
                 ),
                 const SizedBox(height: 8),
-                Card(
-                  child: Column(
-                    children: [
-                      const ListTile(
-                        dense: true,
-                        title: Text('Rank'),
-                        trailing: SizedBox(
-                          width: 140,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Username'),
-                              Text('Points'),
-                            ],
-                          ),
+                if (data.leaderboard.isEmpty)
+                  const Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(
+                        child: Text(
+                          'No rankings yet.',
+                          style: TextStyle(color: Colors.grey),
                         ),
                       ),
-                      const Divider(height: 1),
-                        ...data.leaderboard.map(
-                          (r) => ListTile(
-                            onTap: () {
-                              context.push(
-                                '/public-profile/${r.userId}?name=${Uri.encodeComponent(r.username)}&roomId=${widget.roomId}',
-                              );
-                            },
-                            dense: true,
-                            leading: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                CircleAvatar(
-                                  radius: 14,
-                                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                                  backgroundImage: r.avatarUrl != null
-                                      ? (r.avatarUrl!.startsWith('data:image')
-                                          ? MemoryImage(base64Decode(r.avatarUrl!.split(',').last)) as ImageProvider
-                                          : NetworkImage(r.avatarUrl!))
-                                      : null,
-                                  child: r.avatarUrl == null
-                                      ? Text(
-                                          r.username.isNotEmpty ? r.username[0].toUpperCase() : '?',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Theme.of(context).colorScheme.onPrimaryContainer,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        )
-                                      : null,
-                                ),
-                                const SizedBox(width: 8),
-                                Text('#${r.rank}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                              ],
-                            ),
-                            title: Text(r.username),
-                            trailing: Text('${r.points}', style: const TextStyle(fontWeight: FontWeight.w800)),
-                          ),
-                        ),
-                    ],
+                    ),
+                  )
+                else ...[
+                  if (data.leaderboard.length >= 3)
+                    _RoomPodium(
+                      entries: data.leaderboard.take(3).toList(),
+                      roomId: widget.roomId,
+                    ),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 320),
+                    child: Scrollbar(
+                      thumbVisibility: true,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: data.leaderboard.length >= 3
+                            ? data.leaderboard.length - 3
+                            : data.leaderboard.length,
+                        itemBuilder: (context, index) {
+                          final r = data.leaderboard.length >= 3
+                              ? data.leaderboard[index + 3]
+                              : data.leaderboard[index];
+                          final currentUserId = ref.watch(authStateProvider).value?.id;
+                          final isMe = r.userId == currentUserId;
+
+                          return _RoomLeaderboardRow(
+                            row: r,
+                            isCurrentUser: isMe,
+                            index: index,
+                            roomId: widget.roomId,
+                          );
+                        },
+                      ),
+                    ),
                   ),
-                ),
+                ],
                 const SizedBox(height: 12),
                 const Text(
                   'Prediction Visibility',
@@ -592,4 +581,267 @@ class _RoomBundle {
     required this.details,
     required this.leaderboard,
   });
+}
+
+class _RoomPodium extends StatelessWidget {
+  final List<RoomLeaderboardRowModel> entries;
+  final int roomId;
+  const _RoomPodium({required this.entries, required this.roomId});
+
+  @override
+  Widget build(BuildContext context) {
+    final first = entries[0];
+    final second = entries[1];
+    final third = entries[2];
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF1A1A2E), Color(0xFF16213E)],
+        ),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          // 2nd place
+          _RoomPodiumItem(entry: second, height: 80,
+              bgColor: AppColors.silver.withOpacity(0.2),
+              medal: '🥈', offset: 0, roomId: roomId),
+          // 1st place
+          _RoomPodiumItem(entry: first, height: 110,
+              bgColor: AppColors.gold.withOpacity(0.2),
+              medal: '🥇', offset: -20, roomId: roomId),
+          // 3rd place
+          _RoomPodiumItem(entry: third, height: 60,
+              bgColor: AppColors.bronze.withOpacity(0.2),
+              medal: '🥉', offset: 0, roomId: roomId),
+        ],
+      ),
+    );
+  }
+}
+
+class _RoomPodiumItem extends StatelessWidget {
+  final RoomLeaderboardRowModel entry;
+  final double height;
+  final Color bgColor;
+  final String medal;
+  final double offset;
+  final int roomId;
+
+  const _RoomPodiumItem({
+    required this.entry,
+    required this.height,
+    required this.bgColor,
+    required this.medal,
+    required this.offset,
+    required this.roomId,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        context.push('/public-profile/${entry.userId}?name=${Uri.encodeComponent(entry.username)}&roomId=$roomId');
+      },
+      child: Transform.translate(
+        offset: Offset(0, offset),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(medal, style: const TextStyle(fontSize: 28)),
+            const SizedBox(height: 4),
+            // Avatar
+            CircleAvatar(
+              radius: 24,
+              backgroundColor: bgColor,
+              backgroundImage: entry.avatarUrl != null
+                  ? (entry.avatarUrl!.startsWith('data:image')
+                      ? MemoryImage(base64Decode(entry.avatarUrl!.split(',').last)) as ImageProvider
+                      : NetworkImage(entry.avatarUrl!))
+                  : null,
+              child: entry.avatarUrl == null
+                  ? Text(
+                      entry.username.isNotEmpty ? entry.username[0].toUpperCase() : '?',
+                      style: const TextStyle(
+                          color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800),
+                    )
+                  : null,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              entry.username,
+              style: const TextStyle(
+                  color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              '${entry.points} pts',
+              style: const TextStyle(
+                color: AppColors.accent,
+                fontSize: 13,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Container(
+              width: 80,
+              height: height,
+              decoration: BoxDecoration(
+                color: bgColor,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  topRight: Radius.circular(8),
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  '#${entry.rank}',
+                  style: const TextStyle(
+                      color: Colors.white70, fontSize: 20, fontWeight: FontWeight.w800),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _RoomLeaderboardRow extends StatelessWidget {
+  final RoomLeaderboardRowModel row;
+  final bool isCurrentUser;
+  final int index;
+  final int roomId;
+
+  const _RoomLeaderboardRow({
+    required this.row,
+    required this.isCurrentUser,
+    required this.index,
+    required this.roomId,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        context.push(
+          '/public-profile/${row.userId}?name=${Uri.encodeComponent(row.username)}&roomId=$roomId',
+        );
+      },
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          border: isCurrentUser
+              ? Border.all(color: AppColors.primary, width: 2)
+              : null,
+          color: isCurrentUser
+              ? AppColors.primary.withOpacity(0.08)
+              : Theme.of(context).cardTheme.color,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              // Rank
+              SizedBox(
+                width: 32,
+                child: Text(
+                  '#${row.rank}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 15,
+                    color: isCurrentUser ? AppColors.primary : null,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+
+              // Avatar
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: isCurrentUser
+                    ? AppColors.primary
+                    : AppColors.secondary.withOpacity(0.2),
+                backgroundImage: row.avatarUrl != null
+                    ? (row.avatarUrl!.startsWith('data:image')
+                        ? MemoryImage(base64Decode(row.avatarUrl!.split(',').last)) as ImageProvider
+                        : NetworkImage(row.avatarUrl!))
+                    : null,
+                child: row.avatarUrl == null
+                    ? Text(
+                        row.username.isNotEmpty ? row.username[0].toUpperCase() : '?',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                          color: isCurrentUser ? Colors.white : AppColors.secondary,
+                        ),
+                      )
+                    : null,
+              ),
+              const SizedBox(width: 12),
+
+              // Name
+              Expanded(
+                child: Row(
+                  children: [
+                    Text(
+                      row.username,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: isCurrentUser ? AppColors.primary : null,
+                      ),
+                    ),
+                    if (isCurrentUser) ...[
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Text('YOU',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w800)),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+
+              // Points
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.accent.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${row.points} pts',
+                  style: const TextStyle(
+                    color: AppColors.accentDark,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

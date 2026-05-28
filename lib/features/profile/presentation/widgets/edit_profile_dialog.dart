@@ -72,7 +72,15 @@ class _EditProfileDialogState extends ConsumerState<EditProfileDialog> {
 
     setState(() => _saving = true);
     try {
-      // Update Firebase
+      // 1. Update Node.js Postgres Backend first (this verifies uniqueness!)
+      final currentAvatar = ref.read(authStateProvider).value?.avatarUrl ?? '';
+      await ref.read(authStateProvider.notifier).updateProfile(
+            username: name,
+            avatarUrl: currentAvatar,
+            hideUsername: _hideUsername,
+          );
+
+      // 2. Only if the backend update succeeds, update Firebase Firestore
       await FirebaseFirestore.instance.collection('users').doc(widget.uid).set(
         {
           'username': name,
@@ -81,24 +89,24 @@ class _EditProfileDialogState extends ConsumerState<EditProfileDialog> {
         SetOptions(merge: true),
       );
 
-      // Update Node.js Postgres Backend
-      try {
-        final currentAvatar = ref.read(authStateProvider).value?.avatarUrl ?? '';
-        await ref.read(authStateProvider.notifier).updateProfile(
-              username: name,
-              avatarUrl: currentAvatar,
-              hideUsername: _hideUsername,
-            );
-      } catch (e) {
-        print('Backend update profile error: $e');
-      }
-
       if (!mounted) return;
       Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) return;
+      
+      // Clean up the error message for the user
+      String errorMsg = e.toString();
+      if (errorMsg.toLowerCase().contains('taken') || errorMsg.toLowerCase().contains('already')) {
+        errorMsg = 'Username is already taken';
+      } else if (errorMsg.startsWith('Exception: ')) {
+        errorMsg = errorMsg.replaceFirst('Exception: ', '');
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Save failed: $e')),
+        SnackBar(
+          content: Text('Save failed: $errorMsg'),
+          backgroundColor: Colors.red.shade700,
+        ),
       );
     } finally {
       if (mounted) setState(() => _saving = false);
