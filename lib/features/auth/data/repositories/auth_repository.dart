@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../../../../core/network/api_client.dart';
 import '../../data/models/user_model.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -146,6 +147,38 @@ class AuthRepository {
       throw ApiException.fromDioError(e);
     } catch (e) {
       throw Exception('Google Sign-In Failed: $e');
+    }
+  }
+
+  Future<UserModel> appleSignIn() async {
+    try {
+      final AuthorizationCredentialAppleID credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      final response = await _api.post('/auth/apple', data: {
+        'identityToken': credential.identityToken,
+        'authorizationCode': credential.authorizationCode,
+        'givenName': credential.givenName,
+        'familyName': credential.familyName,
+      });
+
+      final data = response.data as Map<String, dynamic>;
+      final token = data['token'] as String;
+      final user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
+
+      await _storage.write(key: AppConstants.tokenKey, value: token);
+      await _storage.write(key: AppConstants.userKey, value: jsonEncode(user.toJson()));
+      return user;
+    } on ApiException {
+      rethrow;
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    } catch (e) {
+      throw Exception('Apple Sign-In Failed: $e');
     }
   }
 

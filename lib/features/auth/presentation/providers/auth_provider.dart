@@ -37,6 +37,17 @@ class AuthNotifier extends AsyncNotifier<UserModel?> {
     }
   }
 
+  Future<void> appleLogin() async {
+    state = const AsyncLoading();
+    try {
+      final user = await _repo.appleSignIn();
+      state = AsyncData(user);
+    } catch (e, st) {
+      state = AsyncError(e, st);
+      rethrow;
+    }
+  }
+
   Future<void> register(String username, String password, {String? email}) async {
     state = const AsyncLoading();
     try {

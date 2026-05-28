@@ -84,6 +84,27 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     }
   }
 
+  Future<void> _appleLogin() async {
+    if (!_agreedToTerms) {
+      setState(() => _errorMessage = 'You must agree to the Terms of Service and Privacy Policy.');
+      return;
+    }
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    try {
+      await ref.read(authStateProvider.notifier).appleLogin();
+      if (!mounted) return;
+      context.go('/home');
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _errorMessage = e.toString());
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -384,6 +405,36 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     ),
                   ),
                 ).animate().slideY(begin: 0.3, duration: 400.ms, delay: 450.ms).fadeIn(duration: 300.ms, delay: 450.ms),
+
+                if (Theme.of(context).platform == TargetPlatform.iOS) ...[
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    height: 52,
+                    child: OutlinedButton.icon(
+                      onPressed: _isLoading ? null : _appleLogin,
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        side: const BorderSide(color: Colors.transparent),
+                      ),
+                      icon: const Icon(
+                        Icons.apple_rounded,
+                        size: 26,
+                        color: Colors.black,
+                      ),
+                      label: const Text(
+                        'Sign up with Apple',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ).animate().slideY(begin: 0.3, duration: 400.ms, delay: 470.ms).fadeIn(duration: 300.ms, delay: 470.ms),
+                ],
 
                 const SizedBox(height: 16),
 
