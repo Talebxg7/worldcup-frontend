@@ -856,7 +856,7 @@ class _PredictionCard extends ConsumerWidget {
                   style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 Text(
-                  'Points earned'.tr(ref) + ': ${p.pointsEarned != null ? '+${p.pointsEarned}' : '—'}',
+                  'Points earned'.tr(ref) + ': ${p.pointsEarned != null ? (p.pointsEarned! > 0 ? '+${p.pointsEarned}' : '${p.pointsEarned}') : '—'}',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.w800,

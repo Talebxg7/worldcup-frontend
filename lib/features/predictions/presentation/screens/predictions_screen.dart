@@ -226,6 +226,10 @@ class _PredictionCard extends ConsumerWidget {
       cardBorderColor = pts1;
       ptsColor = pts1;
       ptsLabel = '+$pts pts ✅';
+    } else if (pts < 0) {
+      cardBorderColor = pts0;
+      ptsColor = pts0;
+      ptsLabel = '$pts pts ❌';
     } else {
       cardBorderColor = pts0;
       ptsColor = pts0;
