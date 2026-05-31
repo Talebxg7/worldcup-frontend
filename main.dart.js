@@ -141330,7 +141330,8 @@ j=b.CW
 n=A.w(n+(": "+k+"\u2013"+A.i(j==null?"\u2014":j)),c,c,c,c,B.dZ,c,c,c)
 k=A.a_("Points earned",a1.O(m,l))
 b=b.ay
-b=b!=null?"+"+A.i(b):"\u2014"
+if(b!=null){j=A.i(b)
+b=b>0?"+"+j:j}else b="\u2014"
 B.b.R(f,A.b([B.bR,n,A.w(k+(": "+b),c,c,c,c,A.c4(c,c,A.E(a0).ax.b,c,c,c,c,c,c,c,c,c,c,c,B.aO,c,c,!0,c,c,c,c,c,c,c,c),c,c,c)],i))}if(s===0){b=d.y
 B.b.R(f,A.b([B.dW,new A.dW(B.hk,c,c,A.a6c(A.w(b==null?A.a_("Edit locked",a1.O(m,l)):A.a_("Edit prediction",a1.O(m,l)),c,c,c,c,c,c,c,c),b,c),c)],i))}return A.dQ(!1,B.I,!0,c,A.fx(!1,r,!0,A.Ct(A.aH(f,B.a_,B.i,B.j,0,B.q),c,new A.aQ(p.at,c,o,q,c,c,B.w),B.eO),c,!0,c,c,c,c,c,c,c,c,c,c,c,d.x,c,c,c,c,c,c,c),B.m,B.E,0,c,c,c,c,c,B.bt)}}
 A.Vk.prototype={
