@@ -3,25 +3,24 @@
 # Exit on any error
 set -e
 
-# Xcode Cloud clones the repository at the root. 
-# The script is executed from within the ios/ci_scripts folder, 
-# so we need to navigate 2 levels up to reach the root folder of the project.
-cd ../..
+# Navigate to the root of the project using Xcode Cloud's default env variable
+cd "$CI_PRIMARY_REPOSITORY_PATH"
 
 echo "──────────────────────────────────────────────"
 echo "🚀 Starting Xcode Cloud pre-build configuration..."
 echo "──────────────────────────────────────────────"
 
-# 1. Clone Flutter stable branch
-echo "📥 Cloning Flutter stable SDK..."
-git clone https://github.com/flutter/flutter.git --depth 1 -b stable $HOME/flutter
+# 1. Clean and Clone Flutter stable branch
+echo "📥 Setting up Flutter SDK..."
+rm -rf "$HOME/flutter"
+git clone https://github.com/flutter/flutter.git --depth 1 -b stable "$HOME/flutter"
 
 # Add Flutter to the PATH
 export PATH="$PATH:$HOME/flutter/bin"
 
 # 2. Pre-cache Flutter binaries
 echo "⚡ Pre-caching Flutter binaries..."
-flutter precache
+flutter precache --ios
 
 # Print versions to confirm success
 echo "📋 System info:"
