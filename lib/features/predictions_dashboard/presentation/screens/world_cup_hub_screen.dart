@@ -18,7 +18,8 @@ import '../../../fixture_predictions/presentation/screens/prediction_screen.dart
 
 /// 🏆 Dedicated World Cup 2026 Hub Screen
 class WorldCupHubScreen extends ConsumerStatefulWidget {
-  const WorldCupHubScreen({super.key});
+  final int? roomId;
+  const WorldCupHubScreen({super.key, this.roomId});
 
   @override
   ConsumerState<WorldCupHubScreen> createState() => _WorldCupHubScreenState();
@@ -50,7 +51,7 @@ class _WorldCupHubScreenState extends ConsumerState<WorldCupHubScreen> {
       fixtures.sort((a, b) => (a.date ?? DateTime.now()).compareTo(b.date ?? DateTime.now()));
 
       final repo = DashboardPredictionRepository();
-      final raw = await repo.loadAll();
+      final raw = await repo.loadAll(roomId: widget.roomId);
       final service = PredictionDashboardService();
       final enriched = await service.enrichAll(raw);
 
@@ -68,10 +69,11 @@ class _WorldCupHubScreenState extends ConsumerState<WorldCupHubScreen> {
       final wcRepo = WorldCupPredictionRepository();
       WorldCupPredictionsResponse? wcPredictions;
       try {
-        wcPredictions = await wcRepo.loadWorldCupPredictions();
+        wcPredictions = await wcRepo.loadWorldCupPredictions(roomId: widget.roomId);
       } catch (e) {
         debugPrint('Error loading WC Winner/Groups predictions in Hub: $e');
       }
+
 
       if (mounted) {
         setState(() {
@@ -379,7 +381,7 @@ class _WorldCupHubScreenState extends ConsumerState<WorldCupHubScreen> {
                           onTap: () async {
                             await Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (_) => const WorldCupEventsHubScreen(),
+                                builder: (_) => WorldCupEventsHubScreen(roomId: widget.roomId),
                               ),
                             );
                           },
@@ -1212,7 +1214,8 @@ class _WcMatchCard extends ConsumerWidget {
 
 /// 🏆 Split Hub screen for Winner Prediction and Group predictions
 class WorldCupEventsHubScreen extends ConsumerStatefulWidget {
-  const WorldCupEventsHubScreen({super.key});
+  final int? roomId;
+  const WorldCupEventsHubScreen({super.key, this.roomId});
 
   @override
   ConsumerState<WorldCupEventsHubScreen> createState() => _WorldCupEventsHubScreenState();
@@ -1241,7 +1244,7 @@ class _WorldCupEventsHubScreenState extends ConsumerState<WorldCupEventsHubScree
   Future<void> _load() async {
     setState(() => _loading = true);
     try {
-      final res = await _wcRepo.loadWorldCupPredictions();
+      final res = await _wcRepo.loadWorldCupPredictions(roomId: widget.roomId);
       setState(() {
         _data = res;
         _loading = false;
@@ -1475,10 +1478,12 @@ class _WorldCupEventsHubScreenState extends ConsumerState<WorldCupEventsHubScree
               children: [
                 _WinnerPickerTab(
                   data: _data,
+                  roomId: widget.roomId,
                   onSuccess: _load,
                 ),
                 _GroupQualifiersTab(
                   data: _data,
+                  roomId: widget.roomId,
                   onSuccess: _load,
                 ),
               ],
@@ -1489,9 +1494,14 @@ class _WorldCupEventsHubScreenState extends ConsumerState<WorldCupEventsHubScree
 
 class _WinnerPickerTab extends ConsumerStatefulWidget {
   final WorldCupPredictionsResponse? data;
+  final int? roomId;
   final VoidCallback onSuccess;
 
-  const _WinnerPickerTab({required this.data, required this.onSuccess});
+  const _WinnerPickerTab({
+    required this.data,
+    required this.onSuccess,
+    this.roomId,
+  });
 
   @override
   ConsumerState<_WinnerPickerTab> createState() => _WinnerPickerTabState();
@@ -1538,7 +1548,7 @@ class _WinnerPickerTabState extends ConsumerState<_WinnerPickerTab> {
                 Navigator.pop(context);
                 setState(() => _saving = true);
                 try {
-                  await _wcRepo.submitWinner(country.name);
+                  await _wcRepo.submitWinner(country.name, roomId: widget.roomId);
                   widget.onSuccess();
                   if (mounted) {
                     messenger.showSnackBar(
@@ -1703,9 +1713,14 @@ class _WinnerPickerTabState extends ConsumerState<_WinnerPickerTab> {
 
 class _GroupQualifiersTab extends ConsumerStatefulWidget {
   final WorldCupPredictionsResponse? data;
+  final int? roomId;
   final VoidCallback onSuccess;
 
-  const _GroupQualifiersTab({required this.data, required this.onSuccess});
+  const _GroupQualifiersTab({
+    required this.data,
+    required this.onSuccess,
+    this.roomId,
+  });
 
   @override
   ConsumerState<_GroupQualifiersTab> createState() => _GroupQualifiersTabState();
@@ -1767,7 +1782,7 @@ class _GroupQualifiersTabState extends ConsumerState<_GroupQualifiersTab> {
 
     setState(() => _saving = true);
     try {
-      await _wcRepo.submitGroupQualifiers(groupLetter, list);
+      await _wcRepo.submitGroupQualifiers(groupLetter, list, roomId: widget.roomId);
       widget.onSuccess();
       if (mounted) {
         messenger.showSnackBar(

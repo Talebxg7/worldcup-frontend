@@ -62,9 +62,10 @@ class _PredictionFixturesScreenState extends ConsumerState<PredictionFixturesScr
               tooltip: 'World Cup Prediction Challenges'.tr(ref),
               icon: const Icon(Icons.emoji_events_rounded, color: Color(0xFFFFD700), size: 26),
               onPressed: () {
-                context.go('/worldcup');
+                context.go('/worldcup' + (widget.roomId != null ? '?roomId=${widget.roomId}' : ''));
               },
             ),
+
           IconButton(
             onPressed: _refresh,
             icon: const Icon(Icons.refresh_rounded),

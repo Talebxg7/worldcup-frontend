@@ -114,8 +114,12 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/worldcup',
-            pageBuilder: (ctx, state) => const NoTransitionPage(child: WorldCupHubScreen()),
+            pageBuilder: (ctx, state) {
+              final roomId = int.tryParse(state.uri.queryParameters['roomId'] ?? '');
+              return NoTransitionPage(child: WorldCupHubScreen(roomId: roomId));
+            },
           ),
+
           GoRoute(
             path: '/leaderboard',
             pageBuilder: (ctx, state) => const NoTransitionPage(child: LeaderboardScreen()),
