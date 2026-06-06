@@ -43,6 +43,7 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
   DateFilterMode _dateFilter = DateFilterMode.all;
   DateTime? _customFilterDate;
   String? _jokerFixtureLabel;
+  String _selectedLeagueId = 'all';
 
   @override
   void initState() {
@@ -249,7 +250,11 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
   }
 
   Iterable<DashboardPredictionModel> get _filtered {
-    return _rows.where((e) => _matchesDateFilter(e.kickoff));
+    return _rows.where((e) {
+      final matchesDate = _matchesDateFilter(e.kickoff);
+      final matchesLeague = _selectedLeagueId == 'all' || e.leagueId == _selectedLeagueId;
+      return matchesDate && matchesLeague;
+    });
   }
 
   List<DashboardPredictionModel> _forTab(int index) {
@@ -410,53 +415,52 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
 
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                              labelText: 'Filter Predictions'.tr(ref),
-                              border: const OutlineInputBorder(),
-                              isDense: true,
-                            ),
-                            child: DropdownButtonHideUnderline(
-                              child: DropdownButton<String>(
-                                isExpanded: true,
-                                value: _dateFilter == DateFilterMode.custom
-                                    ? 'CUSTOM'
-                                    : _dateFilter.name,
-                                items: [
-                                  DropdownMenuItem(
-                                    value: 'all',
-                                    child: Text('All Time'.tr(ref)),
+                          child: Builder(
+                            builder: (context) {
+                              final uniqueLeagues = <String, String>{};
+                              for (final p in _rows) {
+                                if (p.leagueName != null && p.leagueName!.isNotEmpty) {
+                                  uniqueLeagues[p.leagueId] = p.leagueName!;
+                                } else {
+                                  uniqueLeagues[p.leagueId] = 'League ${p.leagueId}';
+                                }
+                              }
+                              final isSelectedLeagueValid = _selectedLeagueId == 'all' || uniqueLeagues.containsKey(_selectedLeagueId);
+                              final dropdownValue = isSelectedLeagueValid ? _selectedLeagueId : 'all';
+
+                              return InputDecorator(
+                                decoration: InputDecoration(
+                                  labelText: 'Filter Predictions'.tr(ref),
+                                  border: const OutlineInputBorder(),
+                                  isDense: true,
+                                ),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    isExpanded: true,
+                                    value: dropdownValue,
+                                    items: [
+                                      DropdownMenuItem(
+                                        value: 'all',
+                                        child: Text('All Leagues'.tr(ref)),
+                                      ),
+                                      ...uniqueLeagues.entries.map((entry) {
+                                        return DropdownMenuItem(
+                                          value: entry.key,
+                                          child: Text(entry.value.tr(ref)),
+                                        );
+                                      }).toList(),
+                                    ],
+                                    onChanged: (v) {
+                                      if (v != null) {
+                                        setState(() {
+                                          _selectedLeagueId = v;
+                                        });
+                                      }
+                                    },
                                   ),
-                                  DropdownMenuItem(
-                                    value: 'lastWeek',
-                                    child: Text('Last Week'.tr(ref)),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: 'yesterday',
-                                    child: Text('Yesterday'.tr(ref)),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: 'today',
-                                    child: Text('Today'.tr(ref)),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: 'CUSTOM',
-                                    child: Text(_customFilterDate != null
-                                        ? 'Custom: ${DateFormat('MMM d, yyyy').format(_customFilterDate!)}'
-                                        : 'Custom Calendar...'.tr(ref)),
-                                  ),
-                                ],
-                                onChanged: (v) {
-                                  if (v == 'CUSTOM') {
-                                    _selectCustomDate();
-                                  } else if (v != null) {
-                                    setState(() {
-                                      _dateFilter = DateFilterMode.values.firstWhere((e) => e.name == v);
-                                    });
-                                  }
-                                },
-                              ),
-                            ),
+                                ),
+                              );
+                            }
                           ),
                         ),
                       ],
