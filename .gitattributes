@@ -1,0 +1,2 @@
+# Enforce Unix line endings (LF) for Xcode Cloud shell scripts
+ios/ci_scripts/*.sh text eol=lf

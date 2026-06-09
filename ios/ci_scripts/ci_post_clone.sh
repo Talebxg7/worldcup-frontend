@@ -34,7 +34,11 @@ flutter pub get
 echo "🔧 Generating Xcode config files..."
 flutter build ios --config-only
 
-# 5. Install CocoaPods dependencies
+# 5. Install CocoaPods
+echo "🍺 Installing CocoaPods..."
+HOMEBREW_NO_AUTO_UPDATE=1 brew install cocoapods
+
+# 6. Install CocoaPods dependencies
 cd ios
 echo "⚙️ Running pod install..."
 pod install
