@@ -358,7 +358,7 @@ class _RoomScreenState extends ConsumerState<RoomScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'FIFA WORLD CUP 2026'.tr(ref),
+                                      'WORLD CUP 2026'.tr(ref),
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w900,

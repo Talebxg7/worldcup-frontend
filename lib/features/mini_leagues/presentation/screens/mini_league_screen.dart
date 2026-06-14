@@ -298,7 +298,7 @@ class _MiniLeagueScreenState extends ConsumerState<MiniLeagueScreen>
         return 233;
       case 'Primeira Liga':
         return 94;
-      case 'FIFA World Cup':
+      case 'World Cup':
         return 1;
       case 'UEFA Champions League':
         return 2;

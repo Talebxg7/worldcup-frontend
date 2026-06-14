@@ -38,7 +38,7 @@ class _CreateLeagueDialogState extends State<CreateLeagueDialog> {
     'Ligue 1',
     'Egyptian Premier League',
     'Primeira Liga',
-    'FIFA World Cup',
+    'World Cup',
     'UEFA Champions League',
     'UEFA Europa League',
     'AFCON',
