@@ -129,6 +129,8 @@ class AppLocalizations {
     'Joker used this week:\n': 'الجوكر المستخدم هذا الأسبوع:\n',
     'Competition': 'البطولة',
     'All Leagues': 'جميع الدوريات',
+    'Filter by League': 'تصفية حسب الدوري',
+    'Filter by Date': 'تصفية حسب التاريخ',
     'Finished': 'المنتهية',
     'Live': 'مباشر',
     'Upcoming': 'القادمة',

@@ -430,7 +430,7 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
 
                               return InputDecorator(
                                 decoration: InputDecoration(
-                                  labelText: 'Filter Predictions'.tr(ref),
+                                  labelText: 'Filter by League'.tr(ref),
                                   border: const OutlineInputBorder(),
                                   isDense: true,
                                 ),
