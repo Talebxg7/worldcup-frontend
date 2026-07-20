@@ -53,29 +53,91 @@ class LeaderboardEntry {
   }
 }
 
-final leaderboardProvider = FutureProvider.family<List<LeaderboardEntry>, int>((ref, leagueId) async {
-  final response = await ApiClient.instance.get('/leaderboard', params: {'league_id': leagueId});
-  final list = response.data as List;
-  final entries = list.asMap().entries
-      .map((e) => LeaderboardEntry.fromJson(e.value as Map<String, dynamic>, e.key + 1))
-      .toList();
+class LeaderboardArgs {
+  final int leagueId;
+  final int season;
 
-  final currentUser = ref.watch(authStateProvider).value;
-  if (currentUser != null && !currentUser.hideUsername && !entries.any((e) => e.userId == currentUser.id)) {
-    entries.add(
-      LeaderboardEntry(
-        rank: entries.length + 1,
-        userId: currentUser.id,
-        username: currentUser.username,
-        totalPoints: currentUser.totalPoints,
-        exactScores: currentUser.exactScores,
-        correctResults: currentUser.correctResults,
-        totalPredictions: currentUser.totalPredictions,
-        avatarUrl: currentUser.avatarUrl,
-      ),
+  const LeaderboardArgs({required this.leagueId, required this.season});
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LeaderboardArgs &&
+          runtimeType == other.runtimeType &&
+          leagueId == other.leagueId &&
+          season == other.season;
+
+  @override
+  int get hashCode => leagueId.hashCode ^ season.hashCode;
+}
+
+class LeaderboardResponse {
+  final List<LeaderboardEntry> entries;
+  final PreviousSeasonUserStatus? userStatus;
+
+  const LeaderboardResponse({required this.entries, this.userStatus});
+}
+
+class PreviousSeasonUserStatus {
+  final int? rank;
+  final num points;
+  final int reward;
+
+  const PreviousSeasonUserStatus({
+    this.rank,
+    required this.points,
+    required this.reward,
+  });
+
+  factory PreviousSeasonUserStatus.fromJson(Map<String, dynamic> json) {
+    return PreviousSeasonUserStatus(
+      rank: json['rank'] as int?,
+      points: json['points'] as num? ?? 0,
+      reward: (json['reward'] as num? ?? 0).toInt(),
     );
   }
-  return entries;
+}
+
+final leaderboardProvider = FutureProvider.family<LeaderboardResponse, LeaderboardArgs>((ref, args) async {
+  final response = await ApiClient.instance.get('/leaderboard', params: {
+    'league_id': args.leagueId,
+    'season': args.season,
+  });
+
+  if (args.season != 2) {
+    final data = response.data as Map<String, dynamic>;
+    final list = data['top_five'] as List;
+    final entries = list.asMap().entries
+        .map((e) => LeaderboardEntry.fromJson(e.value as Map<String, dynamic>, e.key + 1))
+        .toList();
+        
+    final userStatusJson = data['user_status'] as Map<String, dynamic>?;
+    final userStatus = userStatusJson != null ? PreviousSeasonUserStatus.fromJson(userStatusJson) : null;
+
+    return LeaderboardResponse(entries: entries, userStatus: userStatus);
+  } else {
+    final list = response.data as List;
+    final entries = list.asMap().entries
+        .map((e) => LeaderboardEntry.fromJson(e.value as Map<String, dynamic>, e.key + 1))
+        .toList();
+
+    final currentUser = ref.watch(authStateProvider).value;
+    if (currentUser != null && !currentUser.hideUsername && !entries.any((e) => e.userId == currentUser.id)) {
+      entries.add(
+        LeaderboardEntry(
+          rank: entries.length + 1,
+          userId: currentUser.id,
+          username: currentUser.username,
+          totalPoints: currentUser.totalPoints,
+          exactScores: currentUser.exactScores,
+          correctResults: currentUser.correctResults,
+          totalPredictions: currentUser.totalPredictions,
+          avatarUrl: currentUser.avatarUrl,
+        ),
+      );
+    }
+    return LeaderboardResponse(entries: entries);
+  }
 });
 
 class LeaderboardScreen extends ConsumerStatefulWidget {
@@ -87,6 +149,7 @@ class LeaderboardScreen extends ConsumerStatefulWidget {
 
 class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
   int _selectedLeagueId = 39;
+  int _selectedSeason = 2;
   Timer? _timer;
 
   @override
@@ -126,12 +189,13 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
   ];
 
   Future<void> _refresh() async {
-    return ref.refresh(leaderboardProvider(_selectedLeagueId).future);
+    return ref.refresh(leaderboardProvider(LeaderboardArgs(leagueId: _selectedLeagueId, season: _selectedSeason)).future);
   }
 
   @override
   Widget build(BuildContext context) {
-    final leaderboardAsync = ref.watch(leaderboardProvider(_selectedLeagueId));
+    final args = LeaderboardArgs(leagueId: _selectedLeagueId, season: _selectedSeason);
+    final leaderboardAsync = ref.watch(leaderboardProvider(args));
     final currentUser = ref.watch(authStateProvider).value;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -144,6 +208,15 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
+        bottomNavigationBar: _selectedSeason == 1
+            ? leaderboardAsync.when(
+                data: (res) => res.userStatus != null
+                    ? _PreviousSeasonUserStatusCard(status: res.userStatus!)
+                    : null,
+                loading: () => null,
+                error: (_, __) => null,
+              )
+            : null,
         body: NestedScrollView(
         headerSliverBuilder: (context, _) => [
           SliverAppBar(
@@ -151,9 +224,25 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
             expandedHeight: 140,
             backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
             actions: [
+              DropdownButton<int>(
+                value: _selectedSeason,
+                dropdownColor: isDark ? AppColors.darkSurface : Colors.white,
+                underline: const SizedBox(),
+                icon: const Icon(Icons.arrow_drop_down_rounded, color: Colors.white),
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                items: [
+                  DropdownMenuItem(value: 2, child: Text('Season 2'.tr(ref))),
+                  DropdownMenuItem(value: 1, child: Text('Season 1'.tr(ref))),
+                ],
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() => _selectedSeason = val);
+                  }
+                },
+              ),
               IconButton(
                 icon: const Icon(Icons.refresh_rounded),
-                onPressed: () => ref.refresh(leaderboardProvider(_selectedLeagueId)),
+                onPressed: () => ref.refresh(leaderboardProvider(args)),
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
@@ -255,13 +344,15 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
                 Text('Failed to load'.tr(ref), style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 8),
                 ElevatedButton(
-                  onPressed: () => ref.refresh(leaderboardProvider(_selectedLeagueId)),
+                  onPressed: () => ref.refresh(leaderboardProvider(args)),
                   child: Text('Retry'.tr(ref)),
                 ),
               ],
             ),
           ),
-          data: (entries) {
+          data: (response) {
+            final entries = _selectedSeason == 1 ? response.entries.take(5).toList() : response.entries;
+
             if (entries.isEmpty) {
               return Center(
                 child: Column(
@@ -291,7 +382,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
                   // Top 3 podium
                   if (entries.length >= 3)
                     SliverToBoxAdapter(
-                      child: _Podium(entries: entries.take(3).toList(), leagueId: _selectedLeagueId)
+                      child: _Podium(entries: entries.take(3).toList(), leagueId: _selectedLeagueId, season: _selectedSeason)
                           .animate()
                           .slideY(begin: 0.1, duration: 500.ms)
                           .fadeIn(duration: 400.ms),
@@ -335,7 +426,8 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
 class _Podium extends StatelessWidget {
   final List<LeaderboardEntry> entries;
   final int leagueId;
-  const _Podium({required this.entries, required this.leagueId});
+  final int season;
+  const _Podium({required this.entries, required this.leagueId, required this.season});
 
   @override
   Widget build(BuildContext context) {
@@ -361,15 +453,15 @@ class _Podium extends StatelessWidget {
           // 2nd place
           _PodiumItem(entry: second, height: 80,
               bgColor: AppColors.silver.withOpacity(0.2),
-              medal: '🥈', offset: 0, leagueId: leagueId),
+              medal: '🥈', offset: 0, leagueId: leagueId, season: season),
           // 1st place
           _PodiumItem(entry: first, height: 110,
               bgColor: AppColors.gold.withOpacity(0.2),
-              medal: '🥇', offset: -20, leagueId: leagueId),
+              medal: '🥇', offset: -20, leagueId: leagueId, season: season),
           // 3rd place
           _PodiumItem(entry: third, height: 60,
               bgColor: AppColors.bronze.withOpacity(0.2),
-              medal: '🥉', offset: 0, leagueId: leagueId),
+              medal: '🥉', offset: 0, leagueId: leagueId, season: season),
         ],
       ),
     );
@@ -387,6 +479,7 @@ class _PodiumItem extends ConsumerWidget {
   final String medal;
   final double offset;
   final int leagueId;
+  final int season;
 
   const _PodiumItem({
     required this.entry,
@@ -395,10 +488,18 @@ class _PodiumItem extends ConsumerWidget {
     required this.medal,
     required this.offset,
     required this.leagueId,
+    required this.season,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    Color nameColor = Colors.white;
+    if (season == 1) {
+      if (entry.rank == 1) nameColor = AppColors.gold;
+      if (entry.rank == 2) nameColor = AppColors.silver;
+      if (entry.rank == 3) nameColor = AppColors.bronze;
+    }
+
     return GestureDetector(
       onTap: () {
         final lid = leagueId == 0 ? '' : '&leagueId=$leagueId';
@@ -431,8 +532,8 @@ class _PodiumItem extends ConsumerWidget {
           const SizedBox(height: 6),
           Text(
             entry.username,
-            style: const TextStyle(
-                color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+            style: TextStyle(
+                color: nameColor, fontSize: 12, fontWeight: FontWeight.w800),
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 2),
@@ -753,6 +854,85 @@ class _HiddenUserTopCard extends ConsumerWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _PreviousSeasonUserStatusCard extends ConsumerWidget {
+  final PreviousSeasonUserStatus status;
+
+  const _PreviousSeasonUserStatusCard({required this.status});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final hasReward = status.reward > 0;
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : Colors.white,
+        border: Border(
+          top: BorderSide(
+            color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+            width: 1.2,
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 10,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: (hasReward ? AppColors.primary : Colors.grey).withOpacity(0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                hasReward ? Icons.military_tech_rounded : Icons.info_outline_rounded,
+                color: hasReward ? AppColors.primary : Colors.grey,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    status.rank != null 
+                        ? '${'Rank last season'.tr(ref)}: #${status.rank}'
+                        : 'Did not participate last season'.tr(ref),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    hasReward
+                        ? '${'Reward'.tr(ref)}: +${status.reward} ${'pts added to new season!'.tr(ref)}'
+                        : 'No rewards earned last season'.tr(ref),
+                    style: TextStyle(
+                      color: hasReward ? AppColors.primary : (isDark ? Colors.white60 : Colors.black54),
+                      fontSize: 12,
+                      fontWeight: hasReward ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

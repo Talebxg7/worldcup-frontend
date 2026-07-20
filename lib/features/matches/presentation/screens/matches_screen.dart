@@ -15,6 +15,7 @@ import '../../../../core/localization/app_localizations.dart';
 import '../../../predictions_dashboard/presentation/screens/world_cup_hub_screen.dart';
 import '../../../predictions_dashboard/data/dashboard_prediction_repository.dart';
 import '../../../predictions_dashboard/services/prediction_dashboard_service.dart';
+import '../../../competitions/presentation/widgets/league_challenge_banner.dart';
 
 class MatchesScreen extends ConsumerStatefulWidget {
   const MatchesScreen({super.key});
@@ -105,78 +106,9 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> {
               ),
             ),
           ),
-          // Premium World Cup 2026 Hub Banner Card
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF0F4C3A), Color(0xFF07291F)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFFFD700).withOpacity(0.4), width: 1.2),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.12),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Material(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(20),
-                  onTap: () {
-                    context.go('/worldcup');
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFD700).withOpacity(0.15),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.emoji_events_rounded, color: Color(0xFFFFD700), size: 28),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'WORLD CUP 2026'.tr(ref),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 14,
-                                  letterSpacing: 1.1,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Winner picker, Group stage, and 72 matches!'.tr(ref),
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white70, size: 16),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: LeagueChallengeBanner(),
           ),
           Expanded(
             child: FutureBuilder<List<FixtureModel>>(
