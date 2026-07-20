@@ -8,7 +8,7 @@ import '../../../../services/football_api_service.dart';
 import '../../../fixture_predictions/presentation/screens/prediction_screen.dart';
 import '../../../../core/localization/app_localizations.dart';
 import 'package:go_router/go_router.dart';
-import '../../competitions/presentation/widgets/league_challenge_dialog.dart';
+import '../../../competitions/presentation/widgets/league_challenge_dialog.dart';
 
 class PredictionFixturesScreen extends ConsumerStatefulWidget {
   final int leagueId;

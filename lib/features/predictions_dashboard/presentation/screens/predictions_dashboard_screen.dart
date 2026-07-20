@@ -292,7 +292,8 @@ class _PredictionsDashboardScreenState extends ConsumerState<PredictionsDashboar
     final weeklyPts = _service.weeklyPoints(_rows);
 
     final leaderboardId = 0;
-    final leaderboard = ref.watch(leaderboardProvider(leaderboardId)).valueOrNull ?? [];
+    final leaderboardRes = ref.watch(leaderboardProvider(LeaderboardArgs(leagueId: leaderboardId, season: 2))).valueOrNull;
+    final leaderboard = leaderboardRes?.entries ?? <LeaderboardEntry>[];
     final currentUser = ref.watch(authStateProvider).value;
     int? currentRank;
     if (currentUser != null) {
