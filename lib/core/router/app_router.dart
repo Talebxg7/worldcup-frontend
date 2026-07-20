@@ -18,6 +18,7 @@ import '../../features/matches/presentation/screens/standings_screen.dart';
 import '../../features/matches/presentation/screens/live_screen.dart';
 import '../../features/predictions_dashboard/presentation/screens/predictions_dashboard_screen.dart';
 import '../../features/predictions_dashboard/presentation/screens/world_cup_hub_screen.dart';
+import '../../features/competitions/presentation/screens/season_challenges_screen.dart';
 import '../../features/leaderboard/presentation/screens/leaderboard_screen.dart';
 import '../../features/profile/presentation/screens/profile_page.dart';
 import '../../features/profile/presentation/screens/public_profile_screen.dart';
@@ -116,7 +117,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/worldcup',
             pageBuilder: (ctx, state) {
               final roomId = int.tryParse(state.uri.queryParameters['roomId'] ?? '');
-              return NoTransitionPage(child: WorldCupHubScreen(roomId: roomId));
+              return NoTransitionPage(child: SeasonChallengesScreen(roomId: roomId));
             },
           ),
 

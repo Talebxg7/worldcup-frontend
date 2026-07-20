@@ -34,10 +34,7 @@ class LeagueChallengeBanner extends ConsumerWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
           onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) => LeagueChallengeDialog(initialLeagueId: leagueId),
-            );
+            context.push('/worldcup' + (leagueId != null ? '?roomId=$leagueId' : ''));
           },
           child: Padding(
             padding: const EdgeInsets.all(16),
