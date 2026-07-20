@@ -66,13 +66,12 @@ class PredictionDashboardService {
     // +2 for correct home score
     // +2 for correct away score
     // +2 for correct winner (HOME/DRAW/AWAY)
-    // Joker ×2 applies to the exact-score block only.
+    // Joker ×2 applies to the entire match prediction points.
     var base = 0;
     if (p.homeScore == ah) base += 2;
     if (p.awayScore == aw) base += 2;
-    final exactScoreBlock = p.jokerUsed ? base * 2 : base;
-    final winnerPoints = _winnerCode(ah, aw) == p.predictedWinner.toUpperCase() ? 2 : 0;
-    return exactScoreBlock + winnerPoints;
+    if (_winnerCode(ah, aw) == p.predictedWinner.toUpperCase()) base += 2;
+    return p.jokerUsed ? base * 2 : base;
   }
 
   String _winnerCode(int home, int away) {
