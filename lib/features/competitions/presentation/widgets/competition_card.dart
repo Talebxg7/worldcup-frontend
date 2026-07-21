@@ -185,7 +185,7 @@ class CompetitionCard extends ConsumerWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    if (tickerItems.isNotEmpty) ...[
+                    if (tickerItems.isNotEmpty && upcomingCount != null && upcomingCount! > 0) ...[
                       const SizedBox(height: 8),
                       ScrollingTicker(items: tickerItems),
                     ],
