@@ -26,6 +26,20 @@ class ChallengePlayerModel {
   }
 }
 
+class ChallengeTeamModel {
+  final String name;
+  final String flag;
+
+  ChallengeTeamModel({required this.name, required this.flag});
+
+  factory ChallengeTeamModel.fromJson(Map<String, dynamic> json) {
+    return ChallengeTeamModel(
+      name: json['name'] ?? '',
+      flag: json['flag'] ?? '',
+    );
+  }
+}
+
 class LeagueChallengeDetailScreen extends ConsumerStatefulWidget {
   final int leagueId;
   const LeagueChallengeDetailScreen({super.key, required this.leagueId});
@@ -40,7 +54,7 @@ class _LeagueChallengeDetailScreenState extends ConsumerState<LeagueChallengeDet
 
   String _leagueName = '';
   String _leagueEmoji = '⚽';
-  List<String> _teams = [];
+  List<ChallengeTeamModel> _teams = [];
   String? _selectedTeam;
   String? _selectedScorer;
   bool _isLocked = false;
@@ -68,9 +82,11 @@ class _LeagueChallengeDetailScreenState extends ConsumerState<LeagueChallengeDet
 
       // 2. Fetch teams for this league
       final teamsRes = await ApiClient.instance.get('/matches/leagues/${widget.leagueId}/teams');
-      List<String> loadedTeams = [];
+      List<ChallengeTeamModel> loadedTeams = [];
       if (teamsRes.data is List) {
-        loadedTeams = List<String>.from(teamsRes.data);
+        loadedTeams = (teamsRes.data as List)
+            .map((t) => ChallengeTeamModel.fromJson(t as Map<String, dynamic>))
+            .toList();
       }
 
       // 3. Fetch user's existing prediction and lock status
@@ -270,7 +286,7 @@ class _LeagueChallengeDetailScreenState extends ConsumerState<LeagueChallengeDet
                         itemCount: _teams.length,
                         itemBuilder: (context, index) {
                           final team = _teams[index];
-                          final isSelected = _selectedTeam == team;
+                          final isSelected = _selectedTeam == team.name;
                           return Material(
                             color: isSelected
                                 ? AppColors.primary
@@ -282,11 +298,11 @@ class _LeagueChallengeDetailScreenState extends ConsumerState<LeagueChallengeDet
                                   ? null
                                   : () {
                                       setState(() {
-                                        _selectedTeam = team;
+                                        _selectedTeam = team.name;
                                       });
                                     },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
@@ -296,18 +312,32 @@ class _LeagueChallengeDetailScreenState extends ConsumerState<LeagueChallengeDet
                                     width: 1.2,
                                   ),
                                 ),
-                                child: Center(
-                                  child: Text(
-                                    team,
-                                    textAlign: TextAlign.center,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: isSelected ? Colors.white : (isDark ? Colors.white : Colors.black87),
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 13,
+                                child: Row(
+                                  children: [
+                                    if (team.flag.isNotEmpty)
+                                      Image.network(
+                                        team.flag,
+                                        width: 28,
+                                        height: 28,
+                                        errorBuilder: (context, error, stackTrace) =>
+                                            const Icon(Icons.shield, size: 24, color: Colors.grey),
+                                      )
+                                    else
+                                      const Icon(Icons.shield, size: 24, color: Colors.grey),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        team.name,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          color: isSelected ? Colors.white : (isDark ? Colors.white : Colors.black87),
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: 12,
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ),
                             ),

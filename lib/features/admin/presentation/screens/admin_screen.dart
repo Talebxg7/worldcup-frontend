@@ -118,7 +118,15 @@ class AdminScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Expanded(child: SizedBox()),
+                      Expanded(
+                        child: _ActionCard(
+                          icon: Icons.sync_rounded,
+                          title: 'Sync Players',
+                          subtitle: 'Fetch scorers from API',
+                          color: Colors.teal,
+                          onTap: () => _showSyncPlayersDialog(context, ref),
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -828,6 +836,57 @@ Future<void> _showCloseSeasonDialog(BuildContext context, WidgetRef ref) async {
             child: loading
                 ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                 : const Text('Confirm'),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Future<void> _showSyncPlayersDialog(BuildContext context, WidgetRef ref) async {
+  bool loading = false;
+
+  showDialog(
+    context: context,
+    builder: (ctx) => StatefulBuilder(
+      builder: (context, setState) => AlertDialog(
+        title: const Text('Sync Players from API-Sports'),
+        content: const Text(
+          'This will fetch top goalscorers for all active leagues from API-Sports in the background.\n\n'
+          'It may take 1-2 minutes to populate all leagues. The process runs on the server.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.teal, foregroundColor: Colors.white),
+            onPressed: loading ? null : () async {
+              setState(() => loading = true);
+              try {
+                final response = await ApiClient.instance.post('/challenge/sync-players');
+                if (!context.mounted) return;
+                Navigator.pop(ctx);
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(response.data['message'] ?? 'Sync started successfully!'),
+                    backgroundColor: Colors.teal,
+                  ),
+                );
+              } catch (e) {
+                setState(() => loading = false);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to start sync: $e'),
+                      backgroundColor: Colors.redAccent,
+                    ),
+                  );
+                }
+              }
+            },
+            child: loading
+                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                : const Text('Sync'),
           ),
         ],
       ),
