@@ -5,7 +5,6 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../models/competition.dart';
-import '../widgets/league_challenge_dialog.dart';
 
 class SeasonChallengesScreen extends ConsumerStatefulWidget {
   final int? roomId;
@@ -58,7 +57,7 @@ class _SeasonChallengesScreenState extends ConsumerState<SeasonChallengesScreen>
       }
 
       setState(() {
-        _leagues = loadedLeagues;
+        _leagues = loadedLeagues.where((l) => ![1, 2, 3, 6, 9].contains(l.leagueId)).toList();
         _predictions = loadedPreds;
       });
     } catch (e) {
@@ -68,12 +67,8 @@ class _SeasonChallengesScreenState extends ConsumerState<SeasonChallengesScreen>
     }
   }
 
-  void _openPredictionDialog(int leagueId) {
-    showDialog(
-      context: context,
-      builder: (context) => LeagueChallengeDialog(initialLeagueId: leagueId),
-    ).then((_) {
-      // Reload predictions when the dialog closes
+  void _openPredictionDetail(int leagueId) {
+    context.push('/challenge/league/$leagueId').then((_) {
       _loadData();
     });
   }
@@ -122,8 +117,6 @@ class _SeasonChallengesScreenState extends ConsumerState<SeasonChallengesScreen>
                     itemBuilder: (context, index) {
                       final league = _leagues[index];
                       final pred = _predictions[league.leagueId];
-                      final hasPred = pred != null;
-                      final isLocked = false; // We can check this if needed, or query it. Let's make it check the league status or challenge_locked column.
                       // Wait! The competition object doesn't have challenge_locked. But we can fetch it or get it from active leagues response:
                       // Wait! In `_loadData`, each league item in `leaguesRes.data` has `challenge_locked`!
                       // Let's pass challenge_locked to the Competition model or extract it here!
@@ -165,7 +158,7 @@ class _SeasonChallengesScreenState extends ConsumerState<SeasonChallengesScreen>
         borderRadius: BorderRadius.circular(20),
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
-          onTap: () => _openPredictionDialog(league.leagueId),
+          onTap: () => _openPredictionDetail(league.leagueId),
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
