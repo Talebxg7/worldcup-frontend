@@ -105,6 +105,22 @@ class AdminScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _ActionCard(
+                          icon: Icons.published_with_changes_rounded,
+                          title: 'Close Season 1',
+                          subtitle: 'Award bonus points',
+                          color: Colors.redAccent,
+                          onTap: () => _showCloseSeasonDialog(context, ref),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Expanded(child: SizedBox()),
+                    ],
+                  ),
                   const SizedBox(height: 16),
                   const Divider(),
                   const SizedBox(height: 8),
@@ -753,6 +769,65 @@ Future<void> _showOverrideMatchDialog(BuildContext context, MatchModel match, Wi
               }
             },
             child: loading ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Save'),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Future<void> _showCloseSeasonDialog(BuildContext context, WidgetRef ref) async {
+  bool loading = false;
+
+  showDialog(
+    context: context,
+    builder: (ctx) => StatefulBuilder(
+      builder: (context, setState) => AlertDialog(
+        title: const Text('Close Season 1'),
+        content: const Text(
+          'Are you sure you want to close Season 1 standings and award carry-over points for Season 2?\n\n'
+          'Top 5 players in each league will receive starting bonus points:\n'
+          '• Rank 1: +10 pts\n'
+          '• Rank 2: +7 pts\n'
+          '• Rank 3: +5 pts\n'
+          '• Rank 4: +3 pts\n'
+          '• Rank 5: +2 pts',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white),
+            onPressed: loading ? null : () async {
+              setState(() => loading = true);
+              try {
+                final response = await ApiClient.instance.post('/challenge/close-season');
+                if (!context.mounted) return;
+                Navigator.pop(ctx);
+                
+                final details = response.data['details'] as List?;
+                final count = details?.length ?? 0;
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Season 1 closed! Seeded starting rewards for $count players!'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              } catch (e) {
+                setState(() => loading = false);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to close season: $e'),
+                      backgroundColor: Colors.redAccent,
+                    ),
+                  );
+                }
+              }
+            },
+            child: loading
+                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                : const Text('Confirm'),
           ),
         ],
       ),
