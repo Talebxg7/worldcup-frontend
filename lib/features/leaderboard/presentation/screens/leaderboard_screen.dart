@@ -82,18 +82,36 @@ class PreviousSeasonUserStatus {
   final int? rank;
   final num points;
   final int reward;
+  final int? userId;
+  final String? username;
+  final String? avatarUrl;
+  final int exactScores;
+  final int correctResults;
+  final int totalPredictions;
 
   const PreviousSeasonUserStatus({
     this.rank,
     required this.points,
     required this.reward,
+    this.userId,
+    this.username,
+    this.avatarUrl,
+    this.exactScores = 0,
+    this.correctResults = 0,
+    this.totalPredictions = 0,
   });
 
   factory PreviousSeasonUserStatus.fromJson(Map<String, dynamic> json) {
     return PreviousSeasonUserStatus(
       rank: json['rank'] as int?,
-      points: json['points'] as num? ?? 0,
+      points: json['total_points'] as num? ?? (json['points'] as num? ?? 0),
       reward: (json['reward'] as num? ?? 0).toInt(),
+      userId: json['id'] as int?,
+      username: json['username'] as String?,
+      avatarUrl: json['avatar_url'] as String?,
+      exactScores: json['exact_scores'] as int? ?? 0,
+      correctResults: json['correct_results'] as int? ?? 0,
+      totalPredictions: json['total_predictions'] as int? ?? 0,
     );
   }
 }
@@ -104,40 +122,33 @@ final leaderboardProvider = FutureProvider.family<LeaderboardResponse, Leaderboa
     'season': args.season,
   });
 
-  if (args.season != 2) {
-    final data = response.data as Map<String, dynamic>;
-    final list = data['top_five'] as List;
-    final entries = list.asMap().entries
-        .map((e) => LeaderboardEntry.fromJson(e.value as Map<String, dynamic>, e.key + 1))
-        .toList();
-        
-    final userStatusJson = data['user_status'] as Map<String, dynamic>?;
-    final userStatus = userStatusJson != null ? PreviousSeasonUserStatus.fromJson(userStatusJson) : null;
+  final data = response.data as Map<String, dynamic>;
+  final list = data['entries'] as List? ?? [];
+  final entries = list.asMap().entries
+      .map((e) => LeaderboardEntry.fromJson(e.value as Map<String, dynamic>, e.key + 1))
+      .toList();
+      
+  final userStatusJson = data['user_status'] as Map<String, dynamic>?;
+  final userStatus = userStatusJson != null ? PreviousSeasonUserStatus.fromJson(userStatusJson) : null;
 
-    return LeaderboardResponse(entries: entries, userStatus: userStatus);
-  } else {
-    final list = response.data as List;
-    final entries = list.asMap().entries
-        .map((e) => LeaderboardEntry.fromJson(e.value as Map<String, dynamic>, e.key + 1))
-        .toList();
-
-    final currentUser = ref.watch(authStateProvider).value;
-    if (currentUser != null && !currentUser.hideUsername && !entries.any((e) => e.userId == currentUser.id)) {
+  if (args.season == 2 && userStatus != null && userStatus.userId != null) {
+    if (!entries.any((e) => e.userId == userStatus.userId)) {
       entries.add(
         LeaderboardEntry(
-          rank: entries.length + 1,
-          userId: currentUser.id,
-          username: currentUser.username,
-          totalPoints: currentUser.totalPoints,
-          exactScores: currentUser.exactScores,
-          correctResults: currentUser.correctResults,
-          totalPredictions: currentUser.totalPredictions,
-          avatarUrl: currentUser.avatarUrl,
+          rank: userStatus.rank ?? (entries.length + 1),
+          userId: userStatus.userId!,
+          username: userStatus.username ?? '',
+          totalPoints: userStatus.points.toDouble(),
+          exactScores: userStatus.exactScores,
+          correctResults: userStatus.correctResults,
+          totalPredictions: userStatus.totalPredictions,
+          avatarUrl: userStatus.avatarUrl,
         ),
       );
     }
-    return LeaderboardResponse(entries: entries);
   }
+
+  return LeaderboardResponse(entries: entries, userStatus: userStatus);
 });
 
 class LeaderboardScreen extends ConsumerStatefulWidget {
