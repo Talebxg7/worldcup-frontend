@@ -32,11 +32,19 @@ class ChallengeTeamModel {
 
   ChallengeTeamModel({required this.name, required this.flag});
 
-  factory ChallengeTeamModel.fromJson(Map<String, dynamic> json) {
-    return ChallengeTeamModel(
-      name: json['name'] ?? '',
-      flag: json['flag'] ?? '',
-    );
+  factory ChallengeTeamModel.fromJson(dynamic json) {
+    if (json is String) {
+      return ChallengeTeamModel(
+        name: json,
+        flag: '',
+      );
+    } else if (json is Map) {
+      return ChallengeTeamModel(
+        name: json['name'] ?? '',
+        flag: json['flag'] ?? '',
+      );
+    }
+    return ChallengeTeamModel(name: '', flag: '');
   }
 }
 
@@ -85,7 +93,7 @@ class _LeagueChallengeDetailScreenState extends ConsumerState<LeagueChallengeDet
       List<ChallengeTeamModel> loadedTeams = [];
       if (teamsRes.data is List) {
         loadedTeams = (teamsRes.data as List)
-            .map((t) => ChallengeTeamModel.fromJson(t as Map<String, dynamic>))
+            .map((t) => ChallengeTeamModel.fromJson(t))
             .toList();
       }
 
