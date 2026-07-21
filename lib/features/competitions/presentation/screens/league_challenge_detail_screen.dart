@@ -287,21 +287,19 @@ class _LeagueChallengeDetailScreenState extends ConsumerState<LeagueChallengeDet
                         physics: const NeverScrollableScrollPhysics(),
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                          childAspectRatio: 2.8,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 0.82,
                         ),
                         itemCount: _teams.length,
                         itemBuilder: (context, index) {
                           final team = _teams[index];
                           final isSelected = _selectedTeam == team.name;
                           return Material(
-                            color: isSelected
-                                ? AppColors.primary
-                                : (isDark ? AppColors.darkCard : Colors.white),
-                            borderRadius: BorderRadius.circular(16),
+                            color: const Color(0xFF1B2332),
+                            borderRadius: BorderRadius.circular(12),
                             child: InkWell(
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(12),
                               onTap: _isLocked
                                   ? null
                                   : () {
@@ -310,38 +308,51 @@ class _LeagueChallengeDetailScreenState extends ConsumerState<LeagueChallengeDet
                                       });
                                     },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
                                     color: isSelected
                                         ? AppColors.primary
-                                        : Colors.grey.withOpacity(0.2),
-                                    width: 1.2,
+                                        : Colors.white12,
+                                    width: isSelected ? 2.5 : 1.0,
                                   ),
                                 ),
-                                child: Row(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
-                                    if (team.flag.isNotEmpty)
-                                      Image.network(
-                                        team.flag,
-                                        width: 28,
-                                        height: 28,
-                                        errorBuilder: (context, error, stackTrace) =>
-                                            const Icon(Icons.shield, size: 24, color: Colors.grey),
-                                      )
-                                    else
-                                      const Icon(Icons.shield, size: 24, color: Colors.grey),
-                                    const SizedBox(width: 8),
                                     Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16),
+                                        child: Center(
+                                          child: team.flag.isNotEmpty
+                                              ? Image.network(
+                                                  team.flag,
+                                                  fit: BoxFit.contain,
+                                                  errorBuilder: (context, error, stackTrace) =>
+                                                      const Icon(Icons.shield, size: 48, color: Colors.grey),
+                                                )
+                                              : const Icon(Icons.shield, size: 48, color: Colors.grey),
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFF131A26),
+                                        borderRadius: BorderRadius.only(
+                                          bottomLeft: Radius.circular(11),
+                                          bottomRight: Radius.circular(11),
+                                        ),
+                                      ),
                                       child: Text(
                                         team.name,
-                                        maxLines: 2,
+                                        textAlign: TextAlign.center,
+                                        maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          color: isSelected ? Colors.white : (isDark ? Colors.white : Colors.black87),
-                                          fontWeight: FontWeight.w800,
-                                          fontSize: 12,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 13,
                                         ),
                                       ),
                                     ),
