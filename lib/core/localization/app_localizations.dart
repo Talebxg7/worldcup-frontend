@@ -6,6 +6,8 @@ class AppLocalizations {
     // Core
     'World Cup 2026': 'كأس العالم 2026',
     'WORLD CUP 2026': 'كأس العالم 2026',
+    'Leagues Predictor': 'توقع الدوريات',
+    'LEAGUES PREDICTOR': 'توقع الدوريات',
     'Predict. Compete. Win.': 'توقع. نافس. فز.',
     'Select language': 'اختر اللغة',
     'Language': 'اللغة',

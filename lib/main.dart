@@ -43,7 +43,7 @@ class WorldCupApp extends ConsumerWidget {
     final localeCode = ref.watch(localeProvider);
 
     return MaterialApp.router(
-      title: 'World Cup 2026 Predictor',
+      title: 'Leagues Predictor',
       debugShowCheckedModeBanner: false,
       themeMode: themeMode,
       theme: AppTheme.lightTheme,

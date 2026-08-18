@@ -150,7 +150,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 Padding(
                   padding: const EdgeInsets.only(left: 52),
                   child: Text(
-                    'Join the World Cup 2026 prediction league!',
+                    'Join the Leagues Predictor and compete!',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ).animate().fadeIn(duration: 300.ms, delay: 100.ms),

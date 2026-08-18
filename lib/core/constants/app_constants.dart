@@ -17,7 +17,7 @@ class AppConstants {
   static const int predictionDeadlineHours = 2;
 
   // App Info
-  static const String appName = 'World Cup 2026';
+  static const String appName = 'Leagues Predictor';
   static const String appTagline = 'Predict. Compete. Win.';
 
   // FIFA World Cup 2026 Groups

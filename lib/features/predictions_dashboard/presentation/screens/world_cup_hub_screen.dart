@@ -302,7 +302,7 @@ class _WorldCupHubScreenState extends ConsumerState<WorldCupHubScreen> {
                           const Icon(Icons.emoji_events_rounded, color: Color(0xFFFFD700), size: 24),
                           const SizedBox(width: 6),
                           Text(
-                            'WORLD CUP 2026'.tr(ref),
+                            'LEAGUES PREDICTOR'.tr(ref),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -481,7 +481,7 @@ class _WorldCupHubScreenState extends ConsumerState<WorldCupHubScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'MY WORLD CUP PICKS'.tr(ref),
+                                        'MY LEAGUE PICKS'.tr(ref),
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 14,
@@ -511,7 +511,7 @@ class _WorldCupHubScreenState extends ConsumerState<WorldCupHubScreen> {
                             const Icon(Icons.sports_soccer_rounded, color: Colors.white70),
                             const SizedBox(width: 8),
                             Text(
-                              'World Cup Group Stage'.tr(ref),
+                              'League Matches'.tr(ref),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
@@ -621,7 +621,7 @@ class _WorldCupHubScreenState extends ConsumerState<WorldCupHubScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'MY WORLD CUP PICKS'.tr(ref),
+                        'MY LEAGUE PICKS'.tr(ref),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -639,7 +639,7 @@ class _WorldCupHubScreenState extends ConsumerState<WorldCupHubScreen> {
                 const Divider(color: Colors.white24, height: 16),
                 const SizedBox(height: 8),
                 Text(
-                  'WORLD CUP CHAMPION'.tr(ref),
+                  'LEAGUE CHAMPION'.tr(ref),
                   style: const TextStyle(
                     color: Color(0xFFFFD700),
                     fontSize: 11,
@@ -1280,7 +1280,7 @@ class _WorldCupEventsHubScreenState extends ConsumerState<WorldCupEventsHubScree
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'MY WORLD CUP PICKS'.tr(ref),
+                        'MY LEAGUE PICKS'.tr(ref),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -1298,7 +1298,7 @@ class _WorldCupEventsHubScreenState extends ConsumerState<WorldCupEventsHubScree
                 const Divider(color: Colors.white24, height: 16),
                 const SizedBox(height: 8),
                 Text(
-                  'WORLD CUP CHAMPION'.tr(ref),
+                  'LEAGUE CHAMPION'.tr(ref),
                   style: const TextStyle(
                     color: Color(0xFFFFD700),
                     fontSize: 11,
@@ -1530,7 +1530,7 @@ class _WinnerPickerTabState extends ConsumerState<_WinnerPickerTab> {
             ],
           ),
           content: Text(
-            'Confirm ${country.flag} ${country.name} as your World Cup 2026 Champion?\n\nIf correct, this will award you +50 points! Predictions will lock on June 11.'.tr(ref),
+            'Confirm ${country.flag} ${country.name} as your Champion prediction?\n\nIf correct, this will award you +50 points!'.tr(ref),
             style: const TextStyle(color: Colors.white70),
           ),
           actions: [
