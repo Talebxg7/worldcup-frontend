@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/demo/demo_mode_provider.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -389,6 +390,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       appBar: AppBar(
         title: Text('Profile'.tr(ref)),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share_rounded),
+            onPressed: () {
+              if (apiUser == null) return;
+              final rankStr = apiUser.rank > 0 ? ' (Rank #${apiUser.rank})' : '';
+              final pointsStr = '${apiUser.totalPoints.toInt()} pts';
+              final shareText = 'I have $pointsStr$rankStr on Leagues Predictor! Think you can beat me? Join here: https://whowillwinapp.com';
+              Share.share(shareText);
+            },
+            tooltip: 'Share stats',
+          ),
+        ],
       ),
       body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
         stream: FirebaseFirestore.instance.collection('users').doc(uid).snapshots(),
