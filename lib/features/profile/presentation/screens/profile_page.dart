@@ -391,16 +391,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         title: Text('Profile'.tr(ref)),
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.share_rounded),
-            onPressed: () {
-              if (apiUser == null) return;
-              final rankStr = apiUser.rank > 0 ? ' (Rank #${apiUser.rank})' : '';
-              final pointsStr = '${apiUser.totalPoints.toInt()} pts';
-              final shareText = 'I have $pointsStr$rankStr on Leagues Predictor! Think you can beat me? Join here: https://whowillwinapp.com';
-              Share.share(shareText);
-            },
-            tooltip: 'Share stats',
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: IconButton(
+              icon: const Icon(Icons.share_rounded),
+              onPressed: () {
+                if (apiUser == null) return;
+                final rankStr = apiUser.rank > 0 ? ' (Rank #${apiUser.rank})' : '';
+                final pointsStr = '${apiUser.totalPoints.toInt()} pts';
+                final shareText = 'I have $pointsStr$rankStr on Leagues Predictor! Think you can beat me? Join here: https://whowillwinapp.com';
+                Share.share(shareText);
+              },
+              tooltip: 'Share stats',
+            ),
           ),
         ],
       ),
