@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../models/competition.dart';
 import '../widgets/competition_card.dart';
@@ -310,6 +311,6 @@ class _CompetitionSelectionScreenState extends ConsumerState<CompetitionSelectio
       default:
         return const [Color(0xFF0F172A), Color(0xFF0284C7), Color(0xFF10B981)];
     }
-  } }
+  }
 }
 
