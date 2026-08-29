@@ -47,6 +47,14 @@ class CompetitionCard extends ConsumerWidget {
     542: '🇮🇶',   // Iraqi League -> Iraq
   };
 
+  static const Map<int, String> _tournamentBackgroundById = {
+    1: 'assets/images/world_cup.png',
+    2: 'assets/images/uefa_champions_bg.png',
+    3: 'assets/images/uefa_europa_bg.png',
+    6: 'assets/images/afcon_bg.png',
+    9: 'assets/images/copa_america_bg.png',
+  };
+
   static const Map<int, IconData> _leagueIconById = {
     1: Icons.emoji_events_rounded, // World Cup Trophy
     2: Icons.stars_rounded,        // Champions League Stars
@@ -72,12 +80,13 @@ class CompetitionCard extends ConsumerWidget {
     final disabled = !competition.isEnabled;
     final flag = _leagueFlagById[competition.leagueId] ?? competition.emoji;
     final watermarkIcon = _leagueIconById[competition.leagueId] ?? Icons.sports_soccer_rounded;
+    final tournamentBg = _tournamentBackgroundById[competition.leagueId];
 
     final badgeText = isLoadingCount
         ? 'Loading...'.tr(ref)
         : upcomingCount == null
             ? '—'
-            : '$upcomingCount ' + 'upcoming'.tr(ref);
+            : '$upcomingCount ${'upcoming'.tr(ref)}';
 
     final liveMatchesAsync = ref.watch(liveMatchesProvider);
     final List<String> tickerItems = [];
@@ -125,33 +134,60 @@ class CompetitionCard extends ConsumerWidget {
             borderRadius: BorderRadius.circular(20),
             child: Stack(
               children: [
-                // Subtle Ambient Stadium Light Glow
-                Positioned(
-                  top: -40,
-                  right: -40,
-                  child: Container(
-                    width: 140,
-                    height: 140,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withOpacity(0.10),
+                // Tournament Background Photo (if World Cup, UCL, UEL, AFCON, Copa America)
+                if (tournamentBg != null)
+                  Positioned.fill(
+                    child: Image.asset(
+                      tournamentBg,
+                      fit: BoxFit.cover,
+                      alignment: Alignment.center,
                     ),
                   ),
-                ),
+                if (tournamentBg != null)
+                  Positioned.fill(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withOpacity(0.25),
+                            Colors.black.withOpacity(0.65),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
 
-                // Sleek Watermark Trophy / Emblem Accent in background
-                Positioned(
-                  bottom: -15,
-                  right: -10,
-                  child: Opacity(
-                    opacity: 0.12,
-                    child: Icon(
-                      watermarkIcon,
-                      size: 110,
-                      color: Colors.white,
+                // Subtle Ambient Stadium Light Glow for league cards
+                if (tournamentBg == null)
+                  Positioned(
+                    top: -40,
+                    right: -40,
+                    child: Container(
+                      width: 140,
+                      height: 140,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withOpacity(0.10),
+                      ),
                     ),
                   ),
-                ),
+
+                // Watermark for league cards
+                if (tournamentBg == null)
+                  Positioned(
+                    bottom: -15,
+                    right: -10,
+                    child: Opacity(
+                      opacity: 0.12,
+                      child: Icon(
+                        watermarkIcon,
+                        size: 110,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
 
                 // Card Foreground Content
                 Padding(
