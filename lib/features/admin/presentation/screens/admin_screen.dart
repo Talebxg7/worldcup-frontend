@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../matches/data/models/match_model.dart';
@@ -110,6 +113,16 @@ class AdminScreen extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: _ActionCard(
+                          icon: Icons.rate_review_rounded,
+                          title: 'Feedbacks',
+                          subtitle: 'User Reviews & Bugs',
+                          color: const Color(0xFF0284C7),
+                          onTap: () => _showFeedbackViewerDialog(context),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _ActionCard(
                           icon: Icons.published_with_changes_rounded,
                           title: 'Close Season 1',
                           subtitle: 'Award bonus points',
@@ -117,7 +130,11 @@ class AdminScreen extends ConsumerWidget {
                           onTap: () => _showCloseSeasonDialog(context, ref),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
                       Expanded(
                         child: _ActionCard(
                           icon: Icons.sync_rounded,
@@ -890,6 +907,344 @@ Future<void> _showSyncPlayersDialog(BuildContext context, WidgetRef ref) async {
           ),
         ],
       ),
+    ),
+  );
+}
+
+Future<void> _showFeedbackViewerDialog(BuildContext context) async {
+  String selectedCategory = 'All';
+
+  await showDialog(
+    context: context,
+    builder: (ctx) => StatefulBuilder(
+      builder: (context, setState) {
+        final theme = Theme.of(context);
+        final isDark = theme.brightness == Brightness.dark;
+        final bgColor = isDark ? const Color(0xFF0F172A) : Colors.white;
+        final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+        final secondaryTextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+        final cardBg = isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC);
+        final borderColor = isDark ? Colors.white.withOpacity(0.1) : const Color(0xFFE2E8F0);
+
+        final categories = ['All', 'Feature Request', 'Bug Report', 'UI & Design', 'Performance', 'General'];
+
+        return Dialog(
+          backgroundColor: bgColor,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(color: borderColor),
+          ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 680, maxHeight: 720),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Header
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0284C7).withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.rate_review_rounded, color: Color(0xFF38BDF8), size: 24),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'User Feedbacks',
+                              style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w800, color: textColor),
+                            ),
+                            Text(
+                              'Live suggestions, bug reports & ratings',
+                              style: GoogleFonts.outfit(fontSize: 12, color: secondaryTextColor),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close_rounded, color: secondaryTextColor),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Filter Chips
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: categories.map((cat) {
+                        final isSelected = selectedCategory == cat;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            label: Text(cat),
+                            selected: isSelected,
+                            onSelected: (_) => setState(() => selectedCategory = cat),
+                            selectedColor: const Color(0xFF0284C7),
+                            backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                            labelStyle: GoogleFonts.outfit(
+                              fontSize: 12,
+                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                              color: isSelected ? Colors.white : textColor,
+                            ),
+                            side: BorderSide(
+                              color: isSelected ? const Color(0xFF38BDF8) : borderColor,
+                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Divider(height: 1),
+                  const SizedBox(height: 8),
+
+                  // Live Feedbacks List
+                  Expanded(
+                    child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                      stream: FirebaseFirestore.instance
+                          .collection('feedback')
+                          .orderBy('createdAt', descending: true)
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Text(
+                              'Error loading feedbacks: ${snapshot.error}',
+                              style: const TextStyle(color: Colors.redAccent),
+                            ),
+                          );
+                        }
+
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        final docs = snapshot.data?.docs ?? [];
+                        final filteredDocs = selectedCategory == 'All'
+                            ? docs
+                            : docs.where((d) => d.data()['category'] == selectedCategory).toList();
+
+                        if (filteredDocs.isEmpty) {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.inbox_outlined, size: 48, color: secondaryTextColor),
+                                const SizedBox(height: 12),
+                                Text(
+                                  selectedCategory == 'All'
+                                      ? 'No feedbacks submitted yet'
+                                      : 'No feedbacks in "$selectedCategory"',
+                                  style: GoogleFonts.outfit(color: secondaryTextColor, fontSize: 14),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        return ListView.separated(
+                          itemCount: filteredDocs.length,
+                          separatorBuilder: (_, __) => const SizedBox(height: 10),
+                          itemBuilder: (context, index) {
+                            final doc = filteredDocs[index];
+                            final data = doc.data();
+                            final username = data['username'] as String? ?? 'Anonymous';
+                            final email = data['email'] as String? ?? '';
+                            final category = data['category'] as String? ?? 'General';
+                            final rating = data['rating'] as int? ?? 5;
+                            final message = data['message'] as String? ?? '';
+                            final platform = data['platform'] as String? ?? 'Web';
+                            
+                            String formattedDate = '';
+                            final timestamp = data['createdAt'] as Timestamp?;
+                            if (timestamp != null) {
+                              formattedDate = DateFormat('MMM d, y • h:mm a').format(timestamp.toDate());
+                            } else if (data['dateString'] != null) {
+                              try {
+                                formattedDate = DateFormat('MMM d, y • h:mm a').format(DateTime.parse(data['dateString']));
+                              } catch (_) {}
+                            }
+
+                            Color categoryColor = const Color(0xFF38BDF8);
+                            if (category == 'Bug Report') categoryColor = Colors.redAccent;
+                            if (category == 'Feature Request') categoryColor = Colors.amber;
+                            if (category == 'Performance') categoryColor = Colors.orangeAccent;
+                            if (category == 'UI & Design') categoryColor = Colors.purpleAccent;
+
+                            return Container(
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: cardBg,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: borderColor),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Top row: User Info & Actions
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 16,
+                                        backgroundColor: categoryColor.withOpacity(0.2),
+                                        child: Text(
+                                          username.isNotEmpty ? username[0].toUpperCase() : 'U',
+                                          style: GoogleFonts.outfit(
+                                            color: categoryColor,
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  username,
+                                                  style: GoogleFonts.outfit(
+                                                    fontWeight: FontWeight.w700,
+                                                    fontSize: 14,
+                                                    color: textColor,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 6),
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                  decoration: BoxDecoration(
+                                                    color: categoryColor.withOpacity(0.12),
+                                                    borderRadius: BorderRadius.circular(6),
+                                                    border: Border.all(color: categoryColor.withOpacity(0.3)),
+                                                  ),
+                                                  child: Text(
+                                                    category,
+                                                    style: GoogleFonts.outfit(
+                                                      fontSize: 10,
+                                                      fontWeight: FontWeight.w700,
+                                                      color: categoryColor,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            if (email.isNotEmpty)
+                                              Text(
+                                                email,
+                                                style: GoogleFonts.outfit(fontSize: 11, color: secondaryTextColor),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+
+                                      // Stars
+                                      Row(
+                                        children: List.generate(5, (starIdx) {
+                                          return Icon(
+                                            starIdx < rating ? Icons.star_rounded : Icons.star_outline_rounded,
+                                            size: 16,
+                                            color: starIdx < rating ? const Color(0xFFF59E0B) : secondaryTextColor.withOpacity(0.4),
+                                          );
+                                        }),
+                                      ),
+                                      const SizedBox(width: 4),
+
+                                      // Delete button
+                                      IconButton(
+                                        icon: const Icon(Icons.delete_outline_rounded, size: 18, color: Colors.redAccent),
+                                        tooltip: 'Dismiss / Delete',
+                                        onPressed: () async {
+                                          final confirm = await showDialog<bool>(
+                                            context: context,
+                                            builder: (dCtx) => AlertDialog(
+                                              title: const Text('Delete Feedback?'),
+                                              content: const Text('Are you sure you want to delete this feedback item?'),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(dCtx, false),
+                                                  child: const Text('Cancel'),
+                                                ),
+                                                ElevatedButton(
+                                                  style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                                                  onPressed: () => Navigator.pop(dCtx, true),
+                                                  child: const Text('Delete', style: TextStyle(color: Colors.white)),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                          if (confirm == true) {
+                                            await doc.reference.delete();
+                                          }
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+
+                                  // Feedback Message
+                                  Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(color: borderColor),
+                                    ),
+                                    child: SelectableText(
+                                      message,
+                                      style: GoogleFonts.outfit(
+                                        fontSize: 13,
+                                        color: textColor,
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+
+                                  // Metadata Footer
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        formattedDate,
+                                        style: GoogleFonts.outfit(fontSize: 11, color: secondaryTextColor),
+                                      ),
+                                      Text(
+                                        'Platform: $platform',
+                                        style: GoogleFonts.outfit(fontSize: 11, color: secondaryTextColor),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     ),
   );
 }
