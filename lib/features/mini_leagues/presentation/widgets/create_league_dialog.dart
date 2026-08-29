@@ -167,6 +167,10 @@ class _CreateLeagueDialogState extends State<CreateLeagueDialog> {
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(color: isDark ? AppColors.darkBorder : const Color(0xFFCBD5E1)),
                   ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: isDark ? const Color(0xFF475569) : const Color(0xFF94A3B8), width: 1.5),
+                  ),
                 ),
                 isExpanded: true,
                 items: _competitions
@@ -243,9 +247,17 @@ class _CreateLeagueDialogState extends State<CreateLeagueDialog> {
                   ],
                 ),
               ),
+              const SizedBox(height: 10),
               CheckboxListTile(
                 value: _acceptFee,
                 contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                activeColor: const Color(0xFF047857),
+                checkColor: Colors.white,
+                side: BorderSide(
+                  color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                  width: 1.8,
+                ),
                 onChanged: _submitting
                     ? null
                     : (v) => setState(() {
@@ -253,9 +265,19 @@ class _CreateLeagueDialogState extends State<CreateLeagueDialog> {
                         }),
                 title: Text(
                   'I understand this room will be free for a limited time only',
-                  style: TextStyle(color: Colors.greenAccent.shade400, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                  ),
                 ),
-                subtitle: const Text('No payment required during this promotional period'),
+                subtitle: Text(
+                  'No payment required during this promotional period',
+                  style: TextStyle(
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                    fontSize: 11,
+                  ),
+                ),
               ),
 
               Row(
