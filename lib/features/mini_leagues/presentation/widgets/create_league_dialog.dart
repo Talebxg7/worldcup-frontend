@@ -94,7 +94,7 @@ class _CreateLeagueDialogState extends State<CreateLeagueDialog> {
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      backgroundColor: AppColors.darkSurface,
+      backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 400),
         child: SingleChildScrollView(
@@ -108,16 +108,27 @@ class _CreateLeagueDialogState extends State<CreateLeagueDialog> {
                 style: GoogleFonts.outfit(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
-                  color: cs.onSurface,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
                 ),
               ),
               const SizedBox(height: 18),
               TextField(
                 controller: leagueNameController,
                 textCapitalization: TextCapitalization.words,
-                decoration: const InputDecoration(
+                style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A)),
+                decoration: InputDecoration(
                   labelText: 'League name',
                   hintText: 'e.g. Office predictions',
+                  fillColor: isDark ? AppColors.darkCard : const Color(0xFFF1F5F9),
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: isDark ? AppColors.darkBorder : const Color(0xFFCBD5E1)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: isDark ? AppColors.darkBorder : const Color(0xFFCBD5E1)),
+                  ),
                 ),
               ),
               const SizedBox(height: 6),
@@ -136,7 +147,7 @@ class _CreateLeagueDialogState extends State<CreateLeagueDialog> {
                         'League name should be at least 3 letters',
                         style: GoogleFonts.outfit(
                           fontSize: 11,
-                          color: AppColors.darkTextSecondary,
+                          color: isDark ? AppColors.darkTextSecondary : const Color(0xFF64748B),
                           fontWeight: FontWeight.w400,
                         ),
                       ),
@@ -144,17 +155,20 @@ class _CreateLeagueDialogState extends State<CreateLeagueDialog> {
                   ],
                 ),
               ),
+              const SizedBox(height: 16),
               Text(
                 'Select Competition',
                 style: GoogleFonts.outfit(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: cs.onSurface.withOpacity(0.85),
+                  color: isDark ? Colors.white.withOpacity(0.85) : const Color(0xFF0F172A),
                 ),
               ),
               const SizedBox(height: 6),
               DropdownButtonFormField<String>(
                 value: selectedCompetition,
+                style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A), fontWeight: FontWeight.w600),
+                dropdownColor: isDark ? AppColors.darkSurface : Colors.white,
                 decoration: InputDecoration(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   fillColor: isDark ? AppColors.darkCard : const Color(0xFFF1F5F9),
@@ -177,7 +191,7 @@ class _CreateLeagueDialogState extends State<CreateLeagueDialog> {
                     .map(
                       (c) => DropdownMenuItem<String>(
                         value: c,
-                        child: Text(c, overflow: TextOverflow.ellipsis),
+                        child: Text(c, overflow: TextOverflow.ellipsis, style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A))),
                       ),
                     )
                     .toList(),
@@ -190,16 +204,16 @@ class _CreateLeagueDialogState extends State<CreateLeagueDialog> {
                 'This league is private (invite only).',
                 style: GoogleFonts.outfit(
                   fontSize: 12,
-                  color: AppColors.darkTextSecondary,
+                  color: isDark ? AppColors.darkTextSecondary : const Color(0xFF64748B),
                 ),
               ),
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.darkCard,
+                  color: isDark ? AppColors.darkCard : const Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.darkBorder),
+                  border: Border.all(color: isDark ? AppColors.darkBorder : const Color(0xFFE2E8F0)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,14 +223,14 @@ class _CreateLeagueDialogState extends State<CreateLeagueDialog> {
                         style: GoogleFonts.outfit(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
-                          color: cs.onSurface,
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
                         ),
                         children: [
                           const TextSpan(text: 'Mini League Pro - '),
                           TextSpan(
                             text: 'FREE for a limited time!',
                             style: TextStyle(
-                              color: Colors.greenAccent.shade400,
+                              color: isDark ? Colors.greenAccent.shade400 : const Color(0xFF047857),
                               fontWeight: FontWeight.w900,
                             ),
                           ),
@@ -232,7 +246,7 @@ class _CreateLeagueDialogState extends State<CreateLeagueDialog> {
                       '- League-focused matches so everyone predicts same competition',
                       style: GoogleFonts.outfit(
                         fontSize: 12,
-                        color: AppColors.darkTextSecondary,
+                        color: isDark ? AppColors.darkTextSecondary : const Color(0xFF475569),
                         height: 1.35,
                       ),
                     ),
@@ -241,7 +255,7 @@ class _CreateLeagueDialogState extends State<CreateLeagueDialog> {
                       'Default room capacity: 20 members (host can customize later in room settings).',
                       style: GoogleFonts.outfit(
                         fontSize: 12,
-                        color: AppColors.darkTextSecondary,
+                        color: isDark ? AppColors.darkTextSecondary : const Color(0xFF475569),
                       ),
                     ),
                   ],
@@ -274,7 +288,7 @@ class _CreateLeagueDialogState extends State<CreateLeagueDialog> {
                 subtitle: Text(
                   'No payment required during this promotional period',
                   style: TextStyle(
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                    color: isDark ? AppColors.darkTextSecondary : const Color(0xFF64748B),
                     fontSize: 11,
                   ),
                 ),
@@ -286,9 +300,9 @@ class _CreateLeagueDialogState extends State<CreateLeagueDialog> {
                     child: OutlinedButton(
                       onPressed: _submitting ? null : () => Navigator.of(context).pop(),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.darkTextSecondary,
-                        side: const BorderSide(color: AppColors.darkBorder),
-                        backgroundColor: AppColors.darkCard,
+                        foregroundColor: isDark ? AppColors.darkTextSecondary : const Color(0xFF0F172A),
+                        side: BorderSide(color: isDark ? AppColors.darkBorder : const Color(0xFFCBD5E1)),
+                        backgroundColor: isDark ? AppColors.darkCard : const Color(0xFFF1F5F9),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -320,14 +334,15 @@ class _CreateLeagueDialogState extends State<CreateLeagueDialog> {
                               height: 22,
                               width: 22,
                               child: CircularProgressIndicator(
-                                strokeWidth: 2,
+                                strokeWidth: 2.5,
                                 color: Colors.white,
                               ),
                             )
                           : Text(
                               'Create (Free)',
                               style: GoogleFonts.outfit(
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 15,
                               ),
                             ),
                     ),
