@@ -258,8 +258,14 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration: const BoxDecoration(
-                  gradient: AppColors.goldGradient,
+                decoration: BoxDecoration(
+                  gradient: isDark
+                      ? AppColors.goldGradient
+                      : const LinearGradient(
+                          colors: [Color(0xFF047857), Color(0xFF065F46)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                 ),
                 child: SafeArea(
                   child: Padding(
@@ -442,6 +448,7 @@ class _Podium extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final first = entries[0];
     final second = entries[1];
     final third = entries[2];
@@ -450,12 +457,28 @@ class _Podium extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF1A1A2E), Color(0xFF16213E)],
-        ),
+        color: isDark ? const Color(0xFF151F32) : Colors.white,
+        gradient: isDark
+            ? const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
+              )
+            : null,
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: isDark ? Colors.white.withOpacity(0.08) : const Color(0xFFE2E8F0),
+          width: 1,
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -463,15 +486,15 @@ class _Podium extends StatelessWidget {
         children: [
           // 2nd place
           _PodiumItem(entry: second, height: 80,
-              bgColor: AppColors.silver.withOpacity(0.2),
+              bgColor: AppColors.silver.withOpacity(isDark ? 0.2 : 0.15),
               medal: '🥈', offset: 0, leagueId: leagueId, season: season),
           // 1st place
           _PodiumItem(entry: first, height: 110,
-              bgColor: AppColors.gold.withOpacity(0.2),
+              bgColor: AppColors.gold.withOpacity(isDark ? 0.2 : 0.2),
               medal: '🥇', offset: -20, leagueId: leagueId, season: season),
           // 3rd place
           _PodiumItem(entry: third, height: 60,
-              bgColor: AppColors.bronze.withOpacity(0.2),
+              bgColor: AppColors.bronze.withOpacity(isDark ? 0.2 : 0.15),
               medal: '🥉', offset: 0, leagueId: leagueId, season: season),
         ],
       ),
@@ -504,7 +527,8 @@ class _PodiumItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Color nameColor = Colors.white;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    Color nameColor = isDark ? Colors.white : const Color(0xFF0F172A);
     if (season == 1) {
       if (entry.rank == 1) nameColor = AppColors.gold;
       if (entry.rank == 2) nameColor = AppColors.silver;

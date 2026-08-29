@@ -26,14 +26,24 @@ class AppColors {
   static const Color silver = Color(0xFFB0BEC5);
   static const Color bronze = Color(0xFFFF6D00);
 
-  // Light Theme
-  static const Color lightBackground = Color(0xFFF5F7FA);
+  // Light Theme - Matchday Clean Luxury Slate
+  static const Color lightBackground = Color(0xFFF1F5F9);
   static const Color lightSurface = Color(0xFFFFFFFF);
   static const Color lightCard = Color(0xFFFFFFFF);
-  static const Color lightTextPrimary = Color(0xFF1A1A2E);
-  static const Color lightTextSecondary = Color(0xFF6B7280);
-  static const Color lightDivider = Color(0xFFE5E7EB);
-  static const Color lightBorder = Color(0xFFD1D5DB);
+  static const Color lightTextPrimary = Color(0xFF0F172A);
+  static const Color lightTextSecondary = Color(0xFF64748B);
+  static const Color lightDivider = Color(0xFFE2E8F0);
+  static const Color lightBorder = Color(0xFFE2E8F0);
+
+  static const LinearGradient lightStadiumGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0xFFF8FAFC),
+      Color(0xFFF1F5F9),
+      Color(0xFFE2E8F0),
+    ],
+  );
 
   // Dark Theme - Stadium Electric Night
   static const Color darkBackground = Color(0xFF080C14);

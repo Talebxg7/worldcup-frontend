@@ -517,47 +517,67 @@ class _SummaryCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
+        color: isDark ? const Color(0xFF0F172A) : Colors.white,
+        gradient: isDark
+            ? const LinearGradient(
+                colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
+              )
+            : null,
+        border: Border.all(
+          color: isDark ? Colors.white.withOpacity(0.08) : const Color(0xFFE2E8F0),
+          width: 1,
         ),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Prediction summary'.tr(ref),
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
               fontWeight: FontWeight.w900,
               fontSize: 16,
             ),
           ),
           const SizedBox(height: 12),
-          _sumRow('Total predictions'.tr(ref), '$total'),
-          _sumRow('Correct winners'.tr(ref), '$correctWinners'),
-          _sumRow('Exact Scores'.tr(ref), '$exactScores'),
-          _sumRow('Weekly points'.tr(ref), '+$weeklyPoints', highlight: true),
+          _sumRow('Total predictions'.tr(ref), '$total', isDark: isDark),
+          _sumRow('Correct winners'.tr(ref), '$correctWinners', isDark: isDark),
+          _sumRow('Exact Scores'.tr(ref), '$exactScores', isDark: isDark),
+          _sumRow('Weekly points'.tr(ref), '+$weeklyPoints', isDark: isDark, highlight: true),
           if (hideUsername) ...[
             const SizedBox(height: 8),
-            const Divider(color: Colors.white12, height: 1),
+            Divider(color: isDark ? Colors.white12 : const Color(0xFFE2E8F0), height: 1),
             const SizedBox(height: 8),
             Row(
               children: [
                 Text(
                   'Global Rank:'.tr(ref),
-                  style: TextStyle(color: Colors.white.withOpacity(0.75), fontSize: 13),
+                  style: TextStyle(
+                    color: isDark ? Colors.white.withOpacity(0.75) : const Color(0xFF64748B),
+                    fontSize: 13,
+                  ),
                 ),
                 const SizedBox(width: 6),
                 const Text(
                   '(-)',
                   style: TextStyle(
-                    color: Colors.amberAccent,
+                    color: Colors.amber,
                     fontWeight: FontWeight.w900,
                     fontSize: 14,
                   ),
@@ -587,13 +607,16 @@ class _SummaryCard extends ConsumerWidget {
               children: [
                 Text(
                   'Global Rank:'.tr(ref),
-                  style: TextStyle(color: Colors.white.withOpacity(0.75), fontSize: 13),
+                  style: TextStyle(
+                    color: isDark ? Colors.white.withOpacity(0.75) : const Color(0xFF64748B),
+                    fontSize: 13,
+                  ),
                 ),
                 const SizedBox(width: 6),
                 Text(
                   '#$rank',
-                  style: const TextStyle(
-                    color: Colors.amberAccent,
+                  style: TextStyle(
+                    color: isDark ? Colors.amberAccent : const Color(0xFFD97706),
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -605,17 +628,25 @@ class _SummaryCard extends ConsumerWidget {
     );
   }
 
-  Widget _sumRow(String k, String v, {bool highlight = false}) {
+  Widget _sumRow(String k, String v, {required bool isDark, bool highlight = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(k, style: TextStyle(color: Colors.white.withOpacity(0.78), fontSize: 13)),
+          Text(
+            k,
+            style: TextStyle(
+              color: isDark ? Colors.white.withOpacity(0.78) : const Color(0xFF64748B),
+              fontSize: 13,
+            ),
+          ),
           Text(
             v,
             style: TextStyle(
-              color: highlight ? Colors.greenAccent : Colors.white,
+              color: highlight
+                  ? (isDark ? Colors.greenAccent : const Color(0xFF059669))
+                  : (isDark ? Colors.white : const Color(0xFF0F172A)),
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -632,6 +663,7 @@ class _JokerCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final used = (usedLabel ?? '').isNotEmpty;
     return Container(
       width: double.infinity,
@@ -639,7 +671,19 @@ class _JokerCard extends ConsumerWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         color: Theme.of(context).cardColor,
-        border: Border.all(color: Colors.amber.withOpacity(0.35)),
+        border: Border.all(
+          color: isDark ? Colors.amber.withOpacity(0.35) : const Color(0xFFFDE68A),
+          width: 1.2,
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: const Color(0xFFF59E0B).withOpacity(0.06),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

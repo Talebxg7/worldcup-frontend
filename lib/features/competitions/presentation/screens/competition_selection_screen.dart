@@ -169,9 +169,9 @@ class _CompetitionSelectionScreenState extends ConsumerState<CompetitionSelectio
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: isDark
-            ? const BoxDecoration(
-                gradient: LinearGradient(
+        decoration: BoxDecoration(
+          gradient: isDark
+              ? const LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
@@ -179,9 +179,9 @@ class _CompetitionSelectionScreenState extends ConsumerState<CompetitionSelectio
                     Color(0xFF080C14),
                     Color(0xFF05080E),
                   ],
-                ),
-              )
-            : null,
+                )
+              : AppColors.lightStadiumGradient,
+        ),
         child: _competitions == null 
               ? const Center(child: CircularProgressIndicator(color: AppColors.stadiumNeonGreen))
               : RefreshIndicator(

@@ -86,9 +86,12 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         color: AppColors.lightCard,
-        elevation: 2,
-        shadowColor: Colors.black.withOpacity(0.08),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        elevation: 0,
+        shadowColor: Colors.black.withOpacity(0.04),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: AppColors.lightBorder, width: 1),
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(

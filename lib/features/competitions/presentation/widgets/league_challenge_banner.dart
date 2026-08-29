@@ -12,19 +12,30 @@ class LeagueChallengeBanner extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF0F4C3A), Color(0xFF07291F)],
+        gradient: LinearGradient(
+          colors: isDark
+              ? const [Color(0xFF0F4C3A), Color(0xFF07291F)]
+              : const [Color(0xFF059669), Color(0xFF047857), Color(0xFF065F46)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFFFD700).withOpacity(0.4), width: 1.2),
+        border: Border.all(
+          color: isDark
+              ? const Color(0xFFFFD700).withOpacity(0.4)
+              : const Color(0xFFFFD700).withOpacity(0.6),
+          width: 1.2,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.12),
-            blurRadius: 10,
+            color: isDark
+                ? Colors.black.withOpacity(0.20)
+                : const Color(0xFF059669).withOpacity(0.25),
+            blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],

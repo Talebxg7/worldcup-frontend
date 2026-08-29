@@ -883,26 +883,46 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: isDark ? const Color(0xFF151F32) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.25)),
+        border: Border.all(
+          color: isDark ? color.withOpacity(0.25) : const Color(0xFFE2E8F0),
+          width: 1,
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ],
       ),
       padding: const EdgeInsets.all(14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: color, size: 26),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
           const SizedBox(height: 10),
           Text(
             value,
             style: GoogleFonts.outfit(
               fontSize: 22,
               fontWeight: FontWeight.w900,
-              color: theme.colorScheme.onSurface,
+              color: isDark ? AppColors.darkTextPrimary : const Color(0xFF0F172A),
             ),
           ),
           const SizedBox(height: 4),
@@ -910,8 +930,8 @@ class _StatCard extends StatelessWidget {
             label,
             style: GoogleFonts.outfit(
               fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: theme.colorScheme.onSurface.withOpacity(0.62),
+              fontWeight: FontWeight.w600,
+              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
