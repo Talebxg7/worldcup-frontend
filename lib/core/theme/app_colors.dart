@@ -26,22 +26,22 @@ class AppColors {
   static const Color silver = Color(0xFFB0BEC5);
   static const Color bronze = Color(0xFFFF6D00);
 
-  // Light Theme - #D9D9D9 Soft Neutral Matte
-  static const Color lightBackground = Color(0xFFD9D9D9);
-  static const Color lightSurface = Color(0xFFE8E8E8);
-  static const Color lightCard = Color(0xFFEDEDED);
+  // Light Theme - Matchday Clean Luxury Slate
+  static const Color lightBackground = Color(0xFFF1F5F9);
+  static const Color lightSurface = Color(0xFFFFFFFF);
+  static const Color lightCard = Color(0xFFFFFFFF);
   static const Color lightTextPrimary = Color(0xFF0F172A);
-  static const Color lightTextSecondary = Color(0xFF556070);
-  static const Color lightDivider = Color(0xFFC8C8C8);
-  static const Color lightBorder = Color(0xFFC8C8C8);
+  static const Color lightTextSecondary = Color(0xFF64748B);
+  static const Color lightDivider = Color(0xFFE2E8F0);
+  static const Color lightBorder = Color(0xFFE2E8F0);
 
   static const LinearGradient lightStadiumGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     colors: [
-      Color(0xFFE2E2E2),
-      Color(0xFFD9D9D9),
-      Color(0xFFCECECE),
+      Color(0xFFF8FAFC),
+      Color(0xFFF1F5F9),
+      Color(0xFFE2E8F0),
     ],
   );
 

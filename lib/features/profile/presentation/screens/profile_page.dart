@@ -648,42 +648,24 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  ElevatedButton.icon(
+                  OutlinedButton.icon(
                     onPressed: _confirmLogout,
-                    icon: const Icon(Icons.logout_rounded, color: Colors.white),
-                    label: Text(
-                      'Log out'.tr(ref),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 15,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
+                    icon: const Icon(Icons.logout_rounded),
+                    label: Text('Log out'.tr(ref)),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: theme.colorScheme.onSurface,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                   const SizedBox(height: 10),
-                  ElevatedButton.icon(
+                  OutlinedButton.icon(
                     onPressed: _confirmDeleteAccount,
-                    icon: const Icon(Icons.delete_forever_rounded, color: Colors.white),
-                    label: Text(
-                      'Delete account'.tr(ref),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 15,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFDC2626),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
+                    icon: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
+                    label: Text('Delete account'.tr(ref), style: const TextStyle(color: Colors.redAccent)),
+                    style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: const BorderSide(color: Colors.redAccent),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
