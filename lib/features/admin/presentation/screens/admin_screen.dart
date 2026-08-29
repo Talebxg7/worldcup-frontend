@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -913,6 +914,13 @@ Future<void> _showSyncPlayersDialog(BuildContext context, WidgetRef ref) async {
 
 Future<void> _showFeedbackViewerDialog(BuildContext context) async {
   String selectedCategory = 'All';
+
+  if (FirebaseAuth.instance.currentUser == null) {
+    try {
+      await FirebaseAuth.instance.signInAnonymously();
+    } catch (_) {}
+  }
+  if (!context.mounted) return;
 
   await showDialog(
     context: context,

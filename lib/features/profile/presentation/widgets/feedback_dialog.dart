@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 
 class FeedbackDialog extends ConsumerStatefulWidget {
@@ -55,10 +57,26 @@ class _FeedbackDialogState extends ConsumerState<FeedbackDialog> {
     });
 
     try {
+      // Ensure Firebase Auth session exists so Firestore security rules permit write
+      if (FirebaseAuth.instance.currentUser == null) {
+        try {
+          await FirebaseAuth.instance.signInAnonymously();
+        } catch (_) {}
+      }
+
       final user = ref.read(authStateProvider).valueOrNull;
       
+      // Also post to backend if available
+      try {
+        await ApiClient.instance.post('/feedback', data: {
+          'category': _selectedCategory,
+          'rating': _rating,
+          'message': text,
+        });
+      } catch (_) {}
+
       await FirebaseFirestore.instance.collection('feedback').add({
-        'userId': user?.id ?? 'anonymous',
+        'userId': user?.id.toString() ?? FirebaseAuth.instance.currentUser?.uid ?? 'anonymous',
         'username': user?.username ?? 'Anonymous User',
         'email': user?.email ?? '',
         'category': _selectedCategory,
@@ -76,7 +94,7 @@ class _FeedbackDialogState extends ConsumerState<FeedbackDialog> {
       Navigator.of(context).pop();
     } catch (e) {
       if (!mounted) return;
-      setState(() => _error = 'Failed to submit feedback. Please try again.');
+      setState(() => _error = 'Failed to submit feedback: $e');
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
