@@ -18,6 +18,7 @@ import '../../../../core/localization/locale_provider.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../widgets/edit_profile_dialog.dart';
+import '../widgets/feedback_dialog.dart';
 
 /// Production profile screen backed by Firestore `users/{uid}` and Firebase Auth.
 class ProfilePage extends ConsumerStatefulWidget {
@@ -606,6 +607,35 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                               SnackBar(content: Text('Email copied to clipboard'.tr(ref))),
                             );
                           },
+                        ),
+                        const Divider(height: 1),
+                        ListTile(
+                          leading: const Icon(Icons.rate_review_outlined, color: Color(0xFF38BDF8)),
+                          title: Text('Send Feedback'.tr(ref), style: const TextStyle(fontWeight: FontWeight.w600)),
+                          subtitle: Text('Suggestions, bugs & feature requests'.tr(ref)),
+                          trailing: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF2563EB).withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Feedback',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: const Color(0xFF38BDF8),
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(Icons.chevron_right_rounded, size: 16, color: Color(0xFF38BDF8)),
+                              ],
+                            ),
+                          ),
+                          onTap: () => FeedbackDialog.show(context),
                         ),
                         const Divider(height: 1),
                         ListTile(
