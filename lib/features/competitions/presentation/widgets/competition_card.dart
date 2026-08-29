@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:io';
 import 'dart:async';
 import 'dart:math' as math;
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../models/competition.dart';
 import '../../../../services/football_api_service.dart';
 
@@ -26,24 +26,36 @@ class CompetitionCard extends ConsumerWidget {
   final bool isLoadingCount;
   final VoidCallback? onTap;
   final List<Color> gradientColors;
-  static const Map<int, String> _leagueBackgroundById = {
-    39: 'assets/images/premier_league.jpg',
-    140: 'assets/images/la_liga.png',
-    135: 'assets/images/serie_a.jpg',
-    78: 'assets/images/bundesliga.png',
-    61: 'assets/images/ligue1_bg.png',
-    233: 'assets/images/egyptian_league.png',
-    94: 'assets/images/portuguese.webp',
-    1: 'assets/images/world_cup.png',
-    2: 'assets/images/uefa_champions_bg.png',
-    3: 'assets/images/uefa_europa_bg.png',
-    6: 'assets/images/afcon_bg.png',
-    9: 'assets/images/copa_america_bg.png',
-    307: 'assets/images/saudi_league.png',
-    305: 'assets/images/qatar_league.jpg',
-    387: 'assets/images/jordan_league_bg.jpg',
-    200: 'assets/images/botola_pro.jpg',
-    542: 'assets/images/iraqi_league.jpg',
+
+  static const Map<int, String> _leagueFlagById = {
+    39: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', // Premier League -> England
+    140: '🇪🇸',   // La Liga -> Spain
+    135: '🇮🇹',   // Serie A -> Italy
+    78: '🇩🇪',    // Bundesliga -> Germany
+    61: '🇫🇷',    // Ligue 1 -> France
+    233: '🇪🇬',   // Egyptian Premier League -> Egypt
+    94: '🇵🇹',    // Primeira Liga -> Portugal
+    1: '🌍',     // FIFA World Cup -> World
+    2: '🇪🇺',     // UEFA Champions League -> Europe
+    3: '🇪🇺',     // UEFA Europa League -> Europe
+    6: '🌍',     // AFCON -> Africa
+    9: '🌎',     // Copa America -> South America
+    307: '🇸🇦',   // Saudi Pro League -> Saudi Arabia
+    305: '🇶🇦',   // Qatar Stars League -> Qatar
+    387: '🇯🇴',   // Jordan League -> Jordan
+    200: '🇲🇦',   // Botola Pro -> Morocco
+    542: '🇮🇶',   // Iraqi League -> Iraq
+  };
+
+  static const Map<int, IconData> _leagueIconById = {
+    1: Icons.emoji_events_rounded, // World Cup Trophy
+    2: Icons.stars_rounded,        // Champions League Stars
+    3: Icons.shield_rounded,       // Europa League
+    39: Icons.sports_soccer_rounded, // Premier League
+    140: Icons.sports_soccer_rounded, // La Liga
+    78: Icons.sports_soccer_rounded, // Bundesliga
+    135: Icons.sports_soccer_rounded, // Serie A
+    61: Icons.sports_soccer_rounded, // Ligue 1
   };
 
   const CompetitionCard({
@@ -58,7 +70,9 @@ class CompetitionCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final disabled = !competition.isEnabled;
-    final backgroundAsset = _leagueBackgroundById[competition.leagueId];
+    final flag = _leagueFlagById[competition.leagueId] ?? competition.emoji;
+    final watermarkIcon = _leagueIconById[competition.leagueId] ?? Icons.sports_soccer_rounded;
+
     final badgeText = isLoadingCount
         ? 'Loading...'.tr(ref)
         : upcomingCount == null
@@ -80,176 +94,216 @@ class CompetitionCard extends ConsumerWidget {
       }
     });
 
+    final hasUpcoming = upcomingCount != null && upcomingCount! > 0;
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: disabled ? null : onTap,
-        borderRadius: BorderRadius.circular(18),
-        child: Ink(
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(20),
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: gradientColors,
             ),
             border: Border.all(
-              color: Colors.black.withOpacity(0.08),
-              width: 1,
+              color: Colors.white.withOpacity(0.16),
+              width: 1.2,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: gradientColors.first.withOpacity(0.35),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
-          child: Stack(
-            children: [
-              if (backgroundAsset != null)
-                Positioned.fill(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(18),
-                    child: _buildBackground(backgroundAsset),
-                  ),
-                ),
-              if (backgroundAsset != null)
-                Positioned.fill(
-                  child: DecoratedBox(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Stack(
+              children: [
+                // Subtle Ambient Stadium Light Glow
+                Positioned(
+                  top: -40,
+                  right: -40,
+                  child: Container(
+                    width: 140,
+                    height: 140,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(18),
-                      color: Colors.black.withOpacity(0.20),
+                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(0.10),
                     ),
                   ),
                 ),
-              Padding(
-                padding: const EdgeInsets.all(14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          competition.emoji,
-                          style: const TextStyle(fontSize: 18),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.25),
-                            borderRadius: BorderRadius.circular(999),
-                            border: Border.all(
-                              color: (upcomingCount != null && upcomingCount! > 0)
-                                  ? const Color(0xFF00FF66).withOpacity(0.5)
-                                  : Colors.white.withOpacity(0.12),
-                              width: 1.2,
+
+                // Sleek Watermark Trophy / Emblem Accent in background
+                Positioned(
+                  bottom: -15,
+                  right: -10,
+                  child: Opacity(
+                    opacity: 0.12,
+                    child: Icon(
+                      watermarkIcon,
+                      size: 110,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+
+                // Card Foreground Content
+                Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Top Row: Country Flag Pill & Upcoming Match Badge
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Frosted Country Flag Badge
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.35),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.20),
+                                width: 1,
+                              ),
+                            ),
+                            child: Text(
+                              flag,
+                              style: const TextStyle(fontSize: 19),
                             ),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (upcomingCount != null && upcomingCount! > 0) ...[
-                                const PulsingGreenDot(),
-                                const SizedBox(width: 6),
-                              ],
-                              Text(
-                                badgeText,
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.95),
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w900,
-                                ),
+
+                          // Upcoming Matches Pill
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.40),
+                              borderRadius: BorderRadius.circular(999),
+                              border: Border.all(
+                                color: hasUpcoming
+                                    ? AppColors.stadiumNeonGreen.withOpacity(0.7)
+                                    : Colors.white.withOpacity(0.15),
+                                width: 1.2,
                               ),
-                            ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (hasUpcoming) ...[
+                                  const PulsingGreenDot(),
+                                  const SizedBox(width: 6),
+                                ],
+                                Text(
+                                  badgeText,
+                                  style: TextStyle(
+                                    color: hasUpcoming
+                                        ? AppColors.stadiumNeonGreen
+                                        : Colors.white.withOpacity(0.85),
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.2,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
+                        ],
+                      ),
+
+                      const Spacer(),
+
+                      // League Name
+                      Text(
+                        competition.name.tr(ref),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.3,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black54,
+                              blurRadius: 6,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
                         ),
+                      ),
+
+                      const SizedBox(height: 3),
+
+                      // Subtitle / Country in Vibrant Gold
+                      Text(
+                        competition.subtitle.tr(ref),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: const Color(0xFFFFD700).withOpacity(0.95),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+
+                      // Live Ticker if active
+                      if (tickerItems.isNotEmpty && hasUpcoming) ...[
+                        const SizedBox(height: 8),
+                        ScrollingTicker(items: tickerItems),
                       ],
-                    ),
-                    const Spacer(),
-                    Text(
-                      competition.name.tr(ref),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      competition.subtitle.tr(ref),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Color(0xFFFFD700), // Permanently Gold/Amber color
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    if (tickerItems.isNotEmpty && upcomingCount != null && upcomingCount! > 0) ...[
-                      const SizedBox(height: 8),
-                      ScrollingTicker(items: tickerItems),
                     ],
-                  ],
+                  ),
                 ),
-              ),
-              if (disabled)
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(18),
-                      color: Colors.black.withOpacity(0.28),
-                    ),
-                    child: Align(
-                      alignment: Alignment.topRight,
-                      child: Container(
-                        margin: const EdgeInsets.all(12),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.18),
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: Text(
-                          'Coming soon'.tr(ref),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
+
+                // Coming Soon Disabled Overlay
+                if (disabled)
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.black.withOpacity(0.55),
+                      ),
+                      child: Align(
+                        alignment: Alignment.topRight,
+                        child: Container(
+                          margin: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.20),
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(color: Colors.white24),
+                          ),
+                          child: Text(
+                            'Coming soon'.tr(ref),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildBackground(String source) {
-    if (source.startsWith('assets/')) {
-      return Image.asset(
-        source,
-        fit: BoxFit.cover,
-        alignment: Alignment.center,
-      );
-    }
-    if (source.startsWith('http://') || source.startsWith('https://')) {
-      return Image.network(
-        source,
-        fit: BoxFit.cover,
-        alignment: Alignment.center,
-      );
-    }
-    return Image.file(
-      File(source),
-      fit: BoxFit.cover,
-      alignment: Alignment.center,
-      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
     );
   }
 }
@@ -281,7 +335,7 @@ class _ScrollingTickerState extends State<ScrollingTicker> {
       if (!_scrollController.hasClients) return;
       final maxScroll = _scrollController.position.maxScrollExtent;
       final currentScroll = _scrollController.offset;
-      
+
       if (currentScroll >= maxScroll) {
         _scrollController.jumpTo(0.0);
       } else {
@@ -300,7 +354,7 @@ class _ScrollingTickerState extends State<ScrollingTicker> {
   @override
   Widget build(BuildContext context) {
     final doubledItems = [...widget.items, ...widget.items, ...widget.items];
-    
+
     return Container(
       height: 24,
       width: double.infinity,
@@ -346,7 +400,6 @@ String _abbreviate(String name) {
     if (firstWord == 'MANCHESTER' && secondWord == 'UNITED') return 'MUN';
     if (firstWord == 'BAYERN' && secondWord == 'MUNICH') return 'BAY';
     if (firstWord == 'ATLETICO' && secondWord == 'MADRID') return 'ATM';
-    // If not standard, take first letter of each word
     if (parts.length >= 3) {
       return '${parts[0][0]}${parts[1][0]}${parts[2][0]}'.toUpperCase();
     }
@@ -394,10 +447,10 @@ class _PulsingGreenDotState extends State<PulsingGreenDot> with SingleTickerProv
           height: 8,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: const Color(0xFF00FF66).withOpacity(0.95),
+            color: AppColors.stadiumNeonGreen,
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF00FF66).withOpacity(0.8 * _controller.value),
+                color: AppColors.stadiumNeonGreen.withOpacity(0.8 * _controller.value),
                 blurRadius: 10 * _controller.value,
                 spreadRadius: 4.0 * _controller.value,
               ),

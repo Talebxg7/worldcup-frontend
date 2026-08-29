@@ -132,25 +132,31 @@ class _CompetitionSelectionScreenState extends ConsumerState<CompetitionSelectio
     } catch (e) {
       debugPrint('Failed to fetch/process announcement: $e');
     }
-  }
-
-  @override
+  }  @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
+      extendBodyBehindAppBar: false,
       appBar: AppBar(
-        title: Text(widget.title.tr(ref)),
+        title: Text(
+          widget.title.tr(ref),
+          style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.5),
+        ),
         centerTitle: true,
+        elevation: 0,
+        backgroundColor: isDark ? const Color(0xFF080C14).withOpacity(0.95) : null,
         actions: [
           if (widget.showTopActions) ...[
             IconButton(
               tooltip: 'Live'.tr(ref),
               onPressed: () => context.go('/home/live'),
-              icon: const Icon(Icons.sports_soccer_rounded),
+              icon: const Icon(Icons.sports_soccer_rounded, color: AppColors.stadiumNeonGreen),
             ),
             IconButton(
               tooltip: 'Standings'.tr(ref),
               onPressed: () => context.go('/home/standings'),
-              icon: const Icon(Icons.leaderboard_rounded),
+              icon: const Icon(Icons.leaderboard_rounded, color: AppColors.stadiumTrophyGold),
             ),
           ],
           IconButton(
@@ -159,131 +165,151 @@ class _CompetitionSelectionScreenState extends ConsumerState<CompetitionSelectio
           ),
         ],
       ),
-      body: _competitions == null 
-            ? const Center(child: CircularProgressIndicator())
-            : RefreshIndicator(
-          onRefresh: _refresh,
-          child: LayoutBuilder(
-            builder: (context, c) {
-              final w = c.maxWidth;
-              final cols = w < 560
-                  ? 2
-                  : w < 900
-                      ? 3
-                      : 4;
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: isDark
+            ? const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFF0C1322),
+                    Color(0xFF080C14),
+                    Color(0xFF05080E),
+                  ],
+                ),
+              )
+            : null,
+        child: _competitions == null 
+              ? const Center(child: CircularProgressIndicator(color: AppColors.stadiumNeonGreen))
+              : RefreshIndicator(
+            onRefresh: _refresh,
+            color: AppColors.stadiumNeonGreen,
+            child: LayoutBuilder(
+              builder: (context, c) {
+                final w = c.maxWidth;
+                final cols = w < 560
+                    ? 2
+                    : w < 900
+                        ? 3
+                        : 4;
 
-              return CustomScrollView(
-                slivers: [
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                    sliver: SliverToBoxAdapter(
-                      child: const LeagueChallengeBanner(),
-                    ),
-                  ),
-                  if (_competitions!.isNotEmpty)
+                return CustomScrollView(
+                  slivers: [
                     SliverPadding(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                       sliver: SliverToBoxAdapter(
-                        child: AspectRatio(
-                          aspectRatio: (cols == 2 ? 2.2 : 3.3) / 1.1,
-                          child: CompetitionCard(
-                            competition: _competitions![0],
-                            gradientColors: _gradientFor(_competitions![0].leagueId),
-                            upcomingCount: _competitions![0].upcomingCount,
-                            isLoadingCount: false,
-                            onTap: () {
-                              final onSelect = widget.onSelect;
-                              if (onSelect != null) {
-                                onSelect(context, _competitions![0]);
-                                return;
-                              }
-                              context.go(
-                                '/home/fixtures?leagueId=${_competitions![0].leagueId}&leagueName=${Uri.encodeComponent(_competitions![0].name)}',
-                              );
-                            },
-                          ),
-                        ),
+                        child: const LeagueChallengeBanner(),
                       ),
                     ),
-                  if (_competitions!.length > 1)
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 16),
-                      sliver: SliverGrid(
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: cols,
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
-                          childAspectRatio: 1.1,
-                        ),
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            final comp = _competitions![index + 1];
-                            return CompetitionCard(
-                              competition: comp,
-                              gradientColors: _gradientFor(comp.leagueId),
-                              upcomingCount: comp.upcomingCount,
+                    if (_competitions!.isNotEmpty)
+                      SliverPadding(
+                        padding: const EdgeInsets.all(16),
+                        sliver: SliverToBoxAdapter(
+                          child: AspectRatio(
+                            aspectRatio: (cols == 2 ? 2.2 : 3.3) / 1.1,
+                            child: CompetitionCard(
+                              competition: _competitions![0],
+                              gradientColors: _gradientFor(_competitions![0].leagueId),
+                              upcomingCount: _competitions![0].upcomingCount,
                               isLoadingCount: false,
                               onTap: () {
                                 final onSelect = widget.onSelect;
                                 if (onSelect != null) {
-                                  onSelect(context, comp);
+                                  onSelect(context, _competitions![0]);
                                   return;
                                 }
                                 context.go(
-                                  '/home/fixtures?leagueId=${comp.leagueId}&leagueName=${Uri.encodeComponent(comp.name)}',
+                                  '/home/fixtures?leagueId=${_competitions![0].leagueId}&leagueName=${Uri.encodeComponent(_competitions![0].name)}',
                                 );
                               },
-                            );
-                          },
-                          childCount: _competitions!.length - 1,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                ],
-              );
-            },
+                    if (_competitions!.length > 1)
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 16),
+                        sliver: SliverGrid(
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: cols,
+                            mainAxisSpacing: 12,
+                            crossAxisSpacing: 12,
+                            childAspectRatio: 1.1,
+                          ),
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              final comp = _competitions![index + 1];
+                              return CompetitionCard(
+                                competition: comp,
+                                gradientColors: _gradientFor(comp.leagueId),
+                                upcomingCount: comp.upcomingCount,
+                                isLoadingCount: false,
+                                onTap: () {
+                                  final onSelect = widget.onSelect;
+                                  if (onSelect != null) {
+                                    onSelect(context, comp);
+                                    return;
+                                  }
+                                  context.go(
+                                    '/home/fixtures?leagueId=${comp.leagueId}&leagueName=${Uri.encodeComponent(comp.name)}',
+                                  );
+                                },
+                              );
+                            },
+                            childCount: _competitions!.length - 1,
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
           ),
-        ),
+      ),
     );
   }
 
   List<Color> _gradientFor(int leagueId) {
     switch (leagueId) {
-      case 39: // Premier League
-        return const [Color(0xFF8B5CF6), Color(0xFFEC4899)];
-      case 140: // La Liga
-        return const [Color(0xFFEF4444), Color(0xFFF97316)];
-      case 135: // Serie A
-        return const [Color(0xFF3B82F6), Color(0xFF60A5FA)];
-      case 78: // Bundesliga
-        return const [Color(0xFFB91C1C), Color(0xFFFB7185)];
-      case 61: // Ligue 1
-        return const [Color(0xFF06B6D4), Color(0xFF3B82F6)];
-      case 233: // Egypt
-        return const [Color(0xFFF59E0B), Color(0xFF10B981)];
-      case 94: // Portugal
-        return const [Color(0xFF22C55E), Color(0xFF16A34A)];
-      case 1: // World Cup
-        return const [Color(0xFFF59E0B), Color(0xFFF97316)];
-      case 2: // UCL
-        return const [Color(0xFF7C3AED), Color(0xFF60A5FA)];
-      case 3: // UEL
-        return const [Color(0xFFFB923C), Color(0xFFFDE047)];
-      case 6: // AFCON
-        return const [Color(0xFF10B981), Color(0xFF22C55E)];
-      case 9: // Copa America
-        return const [Color(0xFF0EA5E9), Color(0xFF22C55E)];
-      case 307: // Saudi Pro League
-        return const [Color(0xFF1D4ED8), Color(0xFF0F766E)];
-      case 305: // Qatar Stars League
-        return const [Color(0xFF9D174D), Color(0xFFBE185D)];
-      case 200: // Botola Pro
-        return const [Color(0xFFDC2626), Color(0xFF16A34A)];
-      case 542: // Iraqi League
-        return const [Color(0xFF047857), Color(0xFF1E40AF)];
+      case 39: // Premier League (Royal Purple & Vivid Violet)
+        return const [Color(0xFF2E0854), Color(0xFF6B21A8), Color(0xFF9333EA)];
+      case 140: // La Liga (Crimson & Solar Amber)
+        return const [Color(0xFF7F1D1D), Color(0xFFDC2626), Color(0xFFEA580C)];
+      case 135: // Serie A (Italian Azzurro & Deep Sapphire)
+        return const [Color(0xFF0F172A), Color(0xFF1E40AF), Color(0xFF0284C7)];
+      case 78: // Bundesliga (Midnight Charcoal & Vivid Scarlet)
+        return const [Color(0xFF18181B), Color(0xFF991B1B), Color(0xFFDC2626)];
+      case 61: // Ligue 1 (French Electric Blue & Neon Emerald)
+        return const [Color(0xFF0C1B33), Color(0xFF0284C7), Color(0xFF059669)];
+      case 1: // FIFA World Cup (FIFA Emerald & Trophy Gold)
+        return const [Color(0xFF064E3B), Color(0xFF047857), Color(0xFFD97706)];
+      case 2: // UEFA Champions League (Starball Deep Space Navy & Cyan)
+        return const [Color(0xFF030B1E), Color(0xFF0F2B66), Color(0xFF1D4ED8)];
+      case 3: // UEFA Europa League (Europa Midnight & Electric Copper)
+        return const [Color(0xFF18181B), Color(0xFF9A3412), Color(0xFFEA580C)];
+      case 94: // Primeira Liga (Portuguese Forest & Crimson)
+        return const [Color(0xFF064E3B), Color(0xFF15803D), Color(0xFFB91C1C)];
+      case 307: // Saudi Pro League (Saudi Royal Green & Emerald)
+        return const [Color(0xFF064E3B), Color(0xFF059669), Color(0xFF10B981)];
+      case 233: // Egyptian Premier League (Pharaoh Midnight Gold & Crimson)
+        return const [Color(0xFF1C1917), Color(0xFFB45309), Color(0xFFDC2626)];
+      case 305: // Qatar Stars League (Qatari Maroon & Vivid Berry)
+        return const [Color(0xFF4C0519), Color(0xFF881337), Color(0xFFBE123C)];
+      case 200: // Botola Pro (Moroccan Red & Emerald)
+        return const [Color(0xFF7F1D1D), Color(0xFF991B1B), Color(0xFF047857)];
+      case 542: // Iraqi League (Mesopotamian Green & Azure)
+        return const [Color(0xFF064E3B), Color(0xFF0F766E), Color(0xFF1E40AF)];
+      case 6: // AFCON (African Sun & Green)
+        return const [Color(0xFF78350F), Color(0xFFD97706), Color(0xFF059669)];
+      case 9: // Copa America (South American Blue & Sun)
+        return const [Color(0xFF0369A1), Color(0xFF0284C7), Color(0xFFCA8A04)];
+      case 387: // Jordan League (Jordanian Midnight & Emerald)
+        return const [Color(0xFF18181B), Color(0xFF047857), Color(0xFFB91C1C)];
       default:
-        return const [Color(0xFF0EA5E9), Color(0xFF3B82F6)];
+        return const [Color(0xFF0F172A), Color(0xFF0284C7), Color(0xFF10B981)];
     }
-  }
+  } }
 }
 

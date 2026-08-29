@@ -233,10 +233,10 @@ class AppTheme {
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: AppColors.darkSurface,
-        selectedItemColor: AppColors.primary,
+        selectedItemColor: AppColors.stadiumNeonGreen,
         unselectedItemColor: AppColors.darkTextSecondary,
         type: BottomNavigationBarType.fixed,
-        elevation: 8,
+        elevation: 12,
       ),
       dividerTheme: const DividerThemeData(
         color: AppColors.darkDivider,

@@ -35,16 +35,32 @@ class AppColors {
   static const Color lightDivider = Color(0xFFE5E7EB);
   static const Color lightBorder = Color(0xFFD1D5DB);
 
-  // Dark Theme
-  static const Color darkBackground = Color(0xFF0D1117);
-  static const Color darkSurface = Color(0xFF161B22);
-  static const Color darkCard = Color(0xFF21262D);
-  static const Color darkTextPrimary = Color(0xFFF0F6FC);
-  static const Color darkTextSecondary = Color(0xFF8B949E);
-  static const Color darkDivider = Color(0xFF30363D);
-  static const Color darkBorder = Color(0xFF30363D);
+  // Dark Theme - Stadium Electric Night
+  static const Color darkBackground = Color(0xFF080C14);
+  static const Color darkSurface = Color(0xFF0F172A);
+  static const Color darkCard = Color(0xFF151F32);
+  static const Color darkTextPrimary = Color(0xFFF8FAFC);
+  static const Color darkTextSecondary = Color(0xFF94A3B8);
+  static const Color darkDivider = Color(0xFF1E293B);
+  static const Color darkBorder = Color(0xFF334155);
+
+  // Stadium Electric Accents
+  static const Color stadiumNeonGreen = Color(0xFF00FF87);
+  static const Color stadiumElectricCyan = Color(0xFF00E5FF);
+  static const Color stadiumTrophyGold = Color(0xFFFFD700);
+  static const Color stadiumElectricPurple = Color(0xFF8B5CF6);
 
   // Gradients
+  static const LinearGradient stadiumBackgroundGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0xFF0A1220),
+      Color(0xFF080C14),
+      Color(0xFF06090F),
+    ],
+  );
+
   static const LinearGradient heroGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
