@@ -66,63 +66,23 @@ class MainShell extends ConsumerWidget {
           },
           items: [
             BottomNavigationBarItem(
-              icon: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: currentIndex == 0 ? AppColors.primary.withOpacity(0.12) : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Icon(Icons.sports_soccer_rounded),
-              ),
+              icon: const Icon(Icons.sports_soccer_rounded),
               label: 'Matches'.tr(ref),
             ),
             BottomNavigationBarItem(
-              icon: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: currentIndex == 1 ? AppColors.primary.withOpacity(0.12) : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Icon(Icons.assignment_rounded),
-              ),
+              icon: const Icon(Icons.assignment_rounded),
               label: 'Predictions'.tr(ref),
             ),
             BottomNavigationBarItem(
-              icon: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: currentIndex == 2 ? AppColors.primary.withOpacity(0.12) : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Icon(Icons.people_rounded),
-              ),
+              icon: const Icon(Icons.people_rounded),
               label: 'Mini Leagues'.tr(ref),
             ),
             BottomNavigationBarItem(
-              icon: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: currentIndex == 3 ? AppColors.primary.withOpacity(0.12) : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Icon(Icons.bar_chart_rounded),
-              ),
+              icon: const Icon(Icons.bar_chart_rounded),
               label: 'Leaderboard'.tr(ref),
             ),
             BottomNavigationBarItem(
-              icon: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: currentIndex == 4 ? AppColors.primary.withOpacity(0.12) : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Icon(Icons.person_rounded),
-              ),
+              icon: const Icon(Icons.person_rounded),
               label: 'Profile'.tr(ref),
             ),
           ],

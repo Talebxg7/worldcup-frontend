@@ -89,6 +89,7 @@ class _CreateLeagueDialogState extends State<CreateLeagueDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final cs = theme.colorScheme;
 
     return Dialog(
@@ -143,11 +144,29 @@ class _CreateLeagueDialogState extends State<CreateLeagueDialog> {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              Text(
+                'Select Competition',
+                style: GoogleFonts.outfit(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: cs.onSurface.withOpacity(0.85),
+                ),
+              ),
+              const SizedBox(height: 6),
               DropdownButtonFormField<String>(
                 value: selectedCompetition,
-                decoration: const InputDecoration(
-                  labelText: 'Select Competition',
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  fillColor: isDark ? AppColors.darkCard : const Color(0xFFF1F5F9),
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: isDark ? AppColors.darkBorder : const Color(0xFFCBD5E1)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: isDark ? AppColors.darkBorder : const Color(0xFFCBD5E1)),
+                  ),
                 ),
                 isExpanded: true,
                 items: _competitions

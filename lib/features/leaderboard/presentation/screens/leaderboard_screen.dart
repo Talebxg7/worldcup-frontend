@@ -262,7 +262,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
                   gradient: isDark
                       ? AppColors.goldGradient
                       : const LinearGradient(
-                          colors: [Color(0xFF047857), Color(0xFF065F46)],
+                          colors: [Color(0xFF0F172A), Color(0xFF064E3B), Color(0xFF022C22)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -336,12 +336,18 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
                       labelStyle: TextStyle(
                         color: selected
                             ? Colors.white
-                            : (isDark ? Colors.white70 : Colors.black87),
-                        fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                            : (isDark ? Colors.white70 : const Color(0xFF0F172A)),
+                        fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                        fontSize: 13,
                       ),
-                      selectedColor: AppColors.primary,
-                      backgroundColor: isDark ? AppColors.darkCard : AppColors.lightBackground,
-                      side: BorderSide.none,
+                      selectedColor: const Color(0xFF047857),
+                      backgroundColor: isDark ? AppColors.darkCard : Colors.white,
+                      side: BorderSide(
+                        color: selected
+                            ? Colors.transparent
+                            : (isDark ? Colors.white12 : const Color(0xFFCBD5E1)),
+                        width: 1,
+                      ),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     );
                   },
@@ -457,28 +463,24 @@ class _Podium extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF151F32) : Colors.white,
-        gradient: isDark
-            ? const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
-              )
-            : null,
+        color: const Color(0xFF0F172A),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
+        ),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isDark ? Colors.white.withOpacity(0.08) : const Color(0xFFE2E8F0),
+          color: Colors.white.withOpacity(0.12),
           width: 1,
         ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -527,8 +529,7 @@ class _PodiumItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    Color nameColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    Color nameColor = Colors.white;
     if (season == 1) {
       if (entry.rank == 1) nameColor = AppColors.gold;
       if (entry.rank == 2) nameColor = AppColors.silver;
@@ -690,9 +691,13 @@ class _LeaderboardRow extends ConsumerWidget {
                       Text(
                         entry.username,
                         style: TextStyle(
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w700,
                           fontSize: 14,
-                          color: isCurrentUser ? AppColors.primary : null,
+                          color: isCurrentUser
+                              ? const Color(0xFF047857)
+                              : (Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.white
+                                  : const Color(0xFF0F172A)),
                         ),
                       ),
                       if (isCurrentUser) ...[

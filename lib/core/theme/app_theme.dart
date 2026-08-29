@@ -84,6 +84,13 @@ class AppTheme {
           color: AppColors.lightTextPrimary,
         ),
       ),
+      tabBarTheme: TabBarThemeData(
+        labelColor: const Color(0xFF047857),
+        unselectedLabelColor: AppColors.lightTextSecondary,
+        indicatorColor: const Color(0xFF047857),
+        labelStyle: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.w700),
+        unselectedLabelStyle: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.w500),
+      ),
       cardTheme: CardThemeData(
         color: AppColors.lightCard,
         elevation: 0,
@@ -137,7 +144,7 @@ class AppTheme {
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: AppColors.lightSurface,
-        selectedItemColor: AppColors.primary,
+        selectedItemColor: Color(0xFF047857),
         unselectedItemColor: AppColors.lightTextSecondary,
         type: BottomNavigationBarType.fixed,
         elevation: 8,
@@ -185,6 +192,13 @@ class AppTheme {
           fontWeight: FontWeight.w700,
           color: AppColors.darkTextPrimary,
         ),
+      ),
+      tabBarTheme: TabBarThemeData(
+        labelColor: const Color(0xFF10B981),
+        unselectedLabelColor: AppColors.darkTextSecondary,
+        indicatorColor: const Color(0xFF10B981),
+        labelStyle: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.w700),
+        unselectedLabelStyle: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.w500),
       ),
       cardTheme: CardThemeData(
         color: AppColors.darkCard,
@@ -236,7 +250,7 @@ class AppTheme {
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: AppColors.darkSurface,
-        selectedItemColor: AppColors.stadiumNeonGreen,
+        selectedItemColor: Color(0xFF10B981),
         unselectedItemColor: AppColors.darkTextSecondary,
         type: BottomNavigationBarType.fixed,
         elevation: 12,
