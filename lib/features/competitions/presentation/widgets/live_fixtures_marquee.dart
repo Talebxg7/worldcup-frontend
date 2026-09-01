@@ -284,13 +284,7 @@ class _MatchTickerCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: () {
-          if (match.leagueId != null) {
-            context.push(
-              '/home/fixtures?leagueId=${match.leagueId}&leagueName=${Uri.encodeComponent(match.leagueName)}',
-            );
-          } else {
-            context.push('/match/${match.id}');
-          }
+          context.push('/match/${match.id}');
         },
         borderRadius: BorderRadius.circular(10),
         child: Container(

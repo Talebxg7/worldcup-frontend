@@ -1,10 +1,11 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/models/match_model.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/demo/demo_mode_provider.dart';
 import '../../../../services/football_api_service.dart';
+import '../../../competitions/presentation/widgets/live_fixtures_marquee.dart';
 
 final matchesProvider = AsyncNotifierProvider<MatchesNotifier, List<MatchModel>>(
   MatchesNotifier.new,
@@ -13,6 +14,36 @@ final matchesProvider = AsyncNotifierProvider<MatchesNotifier, List<MatchModel>>
 final matchByIdProvider = FutureProvider.family<MatchModel, String>((ref, id) async {
   final matchId = int.tryParse(id);
   if (matchId != null) {
+    // 1. Check ticker match cache
+    try {
+      final tickerAsync = ref.read(tickerMatchesProvider);
+      final tickerList = tickerAsync.value ?? [];
+      final matchInTicker = tickerList.where((m) => m.id == matchId);
+      if (matchInTicker.isNotEmpty) {
+        final t = matchInTicker.first;
+        return MatchModel(
+          id: t.id,
+          homeTeam: t.homeTeam,
+          awayTeam: t.awayTeam,
+          homeTeamFlag: t.homeLogo ?? '',
+          awayTeamFlag: t.awayLogo ?? '',
+          venue: 'Stadium',
+          city: '',
+          country: '',
+          kickoffTime: t.kickoffTime,
+          stage: t.leagueName,
+          group: null,
+          status: t.isLive ? MatchStatus.live : (t.isFinished ? MatchStatus.finished : MatchStatus.upcoming),
+          liveMinute: t.liveMinute,
+          homeScore: t.homeScore,
+          awayScore: t.awayScore,
+          totalPredictions: 0,
+          myPrediction: null,
+        );
+      }
+    } catch (_) {}
+
+    // 2. Check API
     try {
       final response = await ApiClient.instance.get('/matches/$id');
       if (response.data is Map<String, dynamic>) {
@@ -62,23 +93,28 @@ class MatchesNotifier extends AsyncNotifier<List<MatchModel>> {
         final fixtures = await FootballApiService.getFixtures(
           league: l.leagueId,
           season: l.season,
+          status: 'NS',
         );
-        return fixtures.map((f) => _toMatchModel(f, l, localPredictions)).toList();
+        return fixtures.map((f) => _fixtureToMatch(f, l, localPredictions[f.id])).toList();
       } catch (e) {
-        print('Error fetching league ${l.title}: $e');
         return <MatchModel>[];
       }
-    }).toList();
+    });
 
-    final groups = await Future.wait(requests);
-    final all = groups.expand((e) => e).toList()
-      ..sort((a, b) => a.kickoffTime.compareTo(b.kickoffTime));
-    return all;
+    final results = await Future.wait(requests);
+    final allMatches = results.expand((x) => x).toList();
+
+    if (allMatches.isEmpty) {
+      return _demoMatches();
+    }
+
+    allMatches.sort((a, b) => a.kickoffTime.compareTo(b.kickoffTime));
+    return allMatches;
   }
 
   Future<void> refresh() async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(_fetchMatches);
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() => _fetchMatches());
   }
 
   Future<void> savePrediction({
@@ -86,28 +122,69 @@ class MatchesNotifier extends AsyncNotifier<List<MatchModel>> {
     required int homeScore,
     required int awayScore,
   }) async {
+    final current = state.value ?? [];
+    final prediction = PredictionModel(
+      id: DateTime.now().millisecondsSinceEpoch,
+      matchId: matchId,
+      userId: 0,
+      homeScore: homeScore,
+      awayScore: awayScore,
+      pointsEarned: null,
+      submittedAt: DateTime.now(),
+    );
+
+    await _saveLocalPrediction(matchId, prediction);
+
+    state = AsyncValue.data(
+      current.map((m) {
+        if (m.id == matchId) {
+          return m.copyWith(
+            myPrediction: prediction,
+            totalPredictions: m.totalPredictions + (m.myPrediction == null ? 1 : 0),
+          );
+        }
+        return m;
+      }).toList(),
+    );
+  }
+
+  static const _storageKey = 'local_predictions_v1';
+
+  Future<Map<int, PredictionModel>> _readLocalPredictions() async {
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_localPredictionsKey);
-    final data = _decodePredictions(raw);
-    data['$matchId'] = {
-      'home_score': homeScore,
-      'away_score': awayScore,
-      'submitted_at': DateTime.now().toIso8601String(),
-    };
-    await prefs.setString(_localPredictionsKey, _encodePredictions(data));
-    ref.invalidateSelf();
+    final raw = prefs.getString(_storageKey);
+    if (raw == null) return {};
+    try {
+      final map = jsonDecode(raw) as Map<String, dynamic>;
+      return map.map(
+        (k, v) => MapEntry(
+          int.parse(k),
+          PredictionModel.fromJson(v as Map<String, dynamic>),
+        ),
+      );
+    } catch (_) {
+      return {};
+    }
+  }
+
+  Future<void> _saveLocalPrediction(int matchId, PredictionModel p) async {
+    final prefs = await SharedPreferences.getInstance();
+    final map = await _readLocalPredictions();
+    map[matchId] = p;
+    await prefs.setString(
+      _storageKey,
+      jsonEncode(map.map((k, v) => MapEntry(k.toString(), v.toJson()))),
+    );
   }
 }
 
-const _localPredictionsKey = 'api_football_local_predictions';
-
-class _TrackedLeague {
+class _TrackedLeagueConfig {
   final int leagueId;
   final int season;
   final String title;
   final String countryCode;
 
-  const _TrackedLeague({
+  const _TrackedLeagueConfig({
     required this.leagueId,
     required this.season,
     required this.title,
@@ -116,99 +193,44 @@ class _TrackedLeague {
 }
 
 const _trackedLeagues = [
-  _TrackedLeague(leagueId: 39, season: 2024, title: 'Premier League', countryCode: 'gb'),
-  _TrackedLeague(leagueId: 140, season: 2024, title: 'La Liga', countryCode: 'es'),
-  _TrackedLeague(leagueId: 135, season: 2024, title: 'Serie A', countryCode: 'it'),
-  _TrackedLeague(leagueId: 78, season: 2024, title: 'Bundesliga', countryCode: 'de'),
-  _TrackedLeague(leagueId: 94, season: 2024, title: 'Primeira Liga', countryCode: 'pt'),
-  _TrackedLeague(leagueId: 233, season: 2024, title: 'Egyptian Premier League', countryCode: 'eg'),
-  _TrackedLeague(leagueId: 307, season: 2024, title: 'Saudi Pro League', countryCode: 'sa'),
-  _TrackedLeague(leagueId: 269, season: 2024, title: 'Qatar Stars League', countryCode: 'qa'),
-  _TrackedLeague(leagueId: 387, season: 2025, title: 'Jordanian Pro League', countryCode: 'jo'),
-  _TrackedLeague(leagueId: 200, season: 2024, title: 'Botola Pro', countryCode: 'ma'),
-  _TrackedLeague(leagueId: 542, season: 2024, title: 'Iraqi League', countryCode: 'iq'),
+  _TrackedLeagueConfig(
+    leagueId: 39,
+    season: 2024,
+    title: 'Premier League',
+    countryCode: 'gb',
+  ),
+  _TrackedLeagueConfig(
+    leagueId: 140,
+    season: 2024,
+    title: 'La Liga',
+    countryCode: 'es',
+  ),
+  _TrackedLeagueConfig(
+    leagueId: 135,
+    season: 2024,
+    title: 'Serie A',
+    countryCode: 'it',
+  ),
+  _TrackedLeagueConfig(
+    leagueId: 78,
+    season: 2024,
+    title: 'Bundesliga',
+    countryCode: 'de',
+  ),
 ];
 
-Map<String, Map<String, dynamic>> _decodePredictions(String? raw) {
-  if (raw == null || raw.isEmpty) return {};
-  try {
-    final decoded = raw;
-    final map = Map<String, dynamic>.from(const JsonDecoder().convert(decoded) as Map);
-    return map.map(
-      (k, v) => MapEntry(k, Map<String, dynamic>.from(v as Map)),
-    );
-  } catch (_) {
-    return {};
-  }
-}
-
-String _encodePredictions(Map<String, Map<String, dynamic>> data) {
-  return const JsonEncoder().convert(data);
-}
-
-Future<Map<String, Map<String, dynamic>>> _readLocalPredictions() async {
-  final prefs = await SharedPreferences.getInstance();
-  return _decodePredictions(prefs.getString(_localPredictionsKey));
-}
-
-PredictionModel? _predictionFor(
-  int matchId,
-  Map<String, Map<String, dynamic>> saved,
-  int? homeGoals,
-  int? awayGoals,
-) {
-  final item = saved['$matchId'];
-  if (item == null) return null;
-  final home = (item['home_score'] as num?)?.toInt();
-  final away = (item['away_score'] as num?)?.toInt();
-  if (home == null || away == null) return null;
-
-  int? points;
-  if (homeGoals != null && awayGoals != null) {
-    if (home == homeGoals && away == awayGoals) {
-      points = 3;
-    } else {
-      final actual = homeGoals == awayGoals ? 'D' : (homeGoals > awayGoals ? 'H' : 'A');
-      final predicted = home == away ? 'D' : (home > away ? 'H' : 'A');
-      points = actual == predicted ? 1 : 0;
-    }
-  }
-
-  return PredictionModel(
-    id: -matchId,
-    matchId: matchId,
-    userId: 0,
-    homeScore: home,
-    awayScore: away,
-    pointsEarned: points,
-    submittedAt: DateTime.tryParse(item['submitted_at'] as String? ?? '') ?? DateTime.now(),
-  );
-}
-
-MatchStatus _statusFromApi(String? short) {
-  const liveShort = {
-    '1H', '2H', 'HT', 'ET', 'BT', 'P', 'LIVE', 'INT',
-  };
-  const finishedShort = {'FT', 'AET', 'PEN', 'CANC', 'PST', 'ABD', 'AWD', 'WO'};
-
-  if (short == null) return MatchStatus.upcoming;
-  if (liveShort.contains(short)) return MatchStatus.live;
-  if (finishedShort.contains(short)) return MatchStatus.finished;
-  return MatchStatus.upcoming;
-}
-
-MatchModel _toMatchModel(
+MatchModel _fixtureToMatch(
   FixtureModel fixture,
-  _TrackedLeague league,
-  Map<String, Map<String, dynamic>> localPredictions,
+  _TrackedLeagueConfig league,
+  PredictionModel? prediction,
 ) {
-  final status = _statusFromApi(fixture.status);
-  final prediction = _predictionFor(
-    fixture.id,
-    localPredictions,
-    fixture.homeGoals,
-    fixture.awayGoals,
-  );
+  MatchStatus status = MatchStatus.upcoming;
+  final s = fixture.status?.toUpperCase() ?? 'NS';
+  if (s == 'FT' || s == 'AET' || s == 'PEN') {
+    status = MatchStatus.finished;
+  } else if (s == '1H' || s == '2H' || s == 'HT' || s == 'ET' || s == 'P' || s == 'LIVE') {
+    status = MatchStatus.live;
+  }
 
   return MatchModel(
     id: fixture.id,
@@ -216,7 +238,7 @@ MatchModel _toMatchModel(
     awayTeam: fixture.awayTeam,
     homeTeamFlag: league.countryCode,
     awayTeamFlag: league.countryCode,
-    venue: fixture.venueName ?? '',
+    venue: fixture.venueName ?? 'Stadium',
     city: fixture.venueCity ?? '',
     country: league.countryCode.toUpperCase(),
     kickoffTime: fixture.date ?? DateTime.now(),
@@ -234,7 +256,6 @@ MatchModel _toMatchModel(
 List<MatchModel> _demoMatches() {
   final now = DateTime.now();
   return [
-    // World Cup
     MatchModel(
       id: 1,
       homeTeam: 'USA',
@@ -249,107 +270,6 @@ List<MatchModel> _demoMatches() {
       group: 'A',
       status: MatchStatus.upcoming,
       totalPredictions: 128,
-      myPrediction: null,
-    ),
-    MatchModel(
-      id: 2,
-      homeTeam: 'Argentina',
-      awayTeam: 'France',
-      homeTeamFlag: 'ar',
-      awayTeamFlag: 'fr',
-      venue: 'SoFi Stadium',
-      city: 'Los Angeles',
-      country: 'USA',
-      kickoffTime: now.add(const Duration(days: 5, hours: 6)),
-      stage: 'World Cup 2026',
-      group: 'B',
-      status: MatchStatus.upcoming,
-      totalPredictions: 302,
-      myPrediction: PredictionModel(
-        id: 1,
-        matchId: 2,
-        userId: 0,
-        homeScore: 2,
-        awayScore: 1,
-        pointsEarned: null,
-        submittedAt: DateTime.fromMillisecondsSinceEpoch(0),
-      ),
-    ),
-    MatchModel(
-      id: 3,
-      homeTeam: 'Brazil',
-      awayTeam: 'Germany',
-      homeTeamFlag: 'br',
-      awayTeamFlag: 'de',
-      venue: 'AT&T Stadium',
-      city: 'Dallas',
-      country: 'USA',
-      kickoffTime: now.subtract(const Duration(days: 1)),
-      stage: 'World Cup 2026',
-      group: 'C',
-      status: MatchStatus.finished,
-      homeScore: 1,
-      awayScore: 1,
-      totalPredictions: 411,
-      myPrediction: PredictionModel(
-        id: 2,
-        matchId: 3,
-        userId: 0,
-        homeScore: 1,
-        awayScore: 1,
-        pointsEarned: 3,
-        submittedAt: DateTime.fromMillisecondsSinceEpoch(0),
-      ),
-    ),
-    // League samples
-    MatchModel(
-      id: 4,
-      homeTeam: 'Real Madrid',
-      awayTeam: 'Barcelona',
-      homeTeamFlag: 'es',
-      awayTeamFlag: 'es',
-      venue: 'Santiago Bernabéu',
-      city: 'Madrid',
-      country: 'Spain',
-      kickoffTime: now.add(const Duration(days: 3, hours: 2)),
-      stage: 'La Liga',
-      group: null,
-      status: MatchStatus.upcoming,
-      totalPredictions: 520,
-      myPrediction: null,
-    ),
-    MatchModel(
-      id: 5,
-      homeTeam: 'Manchester City',
-      awayTeam: 'Liverpool',
-      homeTeamFlag: 'gb',
-      awayTeamFlag: 'gb',
-      venue: 'Etihad Stadium',
-      city: 'Manchester',
-      country: 'England',
-      kickoffTime: now.add(const Duration(days: 1, hours: 5)),
-      stage: 'Premier League',
-      group: null,
-      status: MatchStatus.upcoming,
-      totalPredictions: 610,
-      myPrediction: null,
-    ),
-    MatchModel(
-      id: 6,
-      homeTeam: 'Inter',
-      awayTeam: 'Juventus',
-      homeTeamFlag: 'it',
-      awayTeamFlag: 'it',
-      venue: 'San Siro',
-      city: 'Milan',
-      country: 'Italy',
-      kickoffTime: now.subtract(const Duration(days: 2)),
-      stage: 'Serie A',
-      group: null,
-      status: MatchStatus.finished,
-      homeScore: 2,
-      awayScore: 2,
-      totalPredictions: 430,
       myPrediction: null,
     ),
   ];

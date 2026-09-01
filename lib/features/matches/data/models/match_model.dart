@@ -65,6 +65,46 @@ class MatchModel extends Equatable {
     );
   }
 
+  MatchModel copyWith({
+    int? id,
+    String? homeTeam,
+    String? awayTeam,
+    String? homeTeamFlag,
+    String? awayTeamFlag,
+    String? venue,
+    String? city,
+    String? country,
+    DateTime? kickoffTime,
+    String? stage,
+    String? group,
+    MatchStatus? status,
+    int? liveMinute,
+    int? homeScore,
+    int? awayScore,
+    int? totalPredictions,
+    PredictionModel? myPrediction,
+  }) {
+    return MatchModel(
+      id: id ?? this.id,
+      homeTeam: homeTeam ?? this.homeTeam,
+      awayTeam: awayTeam ?? this.awayTeam,
+      homeTeamFlag: homeTeamFlag ?? this.homeTeamFlag,
+      awayTeamFlag: awayTeamFlag ?? this.awayTeamFlag,
+      venue: venue ?? this.venue,
+      city: city ?? this.city,
+      country: country ?? this.country,
+      kickoffTime: kickoffTime ?? this.kickoffTime,
+      stage: stage ?? this.stage,
+      group: group ?? this.group,
+      status: status ?? this.status,
+      liveMinute: liveMinute ?? this.liveMinute,
+      homeScore: homeScore ?? this.homeScore,
+      awayScore: awayScore ?? this.awayScore,
+      totalPredictions: totalPredictions ?? this.totalPredictions,
+      myPrediction: myPrediction ?? this.myPrediction,
+    );
+  }
+
   static MatchStatus _parseStatus(String s) {
     switch (s) {
       case 'live':
