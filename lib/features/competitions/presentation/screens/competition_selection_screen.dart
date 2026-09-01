@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_navigation_drawer.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../models/competition.dart';
 import '../widgets/competition_card.dart';
@@ -140,7 +141,15 @@ class _CompetitionSelectionScreenState extends ConsumerState<CompetitionSelectio
 
     return Scaffold(
       extendBodyBehindAppBar: false,
+      drawer: const AppNavigationDrawer(),
       appBar: AppBar(
+        leading: Builder(
+          builder: (ctx) => IconButton(
+            icon: const Icon(Icons.menu_rounded, size: 24),
+            tooltip: 'Menu'.tr(ref),
+            onPressed: () => Scaffold.of(ctx).openDrawer(),
+          ),
+        ),
         title: Text(
           widget.title.tr(ref),
           style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.5),
