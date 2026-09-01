@@ -8,6 +8,7 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../models/competition.dart';
 import '../widgets/competition_card.dart';
 import '../widgets/league_challenge_banner.dart';
+import '../widgets/live_fixtures_marquee.dart';
 
 class CompetitionSelectionScreen extends ConsumerStatefulWidget {
   final String title;
@@ -203,6 +204,9 @@ class _CompetitionSelectionScreenState extends ConsumerState<CompetitionSelectio
                       sliver: SliverToBoxAdapter(
                         child: const LeagueChallengeBanner(),
                       ),
+                    ),
+                    const SliverToBoxAdapter(
+                      child: LiveFixturesMarquee(),
                     ),
                     if (_competitions!.isNotEmpty)
                       SliverPadding(
