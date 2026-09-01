@@ -56,7 +56,9 @@ class CompetitionCard extends ConsumerWidget {
     39: 'assets/images/premier_league.png',
     140: 'assets/images/la_liga.png',
     78: 'assets/images/bundesliga.png',
-    135: 'assets/images/serie_a.jpg',
+    135: 'assets/images/serie_a.png',
+    61: 'assets/images/ligue_1.png',
+    94: 'assets/images/primeira_liga.png',
     307: 'assets/images/saudi_league.png',
   };
 
