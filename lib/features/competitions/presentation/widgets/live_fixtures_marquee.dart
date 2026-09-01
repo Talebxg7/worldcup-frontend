@@ -3,34 +3,51 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/edge_fade_marquee.dart';
 import '../../../matches/data/models/match_model.dart';
-import '../../../matches/presentation/providers/matches_provider.dart';
+
+final marqueeMatchesProvider = FutureProvider<List<MatchModel>>((ref) async {
+  try {
+    final response = await ApiClient.instance.get('/matches');
+    if (response.data is List) {
+      final list = response.data as List;
+      final matches = list
+          .map((e) => MatchModel.fromJson(e as Map<String, dynamic>))
+          .where((m) => m.id < 100000) // Exclude any mock ids
+          .toList();
+
+      if (matches.isNotEmpty) {
+        matches.sort((a, b) {
+          final aLive = a.status == MatchStatus.live;
+          final bLive = b.status == MatchStatus.live;
+          if (aLive && !bLive) return -1;
+          if (!aLive && bLive) return 1;
+          return a.kickoffTime.compareTo(b.kickoffTime);
+        });
+        return matches;
+      }
+    }
+  } catch (e) {
+    debugPrint('marqueeMatchesProvider error: $e');
+  }
+  return <MatchModel>[];
+});
 
 class LiveFixturesMarquee extends ConsumerWidget {
   const LiveFixturesMarquee({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final matchesAsync = ref.watch(matchesProvider);
+    final matchesAsync = ref.watch(marqueeMatchesProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return matchesAsync.when(
       data: (matches) {
         if (matches.isEmpty) return const SizedBox.shrink();
 
-        // Sort: Live matches first, then upcoming matches, then finished
-        final sorted = List<MatchModel>.from(matches)
-          ..sort((a, b) {
-            final aLive = a.status == MatchStatus.live;
-            final bLive = b.status == MatchStatus.live;
-            if (aLive && !bLive) return -1;
-            if (!aLive && bLive) return 1;
-            return a.kickoffTime.compareTo(b.kickoffTime);
-          });
-
-        final tickerMatches = sorted.take(12).toList();
+        final tickerMatches = matches.take(12).toList();
         if (tickerMatches.isEmpty) return const SizedBox.shrink();
 
         final items = tickerMatches.map((m) {
@@ -118,7 +135,7 @@ class _MatchTickerCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: () {
-          context.push('/matches/${match.id}');
+          context.push('/match/${match.id}');
         },
         borderRadius: BorderRadius.circular(10),
         child: Container(

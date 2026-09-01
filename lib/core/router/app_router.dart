@@ -162,6 +162,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (ctx, state) => MatchDetailScreen(matchId: state.pathParameters['id']!),
       ),
       GoRoute(
+        path: '/matches/:id',
+        builder: (ctx, state) => MatchDetailScreen(matchId: state.pathParameters['id']!),
+      ),
+      GoRoute(
         path: '/admin',
         builder: (ctx, state) => const AdminScreen(),
       ),
