@@ -60,6 +60,11 @@ class CompetitionCard extends ConsumerWidget {
     61: 'assets/images/ligue_1.png',
     94: 'assets/images/primeira_liga.png',
     307: 'assets/images/saudi_league.png',
+    233: 'assets/images/egyptian_league.png',
+    305: 'assets/images/qatar_league.png',
+    387: 'assets/images/jordan_league.png',
+    200: 'assets/images/botola_pro.png',
+    542: 'assets/images/iraqi_league.png',
   };
 
   static const Map<int, IconData> _leagueIconById = {
