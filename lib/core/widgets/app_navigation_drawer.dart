@@ -367,7 +367,7 @@ class AppNavigationDrawer extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'WhoWillWin v1.0.20',
+                      'WhoWillWin v1.0.21',
                       style: GoogleFonts.outfit(
                         fontSize: 11,
                         color: secondaryTextColor,
