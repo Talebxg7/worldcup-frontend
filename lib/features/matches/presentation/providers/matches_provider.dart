@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/models/match_model.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../../core/demo/demo_mode_provider.dart';
 import '../../../../services/football_api_service.dart';
 
@@ -11,6 +12,26 @@ final matchesProvider = AsyncNotifierProvider<MatchesNotifier, List<MatchModel>>
 
 final matchByIdProvider = FutureProvider.family<MatchModel, String>((ref, id) async {
   final matchId = int.tryParse(id);
+  if (matchId != null) {
+    try {
+      final response = await ApiClient.instance.get('/matches/$id');
+      if (response.data is Map<String, dynamic>) {
+        return MatchModel.fromJson(response.data as Map<String, dynamic>);
+      }
+    } catch (_) {}
+
+    try {
+      final response = await ApiClient.instance.get('/matches');
+      if (response.data is List) {
+        final list = (response.data as List)
+            .map((e) => MatchModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+        final found = list.where((m) => m.id == matchId);
+        if (found.isNotEmpty) return found.first;
+      }
+    } catch (_) {}
+  }
+
   final all = await ref.watch(matchesProvider.future);
   if (matchId == null) return all.first;
   return all.firstWhere(
