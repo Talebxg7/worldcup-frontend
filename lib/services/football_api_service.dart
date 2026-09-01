@@ -67,12 +67,16 @@ class FootballApiService {
     int? season,
     String? status,
     String? live,
+    int? last,
+    int? next,
   }) async {
     final query = <String, String>{};
     if (league != null) query['league'] = '$league';
     if (season != null) query['season'] = '$season';
     if (status != null && status.isNotEmpty) query['status'] = status;
     if (live != null && live.isNotEmpty) query['live'] = live;
+    if (last != null) query['last'] = '$last';
+    if (next != null) query['next'] = '$next';
 
     final json = await _getJson(
       'fixtures',
