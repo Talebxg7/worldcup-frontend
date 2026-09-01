@@ -53,6 +53,11 @@ class CompetitionCard extends ConsumerWidget {
     3: 'assets/images/uefa_europa_bg.png',
     6: 'assets/images/afcon_bg.png',
     9: 'assets/images/copa_america_bg.png',
+    39: 'assets/images/premier_league.png',
+    140: 'assets/images/la_liga.png',
+    78: 'assets/images/bundesliga.png',
+    135: 'assets/images/serie_a.jpg',
+    307: 'assets/images/saudi_league.png',
   };
 
   static const Map<int, IconData> _leagueIconById = {
@@ -199,22 +204,25 @@ class CompetitionCard extends ConsumerWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // Frosted Country Flag Badge
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.35),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.20),
-                                width: 1,
+                          // Frosted Country Flag Badge (shown only if no custom tournament background)
+                          if (tournamentBg == null)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.35),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.20),
+                                  width: 1,
+                                ),
                               ),
-                            ),
-                            child: Text(
-                              flag,
-                              style: const TextStyle(fontSize: 19),
-                            ),
-                          ),
+                              child: Text(
+                                flag,
+                                style: const TextStyle(fontSize: 19),
+                              ),
+                            )
+                          else
+                            const SizedBox.shrink(),
 
                           // Upcoming Matches Pill
                           Container(
@@ -265,32 +273,49 @@ class CompetitionCard extends ConsumerWidget {
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 17,
+                          fontSize: 16,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 0.3,
                           shadows: [
                             Shadow(
-                              color: Colors.black54,
-                              blurRadius: 6,
+                              color: Colors.black87,
+                              blurRadius: 8,
                               offset: Offset(0, 2),
                             ),
                           ],
                         ),
                       ),
 
-                      const SizedBox(height: 3),
+                      const SizedBox(height: 2),
 
-                      // Subtitle / Country in Vibrant Gold
-                      Text(
-                        competition.subtitle.tr(ref),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: const Color(0xFFFFD700).withOpacity(0.95),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.2,
-                        ),
+                      // Subtitle / Call to action
+                      Row(
+                        children: [
+                          Text(
+                            competition.subtitle.isNotEmpty
+                                ? '${competition.subtitle.tr(ref)} • '
+                                : '',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.85),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              shadows: const [
+                                Shadow(color: Colors.black87, blurRadius: 6),
+                              ],
+                            ),
+                          ),
+                          const Text(
+                            'Predict Now →',
+                            style: TextStyle(
+                              color: Color(0xFF38BDF8),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              shadows: [
+                                Shadow(color: Colors.black87, blurRadius: 6),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
 
                       // Live Ticker if active
