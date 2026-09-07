@@ -74,4 +74,8 @@ class RoomRepository {
   Future<void> leaveRoom(int roomId) async {
     await ApiClient.instance.delete('/rooms/$roomId/leave');
   }
+
+  Future<void> deleteRoom(int roomId) async {
+    await ApiClient.instance.delete('/rooms/$roomId');
+  }
 }
