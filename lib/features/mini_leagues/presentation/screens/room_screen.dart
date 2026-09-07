@@ -46,7 +46,7 @@ class _RoomScreenState extends ConsumerState<RoomScreen> {
     await _future;
   }
 
-  Future<void> _openSettings(RoomDetailsModel details, {bool isAdmin = false}) async {
+  Future<void> _openSettings(RoomDetailsModel details, {bool canDelete = false}) async {
     var maxMembers = details.room.maxMembers;
     final controller = TextEditingController(text: '$maxMembers');
     try {
@@ -126,7 +126,7 @@ class _RoomScreenState extends ConsumerState<RoomScreen> {
               ),
             ),
             actions: [
-              if (isAdmin)
+              if (canDelete)
                 TextButton(
                   style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
                   onPressed: () {
@@ -135,7 +135,7 @@ class _RoomScreenState extends ConsumerState<RoomScreen> {
                   },
                   child: const Text('Delete Room'),
                 ),
-              if (isAdmin) const Spacer(),
+              if (canDelete) const Spacer(),
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
                 child: const Text('Close'),
@@ -346,11 +346,11 @@ class _RoomScreenState extends ConsumerState<RoomScreen> {
                             ),
                             if (room.isHost)
                               OutlinedButton.icon(
-                                onPressed: () => _openSettings(data.details, isAdmin: isAdmin),
+                                onPressed: () => _openSettings(data.details, canDelete: room.isHost || isAdmin),
                                 icon: const Icon(Icons.settings_rounded),
                                 label: const Text('Settings'),
                               ),
-                            if (isAdmin)
+                            if (room.isHost || isAdmin)
                               OutlinedButton.icon(
                                 onPressed: _deleteRoom,
                                 icon: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
