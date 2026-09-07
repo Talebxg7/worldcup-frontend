@@ -266,7 +266,29 @@ class _RoomScreenState extends ConsumerState<RoomScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snap.hasError) {
-            return Center(child: Text('Error: ${snap.error}'));
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.meeting_room_outlined, size: 64, color: Colors.grey),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'This room is no longer available or has been deleted.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      icon: const Icon(Icons.arrow_back_rounded),
+                      label: const Text('Back to My Leagues'),
+                    ),
+                  ],
+                ),
+              ),
+            );
           }
           final data = snap.data;
           if (data == null) return const SizedBox.shrink();

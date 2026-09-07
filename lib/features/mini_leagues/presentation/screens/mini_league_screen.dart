@@ -246,7 +246,12 @@ class _MiniLeagueScreenState extends ConsumerState<MiniLeagueScreen>
                           '${r.leagueName.tr(ref)} · ${r.membersCount}/${r.maxMembers} ${'members'.tr(ref)} · ${r.joinCode}',
                         ),
                         trailing: const Icon(Icons.chevron_right_rounded),
-                        onTap: () => context.push('/room/${r.id}'),
+                        onTap: () async {
+                          await context.push('/room/${r.id}');
+                          if (mounted) {
+                            _refresh();
+                          }
+                        },
                       ),
                     );
                   },
