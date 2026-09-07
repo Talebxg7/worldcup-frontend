@@ -46,7 +46,7 @@ class _RoomScreenState extends ConsumerState<RoomScreen> {
     await _future;
   }
 
-  Future<void> _openSettings(RoomDetailsModel details) async {
+  Future<void> _openSettings(RoomDetailsModel details, {bool isAdmin = false}) async {
     var maxMembers = details.room.maxMembers;
     final controller = TextEditingController(text: '$maxMembers');
     try {
@@ -126,15 +126,16 @@ class _RoomScreenState extends ConsumerState<RoomScreen> {
               ),
             ),
             actions: [
-              TextButton(
-                style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  _deleteRoom();
-                },
-                child: const Text('Delete Room'),
-              ),
-              const Spacer(),
+              if (isAdmin)
+                TextButton(
+                  style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    _deleteRoom();
+                  },
+                  child: const Text('Delete Room'),
+                ),
+              if (isAdmin) const Spacer(),
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
                 child: const Text('Close'),
@@ -243,6 +244,9 @@ class _RoomScreenState extends ConsumerState<RoomScreen> {
   @override
   Widget build(BuildContext context) {
     final df = DateFormat('EEE, MMM d • HH:mm');
+    final currentUser = ref.watch(authStateProvider).value;
+    final isAdmin = currentUser?.isAdmin == true;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Private Room'),
@@ -340,18 +344,18 @@ class _RoomScreenState extends ConsumerState<RoomScreen> {
                               icon: const Icon(Icons.live_tv_rounded),
                               label: const Text('Live'),
                             ),
-                            if (room.isHost) ...[
+                            if (room.isHost)
                               OutlinedButton.icon(
-                                onPressed: () => _openSettings(data.details),
+                                onPressed: () => _openSettings(data.details, isAdmin: isAdmin),
                                 icon: const Icon(Icons.settings_rounded),
                                 label: const Text('Settings'),
                               ),
+                            if (isAdmin)
                               OutlinedButton.icon(
                                 onPressed: _deleteRoom,
                                 icon: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
                                 label: const Text('Delete Room', style: TextStyle(color: Colors.redAccent)),
                               ),
-                            ],
                             if (!room.isHost)
                               OutlinedButton.icon(
                                 onPressed: _leaveRoom,
