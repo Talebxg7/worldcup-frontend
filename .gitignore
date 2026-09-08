@@ -53,3 +53,5 @@ backend/
 # Android Keystore
 *.jks
 key.properties
+config.bat
+node_modules
