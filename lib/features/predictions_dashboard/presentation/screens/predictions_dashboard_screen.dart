@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
+import '../../../../core/utils/prediction_card_generator.dart';
+import '../../../../core/utils/prediction_share_dialog.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -855,7 +857,22 @@ class _PredictionCard extends ConsumerWidget {
                     tooltip: 'Share Prediction'.tr(ref),
                     onPressed: () {
                       final shareText = 'I predicted ${p.homeTeam} ${p.homeScore} - ${p.awayScore} ${p.awayTeam} on Who Will Win!\nMake your predictions here: https://whowillwinapp.com';
-                      Share.share(shareText);
+                      PredictionShareDialog.show(
+                        context,
+                        roomName: 'Who Will Win',
+                        joinCode: 'WWW',
+                        homeTeam: p.homeTeam,
+                        awayTeam: p.awayTeam,
+                        predictions: [
+                          RoomPredictionItemData(
+                            username: 'My Prediction',
+                            homeScore: p.homeScore,
+                            awayScore: p.awayScore,
+                            pointsEarned: p.pointsEarned,
+                          ),
+                        ],
+                        textSummary: shareText,
+                      );
                     },
                   ),
                   if (tabIndex == 0)

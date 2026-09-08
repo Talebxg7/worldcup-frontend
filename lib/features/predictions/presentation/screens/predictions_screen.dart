@@ -7,6 +7,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/flag_circle.dart';
 import '../../../matches/data/models/match_model.dart';
 import 'package:share_plus/share_plus.dart';
+import '../../../../core/utils/prediction_card_generator.dart';
+import '../../../../core/utils/prediction_share_dialog.dart';
 
 class PredictionsScreen extends ConsumerWidget {
   const PredictionsScreen({super.key});
@@ -305,8 +307,23 @@ class _PredictionCard extends ConsumerWidget {
                   IconButton(
                     icon: const Icon(Icons.share_rounded, size: 18, color: Colors.grey),
                     onPressed: () {
-                      final shareText = 'I predicted $homeTeam ${prediction.homeScore} - ${prediction.awayScore} $awayTeam on Leagues Predictor! Make your predictions here: https://whowillwinapp.com';
-                      Share.share(shareText);
+                      final shareText = 'I predicted $homeTeam ${prediction.homeScore} - ${prediction.awayScore} $awayTeam on Who Will Win!\nMake your predictions here: https://whowillwinapp.com';
+                      PredictionShareDialog.show(
+                        context,
+                        roomName: 'Who Will Win',
+                        joinCode: 'WWW',
+                        homeTeam: homeTeam,
+                        awayTeam: awayTeam,
+                        predictions: [
+                          RoomPredictionItemData(
+                            username: 'My Prediction',
+                            homeScore: prediction.homeScore,
+                            awayScore: prediction.awayScore,
+                            pointsEarned: prediction.pointsEarned,
+                          ),
+                        ],
+                        textSummary: shareText,
+                      );
                     },
                     tooltip: 'Share Prediction',
                   ),

@@ -18,6 +18,8 @@ import '../../models/room_models.dart';
 import '../../../matches/presentation/screens/prediction_fixtures_screen.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../competitions/presentation/widgets/league_challenge_banner.dart';
+import '../../../../core/utils/prediction_card_generator.dart';
+import '../../../../core/utils/prediction_share_dialog.dart';
 
 class RoomScreen extends ConsumerStatefulWidget {
   final int roomId;
@@ -493,104 +495,96 @@ class _RoomScreenState extends ConsumerState<RoomScreen> {
                       final preds = e.value;
                       final first = preds.first;
                       
-                      final cardKey = GlobalKey();
-                      return RepaintBoundary(
-                        key: cardKey,
-                        child: Card(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                // Match Header
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          if (first.homeTeamFlag != null) ...[
-                                            ClipOval(child: Image.network(first.homeTeamFlag!, width: 28, height: 28, fit: BoxFit.cover)),
-                                            const SizedBox(width: 8),
-                                          ],
-                                          Flexible(
-                                            child: Text(
-                                              first.homeTeam,
-                                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                          const Padding(
-                                            padding: EdgeInsets.symmetric(horizontal: 10),
-                                            child: Text('VS', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w800, fontSize: 12)),
-                                          ),
-                                          Flexible(
-                                            child: Text(
-                                              first.awayTeam,
-                                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                          if (first.awayTeamFlag != null) ...[
-                                            const SizedBox(width: 8),
-                                            ClipOval(child: Image.network(first.awayTeamFlag!, width: 28, height: 28, fit: BoxFit.cover)),
-                                          ],
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // Match Header
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        if (first.homeTeamFlag != null) ...[
+                                          ClipOval(child: Image.network(first.homeTeamFlag!, width: 28, height: 28, fit: BoxFit.cover)),
+                                          const SizedBox(width: 8),
                                         ],
-                                      ),
+                                        Flexible(
+                                          child: Text(
+                                            first.homeTeam,
+                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        const Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 10),
+                                          child: Text('VS', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w800, fontSize: 12)),
+                                        ),
+                                        Flexible(
+                                          child: Text(
+                                            first.awayTeam,
+                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        if (first.awayTeamFlag != null) ...[
+                                          const SizedBox(width: 8),
+                                          ClipOval(child: Image.network(first.awayTeamFlag!, width: 28, height: 28, fit: BoxFit.cover)),
+                                        ],
+                                      ],
                                     ),
-                                    IconButton(
-                                      icon: const Icon(Icons.share_rounded, size: 20),
-                                      tooltip: 'Share Match Predictions',
-                                      onPressed: () async {
-                                        final buffer = StringBuffer();
-                                        buffer.writeln('⚽ ${first.homeTeam} vs ${first.awayTeam} — ${data.details.room.name}');
-                                        if (first.status == 'finished' && first.actualHomeScore != null) {
-                                          buffer.writeln('Final Score: ${first.actualHomeScore} - ${first.actualAwayScore}');
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.share_rounded, size: 20),
+                                    tooltip: 'Share Match Predictions',
+                                    onPressed: () {
+                                      final buffer = StringBuffer();
+                                      buffer.writeln('⚽ ${first.homeTeam} vs ${first.awayTeam} — ${data.details.room.name}');
+                                      if (first.status == 'finished' && first.actualHomeScore != null) {
+                                        buffer.writeln('Final Score: ${first.actualHomeScore} - ${first.actualAwayScore}');
+                                      }
+                                      buffer.writeln();
+                                      buffer.writeln('Room Predictions:');
+                                      for (final p in preds) {
+                                        if (p.hidden) {
+                                          buffer.writeln('• ${p.username}: Prediction Hidden');
+                                        } else {
+                                          final ptsStr = p.pointsEarned != null ? ' (${p.pointsEarned! >= 0 ? '+' : ''}${p.pointsEarned} pts)' : '';
+                                          buffer.writeln('• ${p.username}: ${p.homeScore}-${p.awayScore}$ptsStr');
                                         }
-                                        buffer.writeln();
-                                        buffer.writeln('Room Predictions:');
-                                        for (final p in preds) {
-                                          if (p.hidden) {
-                                            buffer.writeln('• ${p.username}: Prediction Hidden');
-                                          } else {
-                                            final ptsStr = p.pointsEarned != null ? ' (${p.pointsEarned! >= 0 ? '+' : ''}${p.pointsEarned} pts)' : '';
-                                            buffer.writeln('• ${p.username}: ${p.homeScore}-${p.awayScore}$ptsStr');
-                                          }
-                                        }
-                                        buffer.writeln();
-                                        buffer.writeln('Join our room on Who Will Win! Code: ${data.details.room.joinCode}');
+                                      }
+                                      buffer.writeln();
+                                      buffer.writeln('Join our room on Who Will Win! Code: ${data.details.room.joinCode}');
 
-                                        final textSummary = buffer.toString();
-
-                                        try {
-                                          final boundary = cardKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-                                          if (boundary != null) {
-                                            final image = await boundary.toImage(pixelRatio: 3.0);
-                                            final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-                                            if (byteData != null) {
-                                              final bytes = byteData.buffer.asUint8List();
-                                              final xFile = XFile.fromData(
-                                                bytes,
-                                                mimeType: 'image/png',
-                                                name: 'match_${first.matchId}_predictions.png',
-                                              );
-                                              await Share.shareXFiles(
-                                                [xFile],
-                                                text: textSummary,
-                                              );
-                                              return;
-                                            }
-                                          }
-                                        } catch (err) {
-                                          debugPrint('Image share failed: $err');
-                                        }
-
-                                        Share.share(textSummary);
-                                      },
-                                    ),
-                                  ],
-                                ),
+                                      PredictionShareDialog.show(
+                                        context,
+                                        roomName: data.details.room.name,
+                                        joinCode: data.details.room.joinCode,
+                                        homeTeam: first.homeTeam,
+                                        awayTeam: first.awayTeam,
+                                        status: first.status,
+                                        actualHomeScore: first.actualHomeScore,
+                                        actualAwayScore: first.actualAwayScore,
+                                        predictions: preds.map((p) => RoomPredictionItemData(
+                                          username: p.username,
+                                          homeScore: p.homeScore,
+                                          awayScore: p.awayScore,
+                                          hidden: p.hidden,
+                                          pointsEarned: p.pointsEarned,
+                                          joker: p.joker,
+                                          redCard: p.redCard,
+                                          penalty: p.penalty,
+                                        )).toList(),
+                                        textSummary: buffer.toString(),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
                               if (first.status == 'finished') ...[
                                 const SizedBox(height: 8),
                                 Center(
@@ -730,15 +724,15 @@ class _RoomScreenState extends ConsumerState<RoomScreen> {
                                             ],
                                           ),
                                         ],
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              }),
-                            ],
-                          ),
-                        ),
-                      );
+                                       ],
+                                     ),
+                                   ),
+                                 );
+                               }),
+                             ],
+                           ),
+                         ),
+                       );
                     });
                   })(),
               ],
