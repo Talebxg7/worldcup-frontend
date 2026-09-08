@@ -570,12 +570,14 @@ class _RoomScreenState extends ConsumerState<RoomScreen> {
                                             final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
                                             if (byteData != null) {
                                               final bytes = byteData.buffer.asUint8List();
-                                              final tempDir = Directory.systemTemp;
-                                              final file = File('${tempDir.path}/match_${first.matchId}_predictions.png');
-                                              await file.writeAsBytes(bytes);
+                                              final xFile = XFile.fromData(
+                                                bytes,
+                                                mimeType: 'image/png',
+                                                name: 'match_${first.matchId}_predictions.png',
+                                              );
                                               await Share.shareXFiles(
-                                                [XFile(file.path)],
-                                                text: '$textSummary\nhttps://whowillwinapp.com',
+                                                [xFile],
+                                                text: textSummary,
                                               );
                                               return;
                                             }
@@ -584,7 +586,7 @@ class _RoomScreenState extends ConsumerState<RoomScreen> {
                                           debugPrint('Image share failed: $err');
                                         }
 
-                                        Share.share('$textSummary\nhttps://whowillwinapp.com');
+                                        Share.share(textSummary);
                                       },
                                     ),
                                   ],
