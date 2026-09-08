@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -845,16 +846,25 @@ class _PredictionCard extends ConsumerWidget {
                   ),
                 ),
               ],
-              if (tabIndex == 0) ...[
-                const SizedBox(height: 10),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: OutlinedButton(
-                    onPressed: onEdit,
-                    child: Text(onEdit == null ? 'Edit locked'.tr(ref) : 'Edit prediction'.tr(ref)),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.share_rounded, size: 20),
+                    tooltip: 'Share Prediction'.tr(ref),
+                    onPressed: () {
+                      final shareText = 'I predicted ${p.homeTeam} ${p.homeScore} - ${p.awayScore} ${p.awayTeam} on Who Will Win!\nMake your predictions here: https://whowillwinapp.com';
+                      Share.share(shareText);
+                    },
                   ),
-                ),
-              ],
+                  if (tabIndex == 0)
+                    OutlinedButton(
+                      onPressed: onEdit,
+                      child: Text(onEdit == null ? 'Edit locked'.tr(ref) : 'Edit prediction'.tr(ref)),
+                    ),
+                ],
+              ),
             ],
           ),
         ),

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:dio/dio.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
@@ -333,6 +334,15 @@ class _RoomScreenState extends ConsumerState<RoomScreen> {
                               },
                               icon: const Icon(Icons.copy_rounded),
                               label: const Text('Copy Code'),
+                            ),
+                            const SizedBox(width: 8),
+                            FilledButton.icon(
+                              onPressed: () {
+                                final shareText = 'Join my private room "${room.name}" on Who Will Win!\nJoin code: ${room.joinCode}\nhttps://whowillwinapp.com';
+                                Share.share(shareText);
+                              },
+                              icon: const Icon(Icons.share_rounded),
+                              label: const Text('Share Code'),
                             ),
                           ],
                         ),
