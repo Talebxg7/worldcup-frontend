@@ -22,7 +22,14 @@ class FlagCircle extends StatelessWidget {
   Widget build(BuildContext context) {
     final url = _toUrl(flag);
     if (url == null) {
-      return Text(flag.isEmpty ? '🏳️' : flag, style: TextStyle(fontSize: size));
+      return ClipOval(
+        child: Image.asset(
+          'assets/images/default_club_placeholder.png',
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+        ),
+      );
     }
 
     return ClipOval(
@@ -32,16 +39,14 @@ class FlagCircle extends StatelessWidget {
         height: size,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
-          return SizedBox(
+          return Image.asset(
+            'assets/images/default_club_placeholder.png',
             width: size,
             height: size,
-            child: Center(
-              child: Text('🏳️', style: TextStyle(fontSize: size * 0.7)),
-            ),
+            fit: BoxFit.cover,
           );
         },
       ),
     );
   }
 }
-

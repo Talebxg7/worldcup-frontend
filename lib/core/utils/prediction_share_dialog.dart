@@ -85,16 +85,28 @@ class _PredictionShareDialogState extends State<PredictionShareDialog> {
     _generateAndShare();
   }
 
-  Future<ui.Image?> _fetchLogo(String? url) async {
-    if (url == null || url.trim().isEmpty) return null;
+  Future<ui.Image?> _loadPlaceholderAsset() async {
+    try {
+      final data = await rootBundle.load('assets/images/default_club_placeholder.png');
+      final codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
+      final frame = await codec.getNextFrame();
+      return frame.image;
+    } catch (e) {
+      debugPrint('Failed to load placeholder asset: $e');
+    }
+    return null;
+  }
+
+  Future<ui.Image?> _fetchLogo(String? url, ui.Image? fallback) async {
+    if (url == null || url.trim().isEmpty) return fallback;
     try {
       final dio = Dio();
       final response = await dio.get<List<int>>(
         url,
         options: Options(
           responseType: ResponseType.bytes,
-          receiveTimeout: const Duration(seconds: 4),
-          sendTimeout: const Duration(seconds: 4),
+          receiveTimeout: const Duration(seconds: 3),
+          sendTimeout: const Duration(seconds: 3),
         ),
       );
       if (response.data != null) {
@@ -106,18 +118,20 @@ class _PredictionShareDialogState extends State<PredictionShareDialog> {
     } catch (e) {
       debugPrint('Logo fetch skipped for $url: $e');
     }
-    return null;
+    return fallback;
   }
 
   Future<void> _generateAndShare() async {
     try {
+      final fallbackImage = await _loadPlaceholderAsset();
+
       final logos = await Future.wait([
-        _fetchLogo(widget.homeLogoUrl).timeout(const Duration(seconds: 3), onTimeout: () => null),
-        _fetchLogo(widget.awayLogoUrl).timeout(const Duration(seconds: 3), onTimeout: () => null),
+        _fetchLogo(widget.homeLogoUrl, fallbackImage).timeout(const Duration(seconds: 3), onTimeout: () => fallbackImage),
+        _fetchLogo(widget.awayLogoUrl, fallbackImage).timeout(const Duration(seconds: 3), onTimeout: () => fallbackImage),
       ]);
 
-      final homeImage = logos[0];
-      final awayImage = logos[1];
+      final homeImage = logos[0] ?? fallbackImage;
+      final awayImage = logos[1] ?? fallbackImage;
 
       final bytes = await PredictionCardGenerator.generateMatchPredictionImage(
         roomName: widget.roomName,
