@@ -488,22 +488,66 @@ class _RoomScreenState extends ConsumerState<RoomScreen> {
                             children: [
                               // Match Header
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  if (first.homeTeamFlag != null) ...[
-                                    ClipOval(child: Image.network(first.homeTeamFlag!, width: 30, height: 30, fit: BoxFit.cover)),
-                                    const SizedBox(width: 12),
-                                  ],
-                                  Text(first.homeTeam, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                  const Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 16),
-                                    child: Text('VS', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w800, fontSize: 13)),
+                                  Expanded(
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        if (first.homeTeamFlag != null) ...[
+                                          ClipOval(child: Image.network(first.homeTeamFlag!, width: 28, height: 28, fit: BoxFit.cover)),
+                                          const SizedBox(width: 8),
+                                        ],
+                                        Flexible(
+                                          child: Text(
+                                            first.homeTeam,
+                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        const Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 10),
+                                          child: Text('VS', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w800, fontSize: 12)),
+                                        ),
+                                        Flexible(
+                                          child: Text(
+                                            first.awayTeam,
+                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        if (first.awayTeamFlag != null) ...[
+                                          const SizedBox(width: 8),
+                                          ClipOval(child: Image.network(first.awayTeamFlag!, width: 28, height: 28, fit: BoxFit.cover)),
+                                        ],
+                                      ],
+                                    ),
                                   ),
-                                  Text(first.awayTeam, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                  if (first.awayTeamFlag != null) ...[
-                                    const SizedBox(width: 12),
-                                    ClipOval(child: Image.network(first.awayTeamFlag!, width: 30, height: 30, fit: BoxFit.cover)),
-                                  ],
+                                  IconButton(
+                                    icon: const Icon(Icons.share_rounded, size: 20),
+                                    tooltip: 'Share Match Predictions',
+                                    onPressed: () {
+                                      final buffer = StringBuffer();
+                                      buffer.writeln('⚽ ${first.homeTeam} vs ${first.awayTeam} — ${data.details.room.name}');
+                                      if (first.status == 'finished' && first.actualHomeScore != null) {
+                                        buffer.writeln('Final Score: ${first.actualHomeScore} - ${first.actualAwayScore}');
+                                      }
+                                      buffer.writeln();
+                                      buffer.writeln('Room Predictions:');
+                                      for (final p in preds) {
+                                        if (p.hidden) {
+                                          buffer.writeln('• ${p.username}: Prediction Hidden');
+                                        } else {
+                                          final ptsStr = p.pointsEarned != null ? ' (${p.pointsEarned! >= 0 ? '+' : ''}${p.pointsEarned} pts)' : '';
+                                          buffer.writeln('• ${p.username}: ${p.homeScore}-${p.awayScore}$ptsStr');
+                                        }
+                                      }
+                                      buffer.writeln();
+                                      buffer.writeln('Join our room on Who Will Win! Code: ${data.details.room.joinCode}');
+                                      buffer.writeln('https://whowillwinapp.com');
+
+                                      Share.share(buffer.toString());
+                                    },
+                                  ),
                                 ],
                               ),
                               if (first.status == 'finished') ...[
