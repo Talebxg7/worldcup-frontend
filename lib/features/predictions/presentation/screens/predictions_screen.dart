@@ -314,6 +314,11 @@ class _PredictionCard extends ConsumerWidget {
                         joinCode: 'WWW',
                         homeTeam: homeTeam,
                         awayTeam: awayTeam,
+                        homeLogoUrl: flag1,
+                        awayLogoUrl: flag2,
+                        status: snapshot.data?.status,
+                        actualHomeScore: snapshot.data?.homeScore,
+                        actualAwayScore: snapshot.data?.awayScore,
                         predictions: [
                           RoomPredictionItemData(
                             username: 'My Prediction',

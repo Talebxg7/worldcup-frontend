@@ -1,14 +1,19 @@
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:dio/dio.dart';
 import 'package:share_plus/share_plus.dart';
 import 'prediction_card_generator.dart';
 
 class PredictionShareDialog extends StatefulWidget {
   final String roomName;
   final String joinCode;
+  final String? leagueName;
   final String homeTeam;
   final String awayTeam;
+  final String? homeLogoUrl;
+  final String? awayLogoUrl;
   final String? status;
   final int? actualHomeScore;
   final int? actualAwayScore;
@@ -19,8 +24,11 @@ class PredictionShareDialog extends StatefulWidget {
     super.key,
     required this.roomName,
     required this.joinCode,
+    this.leagueName,
     required this.homeTeam,
     required this.awayTeam,
+    this.homeLogoUrl,
+    this.awayLogoUrl,
     this.status,
     this.actualHomeScore,
     this.actualAwayScore,
@@ -32,8 +40,11 @@ class PredictionShareDialog extends StatefulWidget {
     BuildContext context, {
     required String roomName,
     required String joinCode,
+    String? leagueName,
     required String homeTeam,
     required String awayTeam,
+    String? homeLogoUrl,
+    String? awayLogoUrl,
     String? status,
     int? actualHomeScore,
     int? actualAwayScore,
@@ -45,8 +56,11 @@ class PredictionShareDialog extends StatefulWidget {
       builder: (ctx) => PredictionShareDialog(
         roomName: roomName,
         joinCode: joinCode,
+        leagueName: leagueName,
         homeTeam: homeTeam,
         awayTeam: awayTeam,
+        homeLogoUrl: homeLogoUrl,
+        awayLogoUrl: awayLogoUrl,
         status: status,
         actualHomeScore: actualHomeScore,
         actualAwayScore: actualAwayScore,
@@ -71,13 +85,48 @@ class _PredictionShareDialogState extends State<PredictionShareDialog> {
     _generateAndShare();
   }
 
+  Future<ui.Image?> _fetchLogo(String? url) async {
+    if (url == null || url.trim().isEmpty) return null;
+    try {
+      final dio = Dio();
+      final response = await dio.get<List<int>>(
+        url,
+        options: Options(
+          responseType: ResponseType.bytes,
+          receiveTimeout: const Duration(seconds: 4),
+          sendTimeout: const Duration(seconds: 4),
+        ),
+      );
+      if (response.data != null) {
+        final bytes = Uint8List.fromList(response.data!);
+        final codec = await ui.instantiateImageCodec(bytes);
+        final frame = await codec.getNextFrame();
+        return frame.image;
+      }
+    } catch (e) {
+      debugPrint('Logo fetch skipped for $url: $e');
+    }
+    return null;
+  }
+
   Future<void> _generateAndShare() async {
     try {
+      final logos = await Future.wait([
+        _fetchLogo(widget.homeLogoUrl).timeout(const Duration(seconds: 3), onTimeout: () => null),
+        _fetchLogo(widget.awayLogoUrl).timeout(const Duration(seconds: 3), onTimeout: () => null),
+      ]);
+
+      final homeImage = logos[0];
+      final awayImage = logos[1];
+
       final bytes = await PredictionCardGenerator.generateMatchPredictionImage(
         roomName: widget.roomName,
         joinCode: widget.joinCode,
+        leagueName: widget.leagueName,
         homeTeam: widget.homeTeam,
         awayTeam: widget.awayTeam,
+        homeLogoImage: homeImage,
+        awayLogoImage: awayImage,
         status: widget.status,
         actualHomeScore: widget.actualHomeScore,
         actualAwayScore: widget.actualAwayScore,
